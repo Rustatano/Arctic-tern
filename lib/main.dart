@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -29,21 +27,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<File> localData = _localData;
   int currentPageIndex = 1;
+  String title = '';
+  String selectedTitle = '';
+  String selectedCategory = 'none';
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       drawer: const Drawer(
         backgroundColor: Colors.white,
         child: Column(
-          children: [
-            Text('category 1'),
-            Text('category 2'),
-            Text('category 3')
-          ],
+          children: [Text('school'), Text('work'), Text('free time')],
         ),
       ),
       body: <Widget>[
@@ -61,12 +63,90 @@ class _HomePageState extends State<HomePage> {
           separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
         ),
-        const Placeholder(),
+        Column(
+          children: [
+            Row(
+              children: [
+                SizedBox(
+                  width: 300, // make this dynamic size
+                  child: TextField(
+                    onChanged: (String title) {
+                      setState(() {
+                        selectedTitle = title;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter a note title',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text('Choose category: '),
+                DropdownMenu<String>(
+                  initialSelection: 'none',
+                  onSelected: (String? category) {
+                    setState(() {
+                      selectedCategory = category!;
+                    });
+                  },
+                  dropdownMenuEntries: const [
+                    DropdownMenuEntry(
+                      value: 'none',
+                      label: 'none',
+                      leadingIcon: Icon(
+                        Icons.square,
+                        color: Colors.white,
+                      ),
+                    ), // make sure user cant create category named 'none', it would cause collision
+                    DropdownMenuEntry(
+                      value: 'school',
+                      label: 'school',
+                      leadingIcon: Icon(
+                        Icons.square,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    DropdownMenuEntry(
+                      value: 'work',
+                      label: 'work',
+                      leadingIcon: Icon(
+                        Icons.square,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ][currentPageIndex],
-      appBar: AppBar(
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        title: const Text('All categories'),
-      ),
+      appBar: [
+        AppBar(
+          backgroundColor: theme.appBarTheme.backgroundColor,
+          title: const Text('All categories'),
+        ),
+        AppBar(
+          backgroundColor: theme.appBarTheme.backgroundColor,
+          title: const Text('All categories'),
+        ),
+        AppBar(
+          backgroundColor: theme.appBarTheme.backgroundColor,
+          title: const Text('All categories'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // save data to db
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ][currentPageIndex],
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
@@ -102,11 +182,15 @@ class Note extends StatefulWidget {
 }
 
 class _NoteState extends State<Note> {
-  String noteTitle = 'Test Note 1';
+  String title = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Center(
       child: SizedBox(
         width: 350,
@@ -115,7 +199,7 @@ class _NoteState extends State<Note> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (_) => const NoteInfoScreen()))
                 },
-            child: Text(noteTitle)),
+            child: Text(title)),
       ),
     );
   }
@@ -173,28 +257,23 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   }
 }
 
-Future<File> get _localData async {
-  final path = await getApplicationDocumentsDirectory();
-  return File('$path/counter.txt');
-}
+class NoteDB {
+  final int id;
+  final String title;
+  final String category;
+  final String content;
+  final DateTime dateModified;
+  final String timeNotification; // provisional
+  final String locationNotification; // provisional
+  final String weatherNotification; // provisional
 
-Future<File> writeCounter(int counter) async {
-  final file = await _localData;
-
-  // Write the file
-  return file.writeAsString('$counter');
-}
-
-Future<int> readCounter() async {
-  try {
-    final file = await _localData;
-
-    // Read the file
-    final contents = await file.readAsString();
-
-    return int.parse(contents);
-  } catch (e) {
-    // If encountering an error, return 0
-    return 0;
-  }
+  NoteDB(
+      {required this.id,
+      required this.title,
+      required this.category,
+      required this.content,
+      required this.dateModified,
+      required this.timeNotification,
+      required this.locationNotification,
+      required this.weatherNotification});
 }
