@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import 'package:weather_location_time/db_manipulation.dart';
+import 'package:weather_location_time/db_objects/note.dart';
+import 'package:weather_location_time/note_info_page.dart';
+import 'package:weather_location_time/settings_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,13 +34,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 1;
-  String title = '';
-  String selectedTitle = '';
-  String selectedCategory = 'none';
+  NoteDB newNote = NoteDB(
+    title: '',
+    category: '',
+    content: '',
+    dateModified: '',
+    timeNotification: '',
+    locationNotification: '',
+    weatherNotification: '',
+  );
+  List<NoteDB> notes = [];
+
+  Future<void> getNotes() async {
+    final n = await getNotesDB();
+    setState(() {
+      notes = n;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    getNotes();
   }
 
   @override
@@ -42,22 +63,53 @@ class _HomePageState extends State<HomePage> {
     final ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      drawer: const Drawer(
-        backgroundColor: Colors.white,
-        child: Column(
-          children: [Text('school'), Text('work'), Text('free time')],
-        ),
-      ),
       body: <Widget>[
         const Placeholder(),
         ListView.separated(
           padding: const EdgeInsets.all(8),
-          itemCount: 40,
+          itemCount: notes.length,
           itemBuilder: (BuildContext context, int index) {
+            /*
+            GestureDetector(
+                onLongPress: () {
+                  Dialog(
+                    child: Column(
+                      children: [
+                        const Center(
+                          child: Text('Delete this note?'),
+                        ),
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: () {},
+                              child: const Text('Delete'),
+                            ),
+                            TextButton(
+                              onPressed: () {},
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },*/
             return Container(
               height: 50,
               color: theme.primaryColorLight,
-              child: const Center(child: Note()),
+              child: Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NoteInfoPage(note: notes[index]),
+                      ),
+                    );
+                  },
+                  child: Text(notes[index].title),
+                ),
+              ),
             );
           },
           separatorBuilder: (BuildContext context, int index) =>
@@ -72,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                   child: TextField(
                     onChanged: (String title) {
                       setState(() {
-                        selectedTitle = title;
+                        newNote.title = title;
                       });
                     },
                     decoration: const InputDecoration(
@@ -90,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                   initialSelection: 'none',
                   onSelected: (String? category) {
                     setState(() {
-                      selectedCategory = category!;
+                      newNote.category = category!;
                     });
                   },
                   dropdownMenuEntries: const [
@@ -127,20 +179,54 @@ class _HomePageState extends State<HomePage> {
       ][currentPageIndex],
       appBar: [
         AppBar(
+          leading: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
           title: const Text('All categories'),
         ),
         AppBar(
+          leading: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
           title: const Text('All categories'),
         ),
         AppBar(
+          leading: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
           title: const Text('All categories'),
           actions: [
             TextButton(
               onPressed: () {
-                // save data to db
+                if (newNote.title.isNotEmpty) {
+                  insertNoteDB(newNote);
+                  getNotes();
+                  currentPageIndex = 1;
+                }
               },
               child: const Text('Save'),
             ),
@@ -172,108 +258,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-}
-
-class Note extends StatefulWidget {
-  const Note({super.key});
-
-  @override
-  State<Note> createState() => _NoteState();
-}
-
-class _NoteState extends State<Note> {
-  String title = '';
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 350,
-        child: TextButton(
-            onPressed: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const NoteInfoScreen()))
-                },
-            child: Text(title)),
-      ),
-    );
-  }
-}
-
-class NoteInfoScreen extends StatefulWidget {
-  const NoteInfoScreen({super.key});
-
-  @override
-  State<NoteInfoScreen> createState() => _NoteInfoScreenState();
-}
-
-class _NoteInfoScreenState extends State<NoteInfoScreen> {
-  String noteTitle = 'Test Note 1';
-  String noteContent = 'interensting';
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.cyan,
-        title: Text('$noteTitle' '\n' 'category: hardcoded'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(noteContent),
-      ),
-    );
-  }
-}
-
-class NewNoteScreen extends StatefulWidget {
-  const NewNoteScreen({super.key});
-
-  @override
-  State<NewNoteScreen> createState() => _NewNoteScreenState();
-}
-
-class _NewNoteScreenState extends State<NewNoteScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.cyan,
-        title: const Text('Create New Note'),
-      ),
-      body: const Column(
-        children: [
-          Text('data'),
-          Text('data'),
-          Text('text'),
-        ],
-      ),
-    );
-  }
-}
-
-class NoteDB {
-  final int id;
-  final String title;
-  final String category;
-  final String content;
-  final DateTime dateModified;
-  final String timeNotification; // provisional
-  final String locationNotification; // provisional
-  final String weatherNotification; // provisional
-
-  NoteDB(
-      {required this.id,
-      required this.title,
-      required this.category,
-      required this.content,
-      required this.dateModified,
-      required this.timeNotification,
-      required this.locationNotification,
-      required this.weatherNotification});
 }
