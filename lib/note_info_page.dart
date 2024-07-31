@@ -7,15 +7,22 @@ class NoteInfoPage extends StatefulWidget {
 
   @override
   State<NoteInfoPage> createState() => _NoteInfoPageState();
-
 }
 
-class _NoteInfoPageState extends State<NoteInfoPage> {  
+class _NoteInfoPageState extends State<NoteInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.note.title),
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              'Edit',
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),

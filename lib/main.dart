@@ -33,15 +33,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 1;
-  NoteDB newNote = NoteDB(
-    title: '',
-    category: '',
-    content: '',
-    dateModified: '',
-    timeNotification: '',
-    locationNotification: '',
-    weatherNotification: '',
-  );
+  NoteDB newNote = NoteDB.toDefault();
   List<NoteDB> notes = [];
 
   Future<void> getNotes() async {
@@ -87,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                     return AlertDialog(
                       title: const Text('Delete Note'),
                       content: const Text(
-                          'Are you sure you want to delete this note?'),
+                          'Are you sure you want to delete this note? (cannot be undone)'),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -133,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                       });
                     },
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                      border: InputBorder.none,
                       hintText: 'Enter a note title',
                     ),
                   ),
@@ -142,9 +134,11 @@ class _HomePageState extends State<HomePage> {
             ),
             Row(
               children: [
-                const Text('Choose category: '),
                 DropdownMenu<String>(
-                  initialSelection: 'none',
+                  inputDecorationTheme: const InputDecorationTheme(
+                    border: InputBorder.none,
+                  ),
+                  initialSelection: 'Category',
                   onSelected: (String? category) {
                     setState(() {
                       newNote.category = category!;
@@ -152,24 +146,24 @@ class _HomePageState extends State<HomePage> {
                   },
                   dropdownMenuEntries: const [
                     DropdownMenuEntry(
-                      value: 'none',
-                      label: 'none',
+                      value: 'Category',
+                      label: 'Category',
                       leadingIcon: Icon(
                         Icons.square,
                         color: Colors.white,
                       ),
                     ), // make sure user cant create category named 'none', it would cause collision
                     DropdownMenuEntry(
-                      value: 'school',
-                      label: 'school',
+                      value: 'School',
+                      label: 'School',
                       leadingIcon: Icon(
                         Icons.square,
                         color: Colors.blue,
                       ),
                     ),
                     DropdownMenuEntry(
-                      value: 'work',
-                      label: 'work',
+                      value: 'Work',
+                      label: 'Work',
                       leadingIcon: Icon(
                         Icons.square,
                         color: Colors.red,
@@ -191,7 +185,8 @@ class _HomePageState extends State<HomePage> {
                       });
                     },
                     decoration: const InputDecoration(
-                      hintText: 'Enter note',
+                      border: InputBorder.none,
+                      hintText: 'Start typing here',
                     ),
                   ),
                 ),
@@ -249,6 +244,7 @@ class _HomePageState extends State<HomePage> {
                 if (newNote.title.isNotEmpty) {
                   newNote.insertNoteDB();
                   getNotes();
+                  newNote = NoteDB.toDefault();
                   currentPageIndex = 1;
                 }
               },

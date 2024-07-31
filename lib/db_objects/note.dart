@@ -22,6 +22,18 @@ class NoteDB {
       required this.locationNotification,
       required this.weatherNotification});
 
+  static NoteDB toDefault() {
+    return NoteDB(
+      title: '',
+      category: '',
+      content: '',
+      dateModified: '',
+      timeNotification: '',
+      locationNotification: '',
+      weatherNotification: '',
+    );
+  }
+
   Map<String, Object?> toMap() {
     return {
       'title': title,
@@ -57,7 +69,9 @@ class NoteDB {
 
   Future<void> removeNoteDB() async {
     final db = await getDB();
-    db.delete('note', where: 'title = ?', whereArgs: [title]); // make this to check more conditions
+    db.delete('note',
+        where: 'title = ?',
+        whereArgs: [title]); // make this to check more conditions
   }
 
   static Future<List<NoteDB>> getNotesDB() async {
