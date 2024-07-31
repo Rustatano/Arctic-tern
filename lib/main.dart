@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 SizedBox(
-                  width: 300, // make this dynamic size
+                  width: MediaQuery.sizeOf(context).width,
                   child: TextField(
                     onChanged: (String title) {
                       setState(() {
@@ -182,7 +182,7 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 SizedBox(
-                  width: 300, // make this dynamic size
+                  width: MediaQuery.sizeOf(context).width,
                   child: TextField(
                     maxLines: null,
                     onChanged: (String content) {
