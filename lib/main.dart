@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-import 'package:weather_location_time/db_manipulation.dart';
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/note_info_page.dart';
 import 'package:weather_location_time/settings_page.dart';
@@ -16,12 +14,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Weather Note',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan),
-          useMaterial3: true,
-        ),
-        home: const HomePage());
+      title: 'Weather Note',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
+      ),
+      home: const HomePage(),
+    );
   }
 }
 
@@ -46,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   List<NoteDB> notes = [];
 
   Future<void> getNotes() async {
-    final n = await getNotesDB();
+    final n = await NoteDB.getNotesDB();
     setState(() {
       notes = n;
     });
@@ -64,52 +63,58 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       body: <Widget>[
-        const Placeholder(),
+        const Center(
+          child: Text('coming soon'),
+        ),
         ListView.separated(
           padding: const EdgeInsets.all(8),
           itemCount: notes.length,
           itemBuilder: (BuildContext context, int index) {
-            /*
-            GestureDetector(
-                onLongPress: () {
-                  Dialog(
-                    child: Column(
-                      children: [
-                        const Center(
-                          child: Text('Delete this note?'),
+            return GestureDetector(
+              // animation would be nice here
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NoteInfoPage(note: notes[index]),
+                  ),
+                );
+              },
+              onLongPress: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Delete Note'),
+                      content: const Text(
+                          'Are you sure you want to delete this note?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Cancel'),
                         ),
-                        Row(
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text('Delete'),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text('Close'),
-                            ),
-                          ],
+                        TextButton(
+                          onPressed: () {
+                            notes[index].removeNoteDB();
+                            getNotes();
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ),
                       ],
-                    ),
-                  );
-                },*/
-            return Container(
-              height: 50,
-              color: theme.primaryColorLight,
-              child: Center(
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NoteInfoPage(note: notes[index]),
-                      ),
                     );
                   },
-                  child: Text(notes[index].title),
-                ),
-              ),
+                );
+              },
+              child: Container(
+                  color: theme.primaryColorLight,
+                  height: 50,
+                  child: Center(child: Text(notes[index].title))),
             );
           },
           separatorBuilder: (BuildContext context, int index) =>
@@ -174,6 +179,24 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 300, // make this dynamic size
+                  child: TextField(
+                    maxLines: null,
+                    onChanged: (String content) {
+                      setState(() {
+                        newNote.content = content;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Enter note',
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ][currentPageIndex],
@@ -190,7 +213,7 @@ class _HomePageState extends State<HomePage> {
               },
               icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
-          title: const Text('All categories'),
+          title: const Text('Search'),
         ),
         AppBar(
           leading: IconButton(
@@ -204,7 +227,8 @@ class _HomePageState extends State<HomePage> {
               },
               icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
-          title: const Text('All categories'),
+          title: const Text(
+              'All Categories'), // make this drop down menu to select displayed category
         ),
         AppBar(
           leading: IconButton(
@@ -218,12 +242,12 @@ class _HomePageState extends State<HomePage> {
               },
               icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
-          title: const Text('All categories'),
+          title: const Text('New Note'),
           actions: [
             TextButton(
               onPressed: () {
                 if (newNote.title.isNotEmpty) {
-                  insertNoteDB(newNote);
+                  newNote.insertNoteDB();
                   getNotes();
                   currentPageIndex = 1;
                 }
