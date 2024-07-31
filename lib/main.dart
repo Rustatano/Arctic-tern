@@ -240,9 +240,9 @@ class _HomePageState extends State<HomePage> {
           title: const Text('New Note'),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (newNote.title.isNotEmpty) {
-                  newNote.insertNoteDB();
+                  await newNote.insertIfNotExists();
                   getNotes();
                   newNote = NoteDB.toDefault();
                   currentPageIndex = 1;

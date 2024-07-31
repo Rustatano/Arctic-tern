@@ -9,9 +9,9 @@ class NoteDB {
   String category;
   String content;
   String dateModified; // make this DateTime
-  String timeNotification; // provisional
-  String locationNotification; // provisional
-  String weatherNotification; // provisional
+  String timeNotification; // provisional, this won't be String
+  String locationNotification; // provisional, this won't be String
+  String weatherNotification; // provisional, this won't be String
 
   NoteDB(
       {required this.title,
@@ -58,8 +58,16 @@ class NoteDB {
     );
   }
 
-  Future<void> insertNoteDB() async {
+  Future<void> insertIfNotExists() async {
     final db = await getDB();
+    final query = await db.query(
+      'note',
+      where: 'title = ?',
+      whereArgs: [title],
+    );
+    if (query.isNotEmpty) {
+      return;
+    }
     db.insert(
       'note',
       toMap(),
@@ -67,11 +75,23 @@ class NoteDB {
     );
   }
 
+  Future<void> updateNoteDB() async {
+    final db = await getDB();
+    db.update(
+      'note',
+      toMap(),
+      where: 'title = ?',
+      whereArgs: [title],
+    );
+  }
+
   Future<void> removeNoteDB() async {
     final db = await getDB();
-    db.delete('note',
-        where: 'title = ?',
-        whereArgs: [title]); // make this to check more conditions
+    db.delete(
+      'note',
+      where: 'title = ?',
+      whereArgs: [title],
+    );
   }
 
   static Future<List<NoteDB>> getNotesDB() async {
@@ -87,7 +107,7 @@ class NoteDB {
       join(await getDatabasesPath(), 'note.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE note(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, content TEXT, dateModified TEXT, timeNotification TEXT, locationNotification TEXT, weatherNotification TEXT)',
+          'CREATE TABLE note(title TEXT PRIMARY KEY, category TEXT, content TEXT, dateModified TEXT, timeNotification TEXT, locationNotification TEXT, weatherNotification TEXT)',
         );
       },
     );

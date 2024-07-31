@@ -15,7 +15,7 @@ class _SettingsPageState extends State<SettingsPage> {
         title: const Text('Settings'),
       ),
       body: const Center(
-        child: Text('coming soon'),
+        child: Text('coming soon'), // dark mode, color theme
       ),
     );
   }
