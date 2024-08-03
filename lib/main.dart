@@ -238,6 +238,7 @@ class _HomePageState extends State<HomePage> {
           actions: [
             TextButton(
               onPressed: () async {
+                newNote.trimProperties();
                 if (newNote.title.isNotEmpty) {
                   if (await newNote.insertIfNotExists()) {
                     getNotes();

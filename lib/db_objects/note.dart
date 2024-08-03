@@ -115,6 +115,16 @@ class NoteDB {
     return db;
   }
 
+  void trimProperties() {
+    title = title.trim();
+    category = category.trim();
+    content = content.trim();
+    dateModified = dateModified.trim();
+    timeNotification = timeNotification.trim();
+    locationNotification = locationNotification.trim();
+    weatherNotification = weatherNotification.trim();
+  }
+
   @override
   String toString() {
     return 'Notification{title: $title, category: $category, content: $content, dateModified: $dateModified, timeNotification: $timeNotification, locationNotification: $locationNotification, weatherNotification: $weatherNotification}';
