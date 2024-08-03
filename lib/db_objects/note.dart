@@ -58,7 +58,7 @@ class NoteDB {
     );
   }
 
-  Future<void> insertIfNotExists() async {
+  Future<bool> insertIfNotExists() async {
     final db = await getDB();
     final query = await db.query(
       'note',
@@ -66,13 +66,14 @@ class NoteDB {
       whereArgs: [title],
     );
     if (query.isNotEmpty) {
-      return;
+      return false;
     }
     db.insert(
       'note',
       toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    return true;
   }
 
   Future<void> updateNoteDB() async {

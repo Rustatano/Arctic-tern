@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
           child: Text('coming soon'),
         ),
         ListView.separated(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(16.0),
           itemCount: notes.length,
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
@@ -112,101 +112,108 @@ class _HomePageState extends State<HomePage> {
           separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
         ),
-        Column(
-          children: [
-            Row(
-              children: [
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width,
-                  child: TextField(
-                    onChanged: (String title) {
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width - 32,
+                    child: TextField(
+                      onChanged: (String title) {
+                        setState(() {
+                          newNote.title = title;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Enter a note title',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Row(
+                children: [
+                  DropdownMenu<String>(
+                    inputDecorationTheme: const InputDecorationTheme(
+                      border: InputBorder.none,
+                    ),
+                    initialSelection: 'Category',
+                    onSelected: (String? category) {
                       setState(() {
-                        newNote.title = title;
+                        newNote.category = category!;
                       });
                     },
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Enter a note title',
+                    dropdownMenuEntries: const [
+                      DropdownMenuEntry(
+                        value: 'Category',
+                        label: 'Category',
+                        leadingIcon: Icon(
+                          Icons.square,
+                          color: Colors.white,
+                        ),
+                      ), // make sure user cant create category named 'none', it would cause collision
+                      DropdownMenuEntry(
+                        value: 'School',
+                        label: 'School',
+                        leadingIcon: Icon(
+                          Icons.square,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      DropdownMenuEntry(
+                        value: 'Work',
+                        label: 'Work',
+                        leadingIcon: Icon(
+                          Icons.square,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.access_time),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.pin_drop),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.cloud),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Row(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width - 32,
+                    child: TextField(
+                      maxLines: null,
+                      onChanged: (String content) {
+                        setState(() {
+                          newNote.content = content;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Start typing here',
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                DropdownMenu<String>(
-                  inputDecorationTheme: const InputDecorationTheme(
-                    border: InputBorder.none,
-                  ),
-                  initialSelection: 'Category',
-                  onSelected: (String? category) {
-                    setState(() {
-                      newNote.category = category!;
-                    });
-                  },
-                  dropdownMenuEntries: const [
-                    DropdownMenuEntry(
-                      value: 'Category',
-                      label: 'Category',
-                      leadingIcon: Icon(
-                        Icons.square,
-                        color: Colors.white,
-                      ),
-                    ), // make sure user cant create category named 'none', it would cause collision
-                    DropdownMenuEntry(
-                      value: 'School',
-                      label: 'School',
-                      leadingIcon: Icon(
-                        Icons.square,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    DropdownMenuEntry(
-                      value: 'Work',
-                      label: 'Work',
-                      leadingIcon: Icon(
-                        Icons.square,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width,
-                  child: TextField(
-                    maxLines: null,
-                    onChanged: (String content) {
-                      setState(() {
-                        newNote.content = content;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Start typing here',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ][currentPageIndex],
       appBar: [
         AppBar(
-          leading: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsPage(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
           title: const Text('Search'),
         ),
@@ -226,26 +233,36 @@ class _HomePageState extends State<HomePage> {
               'All Categories'), // make this drop down menu to select displayed category
         ),
         AppBar(
-          leading: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsPage(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
           title: const Text('New Note'),
           actions: [
             TextButton(
               onPressed: () async {
                 if (newNote.title.isNotEmpty) {
-                  await newNote.insertIfNotExists();
-                  getNotes();
-                  newNote = NoteDB.toDefault();
-                  currentPageIndex = 1;
+                  if (await newNote.insertIfNotExists()) {
+                    getNotes();
+                    newNote = NoteDB.toDefault();
+                    currentPageIndex = 1;
+                  } else {
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const AlertDialog(
+                          title: Text('Error'),
+                          content: Text(
+                              'Note title already exists. Notes cannot have the same titles'),
+                        ),
+                      );
+                    }
+                  }
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const AlertDialog(
+                      title: Text('Error'),
+                      content: Text('Note title is required'),
+                    ),
+                  );
                 }
               },
               child: const Text('Save'),
