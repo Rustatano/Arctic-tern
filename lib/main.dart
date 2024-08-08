@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:weather_location_time/db_objects/note.dart';
-import 'package:weather_location_time/note_info_page.dart';
+import 'package:weather_location_time/note_info_screen.dart';
 import 'package:weather_location_time/settings_page.dart';
 
 void main() {
@@ -33,11 +33,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 1;
-  NoteDB newNote = NoteDB.toDefault();
-  List<NoteDB> notes = [];
+  Note newNote = Note.toDefault();
+  List<Note> notes = [];
+  PageController controller = PageController(initialPage: 1);
 
   Future<void> getNotes() async {
-    final n = await NoteDB.getNotesDB();
+    final n = await Note.getNotes();
     setState(() {
       notes = n;
     });
@@ -54,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     final ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      body: <Widget>[
+      body: [
         const Center(
           child: Text('coming soon'),
         ),
@@ -68,7 +69,10 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => NoteInfoPage(note: notes[index]),
+                    builder: (context) => NoteInfoScreen(
+                      note: notes[index],
+                      refreshNotesCallback: getNotes,
+                    ),
                   ),
                 );
               },
@@ -89,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         TextButton(
                           onPressed: () {
-                            notes[index].removeNoteDB();
+                            Note.removeNote(notes[index].title);
                             getNotes();
                             Navigator.of(context).pop();
                           },
@@ -137,7 +141,7 @@ class _HomePageState extends State<HomePage> {
               const Divider(),
               Row(
                 children: [
-                  DropdownMenu<String>(
+                  DropdownMenu(
                     inputDecorationTheme: const InputDecorationTheme(
                       border: InputBorder.none,
                     ),
@@ -155,7 +159,7 @@ class _HomePageState extends State<HomePage> {
                           Icons.square,
                           color: Colors.white,
                         ),
-                      ), // make sure user cant create category named 'none', it would cause collision
+                      ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
                       DropdownMenuEntry(
                         value: 'School',
                         label: 'School',
@@ -229,8 +233,43 @@ class _HomePageState extends State<HomePage> {
               },
               icon: const Icon(Icons.settings)),
           backgroundColor: theme.appBarTheme.backgroundColor,
-          title: const Text(
-              'All Categories'), // make this drop down menu to select displayed category
+          title: DropdownMenu(
+            inputDecorationTheme: const InputDecorationTheme(
+              border: InputBorder.none,
+            ),
+            initialSelection: 'Category',
+            onSelected: (String? category) {
+              setState(() {
+                newNote.category = category!;
+              });
+            },
+            dropdownMenuEntries: const [
+              DropdownMenuEntry(
+                value: 'Category',
+                label: 'Category',
+                leadingIcon: Icon(
+                  Icons.square,
+                  color: Colors.white,
+                ),
+              ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
+              DropdownMenuEntry(
+                value: 'School',
+                label: 'School',
+                leadingIcon: Icon(
+                  Icons.square,
+                  color: Colors.blue,
+                ),
+              ),
+              DropdownMenuEntry(
+                value: 'Work',
+                label: 'Work',
+                leadingIcon: Icon(
+                  Icons.square,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
         ),
         AppBar(
           backgroundColor: theme.appBarTheme.backgroundColor,
@@ -242,7 +281,7 @@ class _HomePageState extends State<HomePage> {
                 if (newNote.title.isNotEmpty) {
                   if (await newNote.insertIfNotExists()) {
                     getNotes();
-                    newNote = NoteDB.toDefault();
+                    newNote = Note.toDefault();
                     currentPageIndex = 1;
                   } else {
                     if (context.mounted) {

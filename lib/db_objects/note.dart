@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-class NoteDB {
+class Note {
   String title;
   String category;
   String content;
@@ -13,7 +13,7 @@ class NoteDB {
   String locationNotification; // provisional, this won't be String
   String weatherNotification; // provisional, this won't be String
 
-  NoteDB(
+  Note(
       {required this.title,
       required this.category,
       required this.content,
@@ -22,8 +22,8 @@ class NoteDB {
       required this.locationNotification,
       required this.weatherNotification});
 
-  static NoteDB toDefault() {
-    return NoteDB(
+  static Note toDefault() {
+    return Note(
       title: '',
       category: '',
       content: '',
@@ -46,8 +46,8 @@ class NoteDB {
     };
   }
 
-  static NoteDB fromMap(Map<String, Object?> map) {
-    return NoteDB(
+  static Note fromMap(Map<String, Object?> map) {
+    return Note(
       title: map['title'] as String,
       category: map['category'] as String,
       content: map['content'] as String,
@@ -58,14 +58,18 @@ class NoteDB {
     );
   }
 
+  Future<void> insert() async {
+    final db = await getDB();
+    db.insert(
+      'note',
+      toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
   Future<bool> insertIfNotExists() async {
     final db = await getDB();
-    final query = await db.query(
-      'note',
-      where: 'title = ?',
-      whereArgs: [title],
-    );
-    if (query.isNotEmpty) {
+    if (await exists(title)) {
       return false;
     }
     db.insert(
@@ -76,17 +80,7 @@ class NoteDB {
     return true;
   }
 
-  Future<void> updateNoteDB() async {
-    final db = await getDB();
-    db.update(
-      'note',
-      toMap(),
-      where: 'title = ?',
-      whereArgs: [title],
-    );
-  }
-
-  Future<void> removeNoteDB() async {
+  static Future<void> removeNote(String title) async {
     final db = await getDB();
     db.delete(
       'note',
@@ -95,10 +89,10 @@ class NoteDB {
     );
   }
 
-  static Future<List<NoteDB>> getNotesDB() async {
+  static Future<List<Note>> getNotes() async {
     final db = await getDB();
     final list = await db.query('note');
-    return list.map((e) => NoteDB.fromMap(e)).toList();
+    return list.map((e) => Note.fromMap(e)).toList();
   }
 
   static Future<Database> getDB() async {
@@ -113,6 +107,16 @@ class NoteDB {
       },
     );
     return db;
+  }
+
+  static Future<bool> exists(String title) async {
+    final db = await getDB();
+    final query = await db.query(
+      'note',
+      where: 'title = ?',
+      whereArgs: [title],
+    );
+    return query.isNotEmpty;
   }
 
   void trimProperties() {
