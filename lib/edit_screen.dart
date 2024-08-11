@@ -146,8 +146,7 @@ class _EditScreenState extends State<EditScreen> {
                   await editedNote.insert();
                   if (context.mounted) {
                     widget.refreshNotesCallback();
-                    Navigator.pop(context);
-                    Navigator.pop(context);
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   }
                 } else {
                   if (context.mounted) {

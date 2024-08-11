@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> getNotes() async {
     final n = await Note.getNotes();
     setState(() {
-      notes = n;
+      notes = n.reversed.toList();
     });
   }
 
