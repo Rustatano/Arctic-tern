@@ -13,6 +13,7 @@ class EditScreen extends StatefulWidget {
 }
 
 class _EditScreenState extends State<EditScreen> {
+  static const padding = 24.0;
   late Note editedNote;
   late TextEditingController titleTextController;
   late TextEditingController contentTextController;
@@ -31,14 +32,15 @@ class _EditScreenState extends State<EditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+        padding: const EdgeInsets.all(padding),
+        child: ListView(
           children: [
             Row(
               children: [
                 SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 32,
+                  width: MediaQuery.sizeOf(context).width - padding * 2,
                   child: TextField(
+                    maxLines: null,
                     controller: titleTextController,
                     onChanged: (String title) {
                       setState(() {
@@ -111,7 +113,7 @@ class _EditScreenState extends State<EditScreen> {
             Row(
               children: [
                 SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 32,
+                  width: MediaQuery.sizeOf(context).width - padding * 2,
                   child: TextField(
                     controller: contentTextController,
                     maxLines: null,

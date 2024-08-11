@@ -32,10 +32,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const padding = 24.0;
   int currentPageIndex = 1;
   Note newNote = Note.toDefault();
   List<Note> notes = [];
-  PageController controller = PageController(initialPage: 1);
+  //PageController controller = PageController(initialPage: 1);
 
   Future<void> getNotes() async {
     final n = await Note.getNotes();
@@ -56,11 +57,8 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       body: [
-        const Center(
-          child: Text('coming soon'),
-        ),
         ListView.separated(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(padding),
           itemCount: notes.length,
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
@@ -117,14 +115,15 @@ class _HomePageState extends State<HomePage> {
               const Divider(),
         ),
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+          padding: const EdgeInsets.all(padding),
+          child: ListView(
             children: [
               Row(
                 children: [
                   SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 32,
+                    width: MediaQuery.sizeOf(context).width - padding * 2,
                     child: TextField(
+                      maxLines: null,
                       onChanged: (String title) {
                         setState(() {
                           newNote.title = title;
@@ -196,7 +195,7 @@ class _HomePageState extends State<HomePage> {
               Row(
                 children: [
                   SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 32,
+                    width: MediaQuery.sizeOf(context).width - padding * 2,
                     child: TextField(
                       maxLines: null,
                       onChanged: (String content) {
@@ -217,10 +216,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ][currentPageIndex],
       appBar: [
-        AppBar(
-          backgroundColor: theme.appBarTheme.backgroundColor,
-          title: const Text('Search'),
-        ),
         AppBar(
           leading: IconButton(
               onPressed: () {
@@ -310,7 +305,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ][currentPageIndex],
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: NavigationBar( // delete bottom nav bar
         onDestinationSelected: (int index) {
           setState(() {
             currentPageIndex = index;
@@ -319,10 +314,6 @@ class _HomePageState extends State<HomePage> {
         indicatorColor: Colors.cyan,
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             label: 'Home',

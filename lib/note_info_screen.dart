@@ -6,7 +6,8 @@ class NoteInfoScreen extends StatefulWidget {
   final Note note;
   final Function refreshNotesCallback;
 
-  const NoteInfoScreen({super.key, required this.note, required this.refreshNotesCallback});
+  const NoteInfoScreen(
+      {super.key, required this.note, required this.refreshNotesCallback});
 
   @override
   State<NoteInfoScreen> createState() => _NoteInfoScreenState();
@@ -24,7 +25,9 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditScreen(note: widget.note, refreshNotesCallback: widget.refreshNotesCallback),
+                  builder: (context) => EditScreen(
+                      note: widget.note,
+                      refreshNotesCallback: widget.refreshNotesCallback),
                 ),
               );
             },
@@ -35,8 +38,12 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Text(widget.note.content),
+        padding: const EdgeInsets.all(24.0),
+        child: ListView(
+          children: [
+            Text(widget.note.content),
+          ],
+        ),
       ),
     );
   }
