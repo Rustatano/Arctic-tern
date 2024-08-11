@@ -30,6 +30,8 @@ class _EditScreenState extends State<EditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(padding),
@@ -95,6 +97,11 @@ class _EditScreenState extends State<EditScreen> {
                     ),
                   ],
                 ),
+              ],
+            ),
+            const Divider(),
+            Row(
+              children: [
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(Icons.access_time),
@@ -134,6 +141,7 @@ class _EditScreenState extends State<EditScreen> {
         ),
       ),
       appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
         title: const Text('Edit'),
         actions: [
           TextButton(
@@ -170,7 +178,10 @@ class _EditScreenState extends State<EditScreen> {
                 );
               }
             },
-            child: const Text('Save'),
+            child: Text(
+              'Save',
+              style: TextStyle(color: theme.colorScheme.onPrimary),
+            ),
           ),
         ],
       ),

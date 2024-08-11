@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/note_info_screen.dart';
@@ -16,7 +17,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Weather Note',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 0, 255, 191),
+          primary: const Color.fromARGB(255, 0, 255, 191),
+          secondary: const Color.fromARGB(255, 160, 255, 231),
+          onPrimary: Colors.black,
+        ),
         useMaterial3: true,
       ),
       home: const HomePage(),
@@ -33,9 +39,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   static const padding = 24.0;
-  int currentPageIndex = 1;
+  static const radius = 16.0;
   Note newNote = Note.toDefault();
   List<Note> notes = [];
+  TextEditingController contentTextFieldController = TextEditingController();
+  TextEditingController titleTextFieldController = TextEditingController();
 
   Future<void> getNotes() async {
     final n = await Note.getNotes();
@@ -60,7 +68,8 @@ class _HomePageState extends State<HomePage> {
           body: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: padding, right: padding),
+                padding: const EdgeInsets.only(
+                    left: padding, right: padding, top: padding),
                 child: TextField(
                   maxLines: null,
                   onChanged: (String searchQuery) {
@@ -69,14 +78,18 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                   decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(radius),
+                      ),
+                    ),
                     hintText: 'Search notes',
                     prefixIcon: Icon(Icons.search),
                   ),
                 ),
               ),
               Expanded(
-                child: ListView.separated(
+                child: ListView.builder(
                   padding: const EdgeInsets.all(padding),
                   itemCount: notes.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -124,14 +137,23 @@ class _HomePageState extends State<HomePage> {
                           },
                         );
                       },
-                      child: Container(
-                          color: theme.primaryColorLight,
-                          height: 50,
-                          child: Center(child: Text(notes[index].title))),
+                      child: Padding(
+                        padding: const EdgeInsets.all(padding / 4),
+                        child: Container(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.secondary,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(radius),
+                              ),
+                            ),
+                            height: 54,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(notes[index].title),
+                            )),
+                      ),
                     );
                   },
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(),
                 ),
               ),
             ],
@@ -147,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 icon: const Icon(Icons.settings)),
-            backgroundColor: theme.appBarTheme.backgroundColor,
+            backgroundColor: theme.colorScheme.primary,
             title: DropdownMenu(
               inputDecorationTheme: const InputDecorationTheme(
                 border: InputBorder.none,
@@ -197,6 +219,7 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: MediaQuery.sizeOf(context).width - padding * 2,
                       child: TextField(
+                        controller: titleTextFieldController,
                         maxLines: null,
                         onChanged: (String title) {
                           setState(() {
@@ -251,6 +274,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  children: [
                     IconButton(
                       onPressed: () {},
                       icon: const Icon(Icons.access_time),
@@ -271,6 +299,7 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: MediaQuery.sizeOf(context).width - padding * 2,
                       child: TextField(
+                        controller: contentTextFieldController,
                         maxLines: null,
                         onChanged: (String content) {
                           setState(() {
@@ -289,7 +318,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           appBar: AppBar(
-            backgroundColor: theme.appBarTheme.backgroundColor,
+            backgroundColor: theme.colorScheme.primary,
             title: const Text('New Note'),
             actions: [
               TextButton(
@@ -298,8 +327,9 @@ class _HomePageState extends State<HomePage> {
                   if (newNote.title.isNotEmpty) {
                     if (await newNote.insertIfNotExists()) {
                       getNotes();
+                      contentTextFieldController.clear();
+                      titleTextFieldController.clear();
                       newNote = Note.toDefault();
-                      currentPageIndex = 1;
                     } else {
                       if (context.mounted) {
                         showDialog(
@@ -322,7 +352,10 @@ class _HomePageState extends State<HomePage> {
                     );
                   }
                 },
-                child: const Text('Save'),
+                child: Text(
+                  'Save',
+                  style: TextStyle(color: theme.colorScheme.onPrimary),
+                ),
               ),
             ],
           ),

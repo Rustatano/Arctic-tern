@@ -16,8 +16,11 @@ class NoteInfoScreen extends StatefulWidget {
 class _NoteInfoScreenState extends State<NoteInfoScreen> {
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
         title: Text(widget.note.title),
         actions: [
           TextButton(
@@ -31,8 +34,11 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                 ),
               );
             },
-            child: const Text(
+            child: Text(
               'Edit',
+              style: TextStyle(
+                color: theme.colorScheme.onPrimary,
+              ),
             ),
           ),
         ],
