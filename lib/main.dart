@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/note_info_screen.dart';
@@ -36,7 +37,6 @@ class _HomePageState extends State<HomePage> {
   int currentPageIndex = 1;
   Note newNote = Note.toDefault();
   List<Note> notes = [];
-  //PageController controller = PageController(initialPage: 1);
 
   Future<void> getNotes() async {
     final n = await Note.getNotes();
@@ -58,62 +58,84 @@ class _HomePageState extends State<HomePage> {
     return PageView(
       children: [
         Scaffold(
-          body: ListView.separated(
-            padding: const EdgeInsets.all(padding),
-            itemCount: notes.length,
-            itemBuilder: (BuildContext context, int index) {
-              return GestureDetector(
-                // animation would be nice here
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NoteInfoScreen(
-                        note: notes[index],
-                        refreshNotesCallback: getNotes,
-                      ),
-                    ),
-                  );
-                },
-                onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Delete Note'),
-                        content: const Text(
-                            'Are you sure you want to delete this note? (cannot be undone)'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Note.removeNote(notes[index].title);
-                              getNotes();
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.red),
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: padding, right: padding),
+                child: TextField(
+                  maxLines: null,
+                  onChanged: (String searchQuery) {
+                    setState(() {
+                      // search notes
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    hintText: 'Search notes',
+                    prefixIcon: Icon(Icons.search),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(padding),
+                  itemCount: notes.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      // animation would be nice here
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NoteInfoScreen(
+                              note: notes[index],
+                              refreshNotesCallback: getNotes,
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                    color: theme.primaryColorLight,
-                    height: 50,
-                    child: Center(child: Text(notes[index].title))),
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) =>
-                const Divider(),
+                        );
+                      },
+                      onLongPress: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Delete Note'),
+                              content: const Text(
+                                  'Are you sure you want to delete this note? (cannot be undone)'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Note.removeNote(notes[index].title);
+                                    getNotes();
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text(
+                                    'Delete',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                          color: theme.primaryColorLight,
+                          height: 50,
+                          child: Center(child: Text(notes[index].title))),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(),
+                ),
+              ),
+            ],
           ),
           appBar: AppBar(
             leading: IconButton(
