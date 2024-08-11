@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/note_info_screen.dart';
