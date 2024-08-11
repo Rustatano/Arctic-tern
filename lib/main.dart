@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/note_info_screen.dart';
@@ -61,6 +60,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+
+    
 
     return PageView(
       children: [
