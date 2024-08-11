@@ -55,275 +55,258 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
-    return Scaffold(
-      body: [
-        ListView.separated(
-          padding: const EdgeInsets.all(padding),
-          itemCount: notes.length,
-          itemBuilder: (BuildContext context, int index) {
-            return GestureDetector(
-              // animation would be nice here
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NoteInfoScreen(
-                      note: notes[index],
-                      refreshNotesCallback: getNotes,
+    return PageView(
+      children: [
+        Scaffold(
+          body: ListView.separated(
+            padding: const EdgeInsets.all(padding),
+            itemCount: notes.length,
+            itemBuilder: (BuildContext context, int index) {
+              return GestureDetector(
+                // animation would be nice here
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NoteInfoScreen(
+                        note: notes[index],
+                        refreshNotesCallback: getNotes,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                },
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Delete Note'),
+                        content: const Text(
+                            'Are you sure you want to delete this note? (cannot be undone)'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Note.removeNote(notes[index].title);
+                              getNotes();
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                    color: theme.primaryColorLight,
+                    height: 50,
+                    child: Center(child: Text(notes[index].title))),
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) =>
+                const Divider(),
+          ),
+          appBar: AppBar(
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.settings)),
+            backgroundColor: theme.appBarTheme.backgroundColor,
+            title: DropdownMenu(
+              inputDecorationTheme: const InputDecorationTheme(
+                border: InputBorder.none,
+              ),
+              initialSelection: 'Category',
+              onSelected: (String? category) {
+                setState(() {
+                  newNote.category = category!;
+                });
               },
-              onLongPress: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text('Delete Note'),
-                      content: const Text(
-                          'Are you sure you want to delete this note? (cannot be undone)'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Cancel'),
+              dropdownMenuEntries: const [
+                DropdownMenuEntry(
+                  value: 'Category',
+                  label: 'Category',
+                  leadingIcon: Icon(
+                    Icons.square,
+                    color: Colors.white,
+                  ),
+                ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
+                DropdownMenuEntry(
+                  value: 'School',
+                  label: 'School',
+                  leadingIcon: Icon(
+                    Icons.square,
+                    color: Colors.blue,
+                  ),
+                ),
+                DropdownMenuEntry(
+                  value: 'Work',
+                  label: 'Work',
+                  leadingIcon: Icon(
+                    Icons.square,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(padding),
+            child: ListView(
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.sizeOf(context).width - padding * 2,
+                      child: TextField(
+                        maxLines: null,
+                        onChanged: (String title) {
+                          setState(() {
+                            newNote.title = title;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter a note title',
                         ),
-                        TextButton(
-                          onPressed: () {
-                            Note.removeNote(notes[index].title);
-                            getNotes();
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  children: [
+                    DropdownMenu(
+                      inputDecorationTheme: const InputDecorationTheme(
+                        border: InputBorder.none,
+                      ),
+                      initialSelection: 'Category',
+                      onSelected: (String? category) {
+                        setState(() {
+                          newNote.category = category!;
+                        });
+                      },
+                      dropdownMenuEntries: const [
+                        DropdownMenuEntry(
+                          value: 'Category',
+                          label: 'Category',
+                          leadingIcon: Icon(
+                            Icons.square,
+                            color: Colors.white,
+                          ),
+                        ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
+                        DropdownMenuEntry(
+                          value: 'School',
+                          label: 'School',
+                          leadingIcon: Icon(
+                            Icons.square,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        DropdownMenuEntry(
+                          value: 'Work',
+                          label: 'Work',
+                          leadingIcon: Icon(
+                            Icons.square,
+                            color: Colors.red,
                           ),
                         ),
                       ],
-                    );
-                  },
-                );
-              },
-              child: Container(
-                  color: theme.primaryColorLight,
-                  height: 50,
-                  child: Center(child: Text(notes[index].title))),
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) =>
-              const Divider(),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(padding),
-          child: ListView(
-            children: [
-              Row(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.sizeOf(context).width - padding * 2,
-                    child: TextField(
-                      maxLines: null,
-                      onChanged: (String title) {
-                        setState(() {
-                          newNote.title = title;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter a note title',
-                      ),
                     ),
-                  ),
-                ],
-              ),
-              const Divider(),
-              Row(
-                children: [
-                  DropdownMenu(
-                    inputDecorationTheme: const InputDecorationTheme(
-                      border: InputBorder.none,
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.access_time),
                     ),
-                    initialSelection: 'Category',
-                    onSelected: (String? category) {
-                      setState(() {
-                        newNote.category = category!;
-                      });
-                    },
-                    dropdownMenuEntries: const [
-                      DropdownMenuEntry(
-                        value: 'Category',
-                        label: 'Category',
-                        leadingIcon: Icon(
-                          Icons.square,
-                          color: Colors.white,
-                        ),
-                      ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
-                      DropdownMenuEntry(
-                        value: 'School',
-                        label: 'School',
-                        leadingIcon: Icon(
-                          Icons.square,
-                          color: Colors.blue,
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.pin_drop),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.cloud),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.sizeOf(context).width - padding * 2,
+                      child: TextField(
+                        maxLines: null,
+                        onChanged: (String content) {
+                          setState(() {
+                            newNote.content = content;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Start typing here',
                         ),
                       ),
-                      DropdownMenuEntry(
-                        value: 'Work',
-                        label: 'Work',
-                        leadingIcon: Icon(
-                          Icons.square,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.access_time),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.pin_drop),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.cloud),
-                  ),
-                ],
-              ),
-              const Divider(),
-              Row(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.sizeOf(context).width - padding * 2,
-                    child: TextField(
-                      maxLines: null,
-                      onChanged: (String content) {
-                        setState(() {
-                          newNote.content = content;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Start typing here',
-                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ][currentPageIndex],
-      appBar: [
-        AppBar(
-          leading: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsPage(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.settings)),
-          backgroundColor: theme.appBarTheme.backgroundColor,
-          title: DropdownMenu(
-            inputDecorationTheme: const InputDecorationTheme(
-              border: InputBorder.none,
+                  ],
+                ),
+              ],
             ),
-            initialSelection: 'Category',
-            onSelected: (String? category) {
-              setState(() {
-                newNote.category = category!;
-              });
-            },
-            dropdownMenuEntries: const [
-              DropdownMenuEntry(
-                value: 'Category',
-                label: 'Category',
-                leadingIcon: Icon(
-                  Icons.square,
-                  color: Colors.white,
-                ),
-              ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
-              DropdownMenuEntry(
-                value: 'School',
-                label: 'School',
-                leadingIcon: Icon(
-                  Icons.square,
-                  color: Colors.blue,
-                ),
-              ),
-              DropdownMenuEntry(
-                value: 'Work',
-                label: 'Work',
-                leadingIcon: Icon(
-                  Icons.square,
-                  color: Colors.red,
-                ),
-              ),
-            ],
           ),
-        ),
-        AppBar(
-          backgroundColor: theme.appBarTheme.backgroundColor,
-          title: const Text('New Note'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                newNote.trimProperties();
-                if (newNote.title.isNotEmpty) {
-                  if (await newNote.insertIfNotExists()) {
-                    getNotes();
-                    newNote = Note.toDefault();
-                    currentPageIndex = 1;
-                  } else {
-                    if (context.mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const AlertDialog(
-                          title: Text('Error'),
-                          content: Text(
-                              'Note title already exists. Notes cannot have the same titles'),
-                        ),
-                      );
+          appBar: AppBar(
+            backgroundColor: theme.appBarTheme.backgroundColor,
+            title: const Text('New Note'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  newNote.trimProperties();
+                  if (newNote.title.isNotEmpty) {
+                    if (await newNote.insertIfNotExists()) {
+                      getNotes();
+                      newNote = Note.toDefault();
+                      currentPageIndex = 1;
+                    } else {
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const AlertDialog(
+                            title: Text('Error'),
+                            content: Text(
+                                'Note title already exists. Notes cannot have the same titles'),
+                          ),
+                        );
+                      }
                     }
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AlertDialog(
+                        title: Text('Error'),
+                        content: Text('Note title is required'),
+                      ),
+                    );
                   }
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const AlertDialog(
-                      title: Text('Error'),
-                      content: Text('Note title is required'),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          ),
         ),
-      ][currentPageIndex],
-      bottomNavigationBar: NavigationBar( // delete bottom nav bar
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        indicatorColor: Colors.cyan,
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.add),
-            label: 'New',
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
