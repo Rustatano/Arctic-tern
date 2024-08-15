@@ -8,10 +8,10 @@ class Note {
   String title;
   String category;
   String content;
-  String dateModified; // make this DateTime
-  String timeNotification; // provisional, this won't be String
-  String locationNotification; // provisional, this won't be String
-  String weatherNotification; // provisional, this won't be String
+  String dateModified;
+  String timeNotification;
+  String locationNotification;
+  String weatherNotification;
 
   Note(
       {required this.title,
@@ -95,6 +95,11 @@ class Note {
     return list.map((e) => Note.fromMap(e)).toList();
   }
 
+  static Future<void> updateNote(Map<String, dynamic> note) async {
+    final db = await getDB();
+    await db.update('note', note, where: 'title = ?', whereArgs: [note['title']]);
+  }
+
   static Future<Database> getDB() async {
     WidgetsFlutterBinding.ensureInitialized();
     final db = openDatabase(
@@ -123,10 +128,6 @@ class Note {
     title = title.trim();
     category = category.trim();
     content = content.trim();
-    dateModified = dateModified.trim();
-    timeNotification = timeNotification.trim();
-    locationNotification = locationNotification.trim();
-    weatherNotification = weatherNotification.trim();
   }
 
   @override

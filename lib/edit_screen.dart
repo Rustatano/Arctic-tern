@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weather_location_time/db_objects/note.dart';
+import 'package:weather_location_time/notification_screens/time_notification.dart';
+import 'package:workmanager/workmanager.dart';
 
 class EditScreen extends StatefulWidget {
   final Note note;
@@ -33,6 +35,7 @@ class _EditScreenState extends State<EditScreen> {
     final ThemeData theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       body: Padding(
         padding: const EdgeInsets.all(padding),
         child: ListView(
@@ -103,7 +106,10 @@ class _EditScreenState extends State<EditScreen> {
             Row(
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final date = await showDateTimePicker(context: context);
+                        editedNote.timeNotification = date.toString();
+                  },
                   icon: const Icon(Icons.access_time),
                 ),
                 IconButton(
@@ -150,6 +156,22 @@ class _EditScreenState extends State<EditScreen> {
               if (editedNote.title.isNotEmpty) {
                 if (!await Note.exists(editedNote.title) ||
                     editedNote.title == prevTitle) {
+                      if (editedNote.timeNotification.isNotEmpty) {
+                        Workmanager().cancelByUniqueName(prevTitle);
+                        int delay = ((DateTime.parse(editedNote.timeNotification)
+                                        .millisecondsSinceEpoch -
+                                    DateTime.now().millisecondsSinceEpoch) /
+                                1000)
+                            .round();
+                        Workmanager().registerOneOffTask(
+                          editedNote.title,
+                          editedNote.title,
+                          initialDelay: Duration(seconds: delay),
+                          inputData: editedNote.toMap(),
+                        );
+                      }
+
+
                   await Note.removeNote(prevTitle);
                   await editedNote.insert();
                   if (context.mounted) {

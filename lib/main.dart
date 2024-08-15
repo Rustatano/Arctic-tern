@@ -1,11 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'package:workmanager/workmanager.dart';
 
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/note_info_screen.dart';
+import 'package:weather_location_time/notification_screens/time_notification.dart';
 import 'package:weather_location_time/settings_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Workmanager().initialize(callbackDispatcherTimeNotification);
   runApp(const MyApp());
+}
+
+@pragma('vm:entry-point')
+void callbackDispatcherTimeNotification() {
+  Workmanager().executeTask(
+    (task, inputData) async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await TimeNotification().showTimeNotification(
+          title: inputData?['title'], body: inputData?['content']);
+      inputData!['timeNotification'] = inputData['timeNotification'] = '';
+      await Note.removeNote(inputData['title']);
+      Note note = Note.fromMap(inputData);
+      await note.insertIfNotExists();
+
+      return Future.value(true);
+    },
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,6 +44,8 @@ class MyApp extends StatelessWidget {
           primary: const Color.fromARGB(255, 0, 255, 191),
           secondary: const Color.fromARGB(255, 160, 255, 231),
           onPrimary: Colors.black,
+          background: const Color.fromARGB(255, 255, 240, 255),
+          tertiary: const Color.fromARGB(255, 0, 100, 80),
         ),
         useMaterial3: true,
       ),
@@ -44,6 +69,28 @@ class _HomePageState extends State<HomePage> {
   TextEditingController contentTextFieldController = TextEditingController();
   TextEditingController titleTextFieldController = TextEditingController();
 
+  List<Color> greyOutIfNotActive(Note note) {
+    final ThemeData theme = Theme.of(context);
+
+    List<Color> colors = [
+      theme.colorScheme.secondary,
+      theme.colorScheme.secondary,
+      theme.colorScheme.secondary,
+    ];
+
+    if (note.timeNotification.isNotEmpty) {
+      colors[0] = theme.colorScheme.tertiary;
+    }
+    if (note.locationNotification.isNotEmpty) {
+      colors[1] = theme.colorScheme.tertiary;
+    }
+    if (note.weatherNotification.isNotEmpty) {
+      colors[2] = theme.colorScheme.tertiary;
+    }
+
+    return colors;
+  }
+
   Future<void> getNotes() async {
     final n = await Note.getNotes();
     setState(() {
@@ -51,8 +98,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> askForPermission() async {
+    await Permission.notification
+        .onDeniedCallback(() {})
+        .onGrantedCallback(() {})
+        .onPermanentlyDeniedCallback(() {})
+        .onRestrictedCallback(() {})
+        .onLimitedCallback(() {})
+        .onProvisionalCallback(() {})
+        .request();
+  }
+
   @override
   void initState() {
+    askForPermission();
     super.initState();
     getNotes();
   }
@@ -60,12 +119,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-
-    
-
     return PageView(
       children: [
         Scaffold(
+          backgroundColor: theme.colorScheme.background,
           body: Column(
             children: [
               Padding(
@@ -94,6 +151,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(padding),
                   itemCount: notes.length,
                   itemBuilder: (BuildContext context, int index) {
+                    List<Color> iconColors = greyOutIfNotActive(notes[index]);
                     return GestureDetector(
                       // animation would be nice here
                       onTap: () {
@@ -141,17 +199,51 @@ class _HomePageState extends State<HomePage> {
                       child: Padding(
                         padding: const EdgeInsets.all(padding / 4),
                         child: Container(
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.secondary,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(radius),
-                              ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.secondary,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(radius),
                             ),
-                            height: 54,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(notes[index].title),
-                            )),
+                          ),
+                          height: padding * 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(padding / 3),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    notes[index].title,
+                                    style: const TextStyle(fontSize: padding),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Icon(
+                                          Icons.access_time,
+                                          color: iconColors[0],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Icon(
+                                          Icons.pin_drop,
+                                          color: iconColors[1],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Icon(
+                                          Icons.cloud,
+                                          color: iconColors[2],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -211,6 +303,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Scaffold(
+          backgroundColor: theme.colorScheme.background,
           body: Padding(
             padding: const EdgeInsets.all(padding),
             child: ListView(
@@ -281,7 +374,10 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final date = await showDateTimePicker(context: context);
+                        newNote.timeNotification = date.toString();
+                      },
                       icon: const Icon(Icons.access_time),
                     ),
                     IconButton(
@@ -327,10 +423,23 @@ class _HomePageState extends State<HomePage> {
                   newNote.trimProperties();
                   if (newNote.title.isNotEmpty) {
                     if (await newNote.insertIfNotExists()) {
-                      getNotes();
+                      if (newNote.timeNotification.isNotEmpty) {
+                        int delay = ((DateTime.parse(newNote.timeNotification)
+                                        .millisecondsSinceEpoch -
+                                    DateTime.now().millisecondsSinceEpoch) /
+                                1000)
+                            .round();
+                        Workmanager().registerOneOffTask(
+                          newNote.title,
+                          newNote.title,
+                          initialDelay: Duration(seconds: delay),
+                          inputData: newNote.toMap(),
+                        );
+                      }
                       contentTextFieldController.clear();
                       titleTextFieldController.clear();
                       newNote = Note.toDefault();
+                      getNotes();
                     } else {
                       if (context.mounted) {
                         showDialog(
