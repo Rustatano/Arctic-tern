@@ -7,7 +7,7 @@ class TimeNotification {
 
   Future<void> initializeNotificationPlugin() async {
     AndroidInitializationSettings androidInitializationSettings =
-        const AndroidInitializationSettings('icon');
+        const AndroidInitializationSettings('icon2');
 
     InitializationSettings initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
