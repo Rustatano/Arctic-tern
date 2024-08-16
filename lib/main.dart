@@ -388,11 +388,11 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           IconButton(
                             onPressed: () async {
+                              final date =
+                                  await showDateTimePicker(context: context, initialDate: newNote.timeNotification);
                               setState(() {
                                 newNote.timeNotification = '';
                               });
-                              final date =
-                                  await showDateTimePicker(context: context);
                               if (date != null) {
                                 setState(() {
                                   newNote.timeNotification =

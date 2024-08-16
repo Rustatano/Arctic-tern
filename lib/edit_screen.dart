@@ -110,11 +110,11 @@ class _EditScreenState extends State<EditScreen> {
                     children: [
                       IconButton(
                         onPressed: () async {
+                          final date =
+                              await showDateTimePicker(context: context, initialDate: editedNote.timeNotification);
                           setState(() {
                             editedNote.timeNotification = '';
                           });
-                          final date =
-                              await showDateTimePicker(context: context);
                           if (date != null) {
                             setState(() {
                               editedNote.timeNotification =

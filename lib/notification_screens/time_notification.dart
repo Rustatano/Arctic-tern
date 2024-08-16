@@ -7,7 +7,7 @@ class TimeNotification {
 
   Future<void> initializeNotificationPlugin() async {
     AndroidInitializationSettings androidInitializationSettings =
-        const AndroidInitializationSettings('icon2');
+        const AndroidInitializationSettings('icon3');
 
     InitializationSettings initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
@@ -43,14 +43,20 @@ class TimeNotification {
 
 Future<DateTime?> showDateTimePicker({
   required BuildContext context,
+  required String initialDate,
 }) async {
-  DateTime initialDate = DateTime.now();
+  DateTime initDate;
+  if (initialDate.isNotEmpty) {
+    initDate = DateTime.parse(initialDate);
+  } else {
+    initDate = DateTime.now();
+  }
   DateTime firstDate = DateTime.now();
   DateTime lastDate = firstDate.add(const Duration(days: 365));
 
   final DateTime? selectedDate = await showDatePicker(
     context: context,
-    initialDate: initialDate,
+    initialDate: initDate,
     firstDate: firstDate,
     lastDate: lastDate,
   );
@@ -61,7 +67,7 @@ Future<DateTime?> showDateTimePicker({
 
   final TimeOfDay? selectedTime = await showTimePicker(
     context: context,
-    initialTime: TimeOfDay.fromDateTime(initialDate),
+    initialTime: TimeOfDay.fromDateTime(initDate),
   );
 
   return selectedTime == null
