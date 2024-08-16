@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_location_time/constants.dart';
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/edit_screen.dart';
 
@@ -46,9 +47,52 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: ListView(
+        child: Column(
           children: [
-            Text(widget.note.content),
+            Padding(
+              padding: const EdgeInsets.only(bottom: halfPadding),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Icon(Icons.access_time),
+                  ),
+                  Text(widget.note.timeNotification),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: halfPadding),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Icon(Icons.pin_drop),
+                  ),
+                  Text(widget.note.locationNotification),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: halfPadding),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Icon(Icons.cloud),
+                  ),
+                  Text(widget.note.weatherNotification),
+                ],
+              ),
+            ),
+            const Divider(),
+            Expanded(
+              child: ListView(
+                children: [
+                  Text(widget.note.content),
+                ],
+              ),
+            ),
           ],
         ),
       ),

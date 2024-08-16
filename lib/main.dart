@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:weather_location_time/constants.dart';
 
 import 'package:workmanager/workmanager.dart';
 
@@ -62,8 +63,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const padding = 24.0;
-  static const radius = 16.0;
   Note newNote = Note.toDefault();
   List<Note> notes = [];
   TextEditingController contentTextFieldController = TextEditingController();
@@ -89,6 +88,15 @@ class _HomePageState extends State<HomePage> {
     }
 
     return colors;
+  }
+
+  Color greyOutIfNotActiveEditScreen(Note note, String notification) {
+    final ThemeData theme = Theme.of(context);
+    if (note.toMap()[notification] == '') {
+      return theme.colorScheme.background;
+    } else {
+      return theme.colorScheme.onPrimary;
+    }
   }
 
   Future<void> getNotes() async {
@@ -196,8 +204,9 @@ class _HomePageState extends State<HomePage> {
                           },
                         );
                       },
+                      // Note preview
                       child: Padding(
-                        padding: const EdgeInsets.all(padding / 4),
+                        padding: const EdgeInsets.all(halfPadding / 2),
                         child: Container(
                           decoration: BoxDecoration(
                             color: theme.colorScheme.secondary,
@@ -205,7 +214,7 @@ class _HomePageState extends State<HomePage> {
                               Radius.circular(radius),
                             ),
                           ),
-                          height: padding * 2,
+                          height: doublePadding,
                           child: Padding(
                             padding: const EdgeInsets.all(padding / 3),
                             child: Row(
@@ -213,7 +222,8 @@ class _HomePageState extends State<HomePage> {
                                 Expanded(
                                   child: Text(
                                     notes[index].title,
-                                    style: const TextStyle(fontSize: padding),
+                                    style: const TextStyle(
+                                        fontSize: mediumFontSize),
                                   ),
                                 ),
                                 Expanded(
@@ -311,7 +321,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     SizedBox(
-                      width: MediaQuery.sizeOf(context).width - padding * 2,
+                      width: MediaQuery.sizeOf(context).width - doublePadding,
                       child: TextField(
                         controller: titleTextFieldController,
                         maxLines: null,
@@ -373,20 +383,53 @@ class _HomePageState extends State<HomePage> {
                 const Divider(),
                 Row(
                   children: [
-                    IconButton(
-                      onPressed: () async {
-                        final date = await showDateTimePicker(context: context);
-                        newNote.timeNotification = date.toString();
-                      },
-                      icon: const Icon(Icons.access_time),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              setState(() {
+                                newNote.timeNotification = '';
+                              });
+                              final date =
+                                  await showDateTimePicker(context: context);
+                              if (date != null) {
+                                setState(() {
+                                  newNote.timeNotification =
+                                      date.toString().substring(0, 16);
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.access_time),
+                          ),
+                          Text(
+                            newNote.timeNotification,
+                            style: const TextStyle(fontSize: smallFontSize),
+                          ),
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.pin_drop),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.pin_drop),
+                          ),
+                          Text(newNote.locationNotification),
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.cloud),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.cloud),
+                          ),
+                          Text(newNote.weatherNotification),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -394,7 +437,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     SizedBox(
-                      width: MediaQuery.sizeOf(context).width - padding * 2,
+                      width: MediaQuery.sizeOf(context).width - doublePadding,
                       child: TextField(
                         controller: contentTextFieldController,
                         maxLines: null,

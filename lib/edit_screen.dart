@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_location_time/constants.dart';
 import 'package:weather_location_time/db_objects/note.dart';
 import 'package:weather_location_time/notification_screens/time_notification.dart';
 import 'package:workmanager/workmanager.dart';
@@ -15,7 +16,6 @@ class EditScreen extends StatefulWidget {
 }
 
 class _EditScreenState extends State<EditScreen> {
-  static const padding = 24.0;
   late Note editedNote;
   late TextEditingController titleTextController;
   late TextEditingController contentTextController;
@@ -43,7 +43,7 @@ class _EditScreenState extends State<EditScreen> {
             Row(
               children: [
                 SizedBox(
-                  width: MediaQuery.sizeOf(context).width - padding * 2,
+                  width: MediaQuery.sizeOf(context).width - doublePadding,
                   child: TextField(
                     maxLines: null,
                     controller: titleTextController,
@@ -105,20 +105,53 @@ class _EditScreenState extends State<EditScreen> {
             const Divider(),
             Row(
               children: [
-                IconButton(
-                  onPressed: () async {
-                    final date = await showDateTimePicker(context: context);
-                        editedNote.timeNotification = date.toString();
-                  },
-                  icon: const Icon(Icons.access_time),
+                Expanded(
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          setState(() {
+                            editedNote.timeNotification = '';
+                          });
+                          final date =
+                              await showDateTimePicker(context: context);
+                          if (date != null) {
+                            setState(() {
+                              editedNote.timeNotification =
+                                  date.toString().substring(0, 16);
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.access_time),
+                      ),
+                      Text(
+                        editedNote.timeNotification,
+                        style: const TextStyle(fontSize: smallFontSize),
+                      ),
+                    ],
+                  ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.pin_drop),
+                Expanded(
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.pin_drop),
+                      ),
+                      Text(editedNote.locationNotification),
+                    ],
+                  ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.cloud),
+                Expanded(
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.cloud),
+                      ),
+                      Text(editedNote.weatherNotification),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -126,7 +159,7 @@ class _EditScreenState extends State<EditScreen> {
             Row(
               children: [
                 SizedBox(
-                  width: MediaQuery.sizeOf(context).width - padding * 2,
+                  width: MediaQuery.sizeOf(context).width - doublePadding,
                   child: TextField(
                     controller: contentTextController,
                     maxLines: null,
@@ -156,21 +189,20 @@ class _EditScreenState extends State<EditScreen> {
               if (editedNote.title.isNotEmpty) {
                 if (!await Note.exists(editedNote.title) ||
                     editedNote.title == prevTitle) {
-                      if (editedNote.timeNotification.isNotEmpty) {
-                        Workmanager().cancelByUniqueName(prevTitle);
-                        int delay = ((DateTime.parse(editedNote.timeNotification)
-                                        .millisecondsSinceEpoch -
-                                    DateTime.now().millisecondsSinceEpoch) /
-                                1000)
-                            .round();
-                        Workmanager().registerOneOffTask(
-                          editedNote.title,
-                          editedNote.title,
-                          initialDelay: Duration(seconds: delay),
-                          inputData: editedNote.toMap(),
-                        );
-                      }
-
+                  if (editedNote.timeNotification.isNotEmpty) {
+                    Workmanager().cancelByUniqueName(prevTitle);
+                    int delay = ((DateTime.parse(editedNote.timeNotification)
+                                    .millisecondsSinceEpoch -
+                                DateTime.now().millisecondsSinceEpoch) /
+                            1000)
+                        .round();
+                    Workmanager().registerOneOffTask(
+                      editedNote.title,
+                      editedNote.title,
+                      initialDelay: Duration(seconds: delay),
+                      inputData: editedNote.toMap(),
+                    );
+                  }
 
                   await Note.removeNote(prevTitle);
                   await editedNote.insert();

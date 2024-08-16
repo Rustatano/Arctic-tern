@@ -34,7 +34,7 @@ class Note {
     );
   }
 
-  Map<String, Object?> toMap() {
+  Map<String, String> toMap() {
     return {
       'title': title,
       'category': category,
