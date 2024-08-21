@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:weather_location_time/constants.dart';
+import 'package:weatherNote/constants.dart';
+import 'package:weatherNote/notifications/location_selection.dart';
 
 import 'package:workmanager/workmanager.dart';
 
-import 'package:weather_location_time/db_objects/note.dart';
-import 'package:weather_location_time/note_info_screen.dart';
-import 'package:weather_location_time/notification_screens/time_notification.dart';
-import 'package:weather_location_time/settings_page.dart';
+import 'package:weatherNote/db_objects/note.dart';
+import 'package:weatherNote/screens/note_info_screen.dart';
+import 'package:weatherNote/notifications/time_notification.dart';
+import 'package:weatherNote/screens/settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -388,8 +389,9 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           IconButton(
                             onPressed: () async {
-                              final date =
-                                  await showDateTimePicker(context: context, initialDate: newNote.timeNotification);
+                              final date = await showDateTimePicker(
+                                  context: context,
+                                  initialDate: newNote.timeNotification);
                               setState(() {
                                 newNote.timeNotification = '';
                               });
@@ -413,7 +415,15 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const LocationSelectionScreen(),
+                                ),
+                              );
+                            },
                             icon: const Icon(Icons.pin_drop),
                           ),
                           Text(newNote.locationNotification),

@@ -1,6 +1,6 @@
 {
-    "name": "weather_location_time",
-    "short_name": "weather_location_time",
+    "name": "weatherNote",
+    "short_name": "weatherNote",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

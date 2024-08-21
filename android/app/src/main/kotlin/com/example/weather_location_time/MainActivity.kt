@@ -1,4 +1,4 @@
-package com.example.weather_location_time
+package com.example.weatherNote
 
 import io.flutter.embedding.android.FlutterActivity
 
