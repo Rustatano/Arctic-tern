@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -93,11 +91,6 @@ class Note {
     final db = await getDB();
     final list = await db.query('note');
     return list.map((e) => Note.fromMap(e)).toList();
-  }
-
-  static Future<void> updateNote(Map<String, dynamic> note) async {
-    final db = await getDB();
-    await db.update('note', note, where: 'title = ?', whereArgs: [note['title']]);
   }
 
   static Future<Database> getDB() async {
