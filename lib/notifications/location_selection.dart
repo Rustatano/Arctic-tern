@@ -5,17 +5,39 @@ class LocationSelectionScreen extends StatefulWidget {
   const LocationSelectionScreen({super.key});
 
   @override
-  State<LocationSelectionScreen> createState() => _LocationSelectionScreenState();
+  State<LocationSelectionScreen> createState() =>
+      _LocationSelectionScreenState();
 }
 
 class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
+  LatLng? latlng;
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final ThemeData theme = Theme.of(context);
+    return Scaffold(
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(
+        initialCameraPosition: const CameraPosition(
           target: LatLng(0, 0),
         ),
+        onTap: (ll) {
+          latlng = ll;
+        },
+      ),
+      appBar: AppBar(
+        title: const Text('Select location'),
+        backgroundColor: theme.colorScheme.primary,
+        actions: [
+          TextButton(
+            onPressed: () {
+              // show pin
+              Navigator.pop(context, latlng);
+            },
+            child: Text(
+              'Save',
+              style: TextStyle(color: theme.colorScheme.onPrimary),
+            ),
+          )
+        ],
       ),
     );
   }

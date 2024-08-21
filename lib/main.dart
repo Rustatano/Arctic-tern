@@ -415,14 +415,18 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         children: [
                           IconButton(
-                            onPressed: () {
-                              Navigator.push(
+                            onPressed: () async {
+                              final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
                                       const LocationSelectionScreen(),
                                 ),
                               );
+                              setState(() {
+                                newNote.locationNotification =
+                                    (result != null) ? result.toString() : '';
+                              });
                             },
                             icon: const Icon(Icons.pin_drop),
                           ),
