@@ -21,7 +21,7 @@ void callbackDispatcherTimeNotification() {
   Workmanager().executeTask(
     (task, inputData) async {
       WidgetsFlutterBinding.ensureInitialized();
-      await TimeNotification().showTimeNotification(
+      await TimeNotification('TimeNotification').showTimeNotification(
           title: inputData?['title'], body: inputData?['content']);
       inputData!['timeNotification'] = inputData['timeNotification'] = '';
       await Note.removeNote(inputData['title']);
@@ -109,6 +109,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> askForPermission() async {
     await Permission.notification
+        .onDeniedCallback(() {})
+        .onGrantedCallback(() {})
+        .onPermanentlyDeniedCallback(() {})
+        .onRestrictedCallback(() {})
+        .onLimitedCallback(() {})
+        .onProvisionalCallback(() {})
+        .request();
+    await Permission.locationWhenInUse
         .onDeniedCallback(() {})
         .onGrantedCallback(() {})
         .onPermanentlyDeniedCallback(() {})

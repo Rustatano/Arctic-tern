@@ -1,33 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:weatherNote/notifications/show_notification.dart';
 
-class TimeNotification {
-  final FlutterLocalNotificationsPlugin notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
-  Future<void> initializeNotificationPlugin() async {
-    AndroidInitializationSettings androidInitializationSettings =
-        const AndroidInitializationSettings('icon3');
-
-    InitializationSettings initializationSettings = InitializationSettings(
-      android: androidInitializationSettings,
-    );
-
-    await notificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (payload) async {},
-    );
-  }
-
-  NotificationDetails notificationDetails() {
-    return const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'TimeNotification',
-        'TimeNotification',
-        importance: Importance.max,
-      ),
-    );
-  }
+class TimeNotification extends ShowNotification {
+  TimeNotification(
+    super.channel,
+  );
 
   Future<void> showTimeNotification({
     int id = 0,
@@ -36,8 +13,8 @@ class TimeNotification {
     String? payload,
   }) async {
     await initializeNotificationPlugin();
-    await notificationsPlugin.show(id, title, body, notificationDetails(),
-        payload: payload);
+    await notificationsPlugin
+        .show(id, title, body, notificationDetails(channel), payload: payload);
   }
 }
 
@@ -71,7 +48,7 @@ Future<DateTime?> showDateTimePicker({
   );
 
   return selectedTime == null
-      ? selectedDate
+      ? null
       : DateTime(
           selectedDate.year,
           selectedDate.month,
