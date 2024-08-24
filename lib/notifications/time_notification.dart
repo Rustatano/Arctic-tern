@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weatherNote/notifications/show_notification.dart';
+import 'package:weather_note/notifications/show_notification.dart';
 
 class TimeNotification extends ShowNotification {
   TimeNotification(

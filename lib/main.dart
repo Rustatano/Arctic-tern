@@ -1,14 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:weatherNote/constants.dart';
-import 'package:weatherNote/notifications/location_selection.dart';
-
 import 'package:workmanager/workmanager.dart';
 
-import 'package:weatherNote/db_objects/note.dart';
-import 'package:weatherNote/screens/note_info_screen.dart';
-import 'package:weatherNote/notifications/time_notification.dart';
-import 'package:weatherNote/screens/settings_page.dart';
+import 'package:weather_note/constants.dart';
+import 'package:weather_note/notifications/location_selection.dart';
+import 'package:weather_note/db_objects/note.dart';
+import 'package:weather_note/screens/note_info_screen.dart';
+import 'package:weather_note/notifications/time_notification.dart';
+import 'package:weather_note/screens/settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
           primary: const Color.fromARGB(255, 0, 255, 191),
           secondary: const Color.fromARGB(255, 160, 255, 231),
           onPrimary: Colors.black,
-          background: const Color.fromARGB(255, 255, 240, 255),
+          surface: const Color.fromARGB(255, 255, 240, 255),
           tertiary: const Color.fromARGB(255, 0, 100, 80),
         ),
         useMaterial3: true,
@@ -94,7 +95,7 @@ class _HomePageState extends State<HomePage> {
   Color greyOutIfNotActiveEditScreen(Note note, String notification) {
     final ThemeData theme = Theme.of(context);
     if (note.toMap()[notification] == '') {
-      return theme.colorScheme.background;
+      return theme.colorScheme.surface;
     } else {
       return theme.colorScheme.onPrimary;
     }
@@ -139,7 +140,7 @@ class _HomePageState extends State<HomePage> {
     return PageView(
       children: [
         Scaffold(
-          backgroundColor: theme.colorScheme.background,
+          backgroundColor: theme.colorScheme.surface,
           body: Column(
             children: [
               Padding(
@@ -322,7 +323,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Scaffold(
-          backgroundColor: theme.colorScheme.background,
+          backgroundColor: theme.colorScheme.surface,
           body: Padding(
             padding: const EdgeInsets.all(padding),
             child: ListView(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:weatherNote/constants.dart';
-import 'package:weatherNote/db_objects/note.dart';
-import 'package:weatherNote/notifications/time_notification.dart';
+import 'package:weather_note/constants.dart';
+import 'package:weather_note/db_objects/note.dart';
+import 'package:weather_note/notifications/time_notification.dart';
 import 'package:workmanager/workmanager.dart';
 
 class EditScreen extends StatefulWidget {

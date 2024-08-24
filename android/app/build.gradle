@@ -13,6 +13,14 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+def secretProperties = new Properties()
+def secretPropertiesFile = rootProject.file('secrets.properties')
+if (secretPropertiesFile.exists()) {
+    secretPropertiesFile.withReader('UTF-8') { reader ->
+        secretProperties.load(reader)
+    }
+}
+
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
@@ -52,7 +60,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 
-        manifestPlaceholders += [googleMapsApiKey: '${googleMapsApiKey}']
+        manifestPlaceholders += [googleMapsApiKey: secretProperties.getProperty('googleMapsApiKey')]
     }
 
     buildTypes {
