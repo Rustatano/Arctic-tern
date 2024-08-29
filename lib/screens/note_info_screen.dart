@@ -20,7 +20,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
     final ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
         title: Text(widget.note.title),

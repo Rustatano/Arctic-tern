@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
@@ -8,30 +7,13 @@ import 'package:weather_note/constants.dart';
 import 'package:weather_note/notifications/location_selection.dart';
 import 'package:weather_note/db_objects/note.dart';
 import 'package:weather_note/screens/note_info_screen.dart';
-import 'package:weather_note/notifications/time_notification.dart';
+import 'package:weather_note/notifications/notification.dart';
 import 'package:weather_note/screens/settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Workmanager().initialize(callbackDispatcherTimeNotification);
+  await Workmanager().initialize(callbackDispatcher);
   runApp(const MyApp());
-}
-
-@pragma('vm:entry-point')
-void callbackDispatcherTimeNotification() {
-  Workmanager().executeTask(
-    (task, inputData) async {
-      WidgetsFlutterBinding.ensureInitialized();
-      await TimeNotification('TimeNotification').showTimeNotification(
-          title: inputData?['title'], body: inputData?['content']);
-      inputData!['timeNotification'] = inputData['timeNotification'] = '';
-      await Note.removeNote(inputData['title']);
-      Note note = Note.fromMap(inputData);
-      await note.insertIfNotExists();
-
-      return Future.value(true);
-    },
-  );
 }
 
 class MyApp extends StatelessWidget {
@@ -69,6 +51,7 @@ class _HomePageState extends State<HomePage> {
   List<Note> notes = [];
   TextEditingController contentTextFieldController = TextEditingController();
   TextEditingController titleTextFieldController = TextEditingController();
+  bool checkBoxValue = false;
 
   List<Color> greyOutIfNotActive(Note note) {
     final ThemeData theme = Theme.of(context);
@@ -454,6 +437,110 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              List<Text> timeScale = const [
+                                Text('years'),
+                                Text('months'),
+                                Text('days'),
+                                Text('hours'),
+                                Text('minutes'),
+                              ];
+                              List<Widget> timeCount = [];
+                              for (var i = 1; i < 100; i++) {
+                                timeCount.add(Text(i.toString()));
+                              }
+                              String selectedTimeScale = 'years';
+                              int selectedTimeCount = 1;
+                              await showDialog(
+                                context: context,
+                                builder: (context) => Dialog(
+                                  child: SizedBox(
+                                    width: 250,
+                                    height: 170,
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: CupertinoPicker(
+                                                // inspiritaion in notifications on my phone
+                                                itemExtent: 40,
+                                                onSelectedItemChanged: (val) {
+                                                  selectedTimeScale =
+                                                      timeScale[val].data!;
+                                                },
+                                                children: timeScale,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: CupertinoPicker(
+                                                itemExtent: 40,
+                                                onSelectedItemChanged: (val) {
+                                                  if (selectedTimeScale !=
+                                                          'minutes' ||
+                                                      val <= 15) {
+                                                    selectedTimeCount = val;
+                                                  }
+                                                },
+                                                children: timeCount,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Save'),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                              // approximate, do this exact
+                              setState(() {
+                                switch (selectedTimeScale) {
+                                  case 'years':
+                                    newNote.notificationPeriod =
+                                        (31536000 * selectedTimeCount)
+                                            .toString();
+                                    break;
+                                  case 'months':
+                                    newNote.notificationPeriod =
+                                        (2629800 * selectedTimeCount)
+                                            .toString();
+                                    break;
+                                  case 'days':
+                                    newNote.notificationPeriod =
+                                        (86400 * selectedTimeCount).toString();
+                                    break;
+                                  case 'hours':
+                                    newNote.notificationPeriod =
+                                        (3600 * selectedTimeCount).toString();
+                                    break;
+                                  case 'minutes':
+                                    newNote.notificationPeriod =
+                                        (60 * selectedTimeCount).toString();
+                                    break;
+                                  default:
+                                }
+                              });
+                            },
+                            icon: const Icon(Icons.refresh),
+                          ),
+                          Text(newNote.notificationPeriod),
+                        ],
+                      ),
+                    )
                   ],
                 ),
                 const Divider(),
@@ -489,17 +576,29 @@ class _HomePageState extends State<HomePage> {
                   newNote.trimProperties();
                   if (newNote.title.isNotEmpty) {
                     if (await newNote.insertIfNotExists()) {
-                      if (newNote.timeNotification.isNotEmpty) {
-                        int delay = ((DateTime.parse(newNote.timeNotification)
-                                        .millisecondsSinceEpoch -
-                                    DateTime.now().millisecondsSinceEpoch) /
-                                1000)
-                            .round();
-                        Workmanager().registerOneOffTask(
+                      newNote.notificationPeriod = '';
+                      if (newNote.timeNotification.isNotEmpty ||
+                          newNote.notificationPeriod.isNotEmpty) {
+                        Duration? frequency;
+                        int delay = 0;
+                        if (newNote.notificationPeriod != '') {
+                          frequency = Duration(
+                              seconds: int.parse(newNote.notificationPeriod));
+                        }
+                        if (newNote.timeNotification.isNotEmpty) {
+                          delay = ((DateTime.parse(newNote.timeNotification)
+                                          .millisecondsSinceEpoch -
+                                      DateTime.now().millisecondsSinceEpoch) /
+                                  1000)
+                              .round();
+                        }
+
+                        Workmanager().registerPeriodicTask(
                           newNote.title,
                           newNote.title,
                           initialDelay: Duration(seconds: delay),
                           inputData: newNote.toMap(),
+                          frequency: frequency!,
                         );
                       }
                       contentTextFieldController.clear();

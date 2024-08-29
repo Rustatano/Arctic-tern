@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weather_note/constants.dart';
 import 'package:weather_note/db_objects/note.dart';
-import 'package:weather_note/notifications/time_notification.dart';
+import 'package:weather_note/notifications/notification.dart';
 import 'package:workmanager/workmanager.dart';
 
 class EditScreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class _EditScreenState extends State<EditScreen> {
     final ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(padding),
         child: ListView(

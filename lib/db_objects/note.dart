@@ -10,15 +10,18 @@ class Note {
   String timeNotification;
   String locationNotification;
   String weatherNotification;
+  String notificationPeriod;
 
-  Note(
-      {required this.title,
-      required this.category,
-      required this.content,
-      required this.dateModified,
-      required this.timeNotification,
-      required this.locationNotification,
-      required this.weatherNotification});
+  Note({
+    required this.title,
+    required this.category,
+    required this.content,
+    required this.dateModified,
+    required this.timeNotification,
+    required this.locationNotification,
+    required this.weatherNotification,
+    required this.notificationPeriod,
+  });
 
   static Note toDefault() {
     return Note(
@@ -29,6 +32,7 @@ class Note {
       timeNotification: '',
       locationNotification: '',
       weatherNotification: '',
+      notificationPeriod: '',
     );
   }
 
@@ -41,6 +45,7 @@ class Note {
       'timeNotification': timeNotification,
       'locationNotification': locationNotification,
       'weatherNotification': weatherNotification,
+      'notificationPeriod': notificationPeriod,
     };
   }
 
@@ -53,6 +58,7 @@ class Note {
       timeNotification: map['timeNotification'] as String,
       locationNotification: map['locationNotification'] as String,
       weatherNotification: map['weatherNotification'] as String,
+      notificationPeriod: map['notificationPeriod'] as String,
     );
   }
 
@@ -100,7 +106,7 @@ class Note {
       join(await getDatabasesPath(), 'note.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE note(title TEXT PRIMARY KEY, category TEXT, content TEXT, dateModified TEXT, timeNotification TEXT, locationNotification TEXT, weatherNotification TEXT)',
+          'CREATE TABLE note(title TEXT PRIMARY KEY, category TEXT, content TEXT, dateModified TEXT, timeNotification TEXT, locationNotification TEXT, weatherNotification TEXT, notificationPeriod INT)',
         );
       },
     );
