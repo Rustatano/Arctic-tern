@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:ffi';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:weather_note/constants.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
   const LocationSelectionScreen({super.key});
@@ -13,69 +17,136 @@ class LocationSelectionScreen extends StatefulWidget {
 }
 
 class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
-  final Completer<GoogleMapController> mapController =
-      Completer<GoogleMapController>();
-  Map<String, String> latlng = {
-    'lat': '',
-    'lng': '',
-    'deviation': '',
+  late LatLng currentLocation;
+  late AlignOnUpdate alignPositionOnUpdate;
+  late final StreamController<double?> alignPositionStreamController;
+  Map<String, double> result = {
+    'lat': 0.0,
+    'long': 0.0,
+    'deviation': 10.0,
   };
-  int deviation = 10;
-  LatLng currentLocation = const LatLng(0, 0);
-  Set<Marker> markers = {};
 
-  Future<void> getCurrentLocation() async {
-    Position pos = await Geolocator.getCurrentPosition();
-    setState(() {
-      currentLocation = LatLng(pos.latitude, pos.longitude);
-    });
+  @override
+  void initState() {
+    super.initState();
+    alignPositionOnUpdate = AlignOnUpdate.always;
+    alignPositionStreamController = StreamController<double?>();
+    alignPositionStreamController.add(18);
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
-      body: GoogleMap(
-        markers: markers,
-        myLocationEnabled: true,
-        onMapCreated: (controller) async {
-          await getCurrentLocation();
-          controller
-              .moveCamera(CameraUpdate.newLatLngZoom(currentLocation, 10));
-        },
-        initialCameraPosition: CameraPosition(
-          target: currentLocation,
-        ),
-        onTap: (ll) {
-          // on tap, show pin. Above that pin, show a widget, where the user will be able to set deviation.
-          //Remove 'Save in top right' and add save button to the widget above the pin.
-          latlng['lat'] = ll.latitude.toString();
-          latlng['lng'] = ll.longitude.toString();
-          setState(() {
-            markers.clear();
-            markers.add(
-              Marker(
-                  markerId: const MarkerId('locationSelectionMarker'),
-                  position: ll),
+      body: FlutterMap(
+        options: MapOptions(
+          initialCenter: const LatLng(0, 0),
+          initialZoom: 5,
+          onPositionChanged: (MapCamera camera, bool hasGesture) {
+            if (hasGesture && alignPositionOnUpdate != AlignOnUpdate.never) {
+              setState(
+                () => alignPositionOnUpdate = AlignOnUpdate.never,
+              );
+            }
+          },
+          onTap: (tapPosition, point) {
+            result['lat'] = point.latitude;
+            result['long'] = point.longitude;
+            List<Center> meters = [];
+            for (var i = 10; i < 1000; i += 10) {
+              meters.add(
+                Center(
+                  child: Text(
+                    i.toString(),
+                  ),
+                ),
+              );
+            }
+            showDialog(
+              context: context,
+              builder: (context) => Dialog(
+                child: SizedBox(
+                  width: 300,
+                  height: 200,
+                  child: Padding(
+                    padding: const EdgeInsets.all(padding),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Text('Set deviation:'),
+                            Expanded(
+                              child: CupertinoPicker(
+                                itemExtent: 40,
+                                onSelectedItemChanged: (v) {
+                                  setState(() {
+                                    var tmp = meters[v].child! as Text;
+                                    result['deviation'] =
+                                        double.parse(tmp.data!);
+                                  });
+                                },
+                                children: meters,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context, result);
+                              },
+                              child: const Text('Save'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             );
-          });
-        },
+          },
+        ),
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'weather_note',
+          ),
+          CurrentLocationLayer(
+            alignPositionStream: alignPositionStreamController.stream,
+            alignDirectionOnUpdate: alignPositionOnUpdate,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: FloatingActionButton(
+                onPressed: () {
+                  setState(
+                    () => alignPositionOnUpdate = AlignOnUpdate.always,
+                  );
+                  alignPositionStreamController.add(18);
+                },
+                child: const Icon(
+                  Icons.my_location,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       appBar: AppBar(
-        title: const Text('Select location'),
+        title: const Text('Select Location'),
         backgroundColor: theme.colorScheme.primary,
-        actions: [
-          TextButton(
-            onPressed: () {
-              // show pin
-              Navigator.pop(context, latlng);
-            },
-            child: Text(
-              'Save',
-              style: TextStyle(color: theme.colorScheme.onPrimary),
-            ),
-          )
-        ],
       ),
     );
   }

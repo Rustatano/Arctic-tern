@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController contentTextFieldController = TextEditingController();
   TextEditingController titleTextFieldController = TextEditingController();
   bool checkBoxValue = false;
+  bool isTimeNotificationSelected = false;
 
   List<Color> greyOutIfNotActive(Note note) {
     final ThemeData theme = Theme.of(context);
@@ -73,15 +74,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     return colors;
-  }
-
-  Color greyOutIfNotActiveEditScreen(Note note, String notification) {
-    final ThemeData theme = Theme.of(context);
-    if (note.toMap()[notification] == '') {
-      return theme.colorScheme.surface;
-    } else {
-      return theme.colorScheme.onPrimary;
-    }
   }
 
   Future<void> getNotes() async {
@@ -376,6 +368,7 @@ class _HomePageState extends State<HomePage> {
                 const Divider(),
                 Row(
                   children: [
+                    // time notification
                     Expanded(
                       child: Column(
                         children: [
@@ -391,6 +384,7 @@ class _HomePageState extends State<HomePage> {
                                 setState(() {
                                   newNote.timeNotification =
                                       date.toString().substring(0, 16);
+                                  isTimeNotificationSelected = true;
                                 });
                               }
                             },
@@ -403,93 +397,133 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
+                    // location notification
                     Expanded(
                       child: Column(
                         children: [
                           IconButton(
-                            onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const LocationSelectionScreen(),
-                                ),
-                              );
-                              setState(() {
-                                newNote.locationNotification =
-                                    (result != null) ? result.toString() : '';
-                              });
-                            },
+                            onPressed: (isTimeNotificationSelected)
+                                ? () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LocationSelectionScreen(),
+                                      ),
+                                    );
+                                    print(result);
+                                    setState(() {
+                                      newNote.locationNotification =
+                                          (result != null)
+                                              ? result.toString()
+                                              : '';
+                                    });
+                                  }
+                                : () => {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => const AlertDialog(
+                                          title: Text('Note'),
+                                          content: Text(
+                                            'You must select time notification first',
+                                          ),
+                                        ),
+                                      )
+                                    },
                             icon: const Icon(Icons.pin_drop),
                           ),
                           Text(newNote.locationNotification),
                         ],
                       ),
                     ),
+                    // weather notification
                     Expanded(
                       child: Column(
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: (isTimeNotificationSelected)
+                                ? () {}
+                                : () => {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => const AlertDialog(
+                                          title: Text('Note'),
+                                          content: Text(
+                                            'You must select time notification first',
+                                          ),
+                                        ),
+                                      )
+                                    },
                             icon: const Icon(Icons.cloud),
                           ),
                           Text(newNote.weatherNotification),
                         ],
                       ),
                     ),
+                    // repeat notification
                     Expanded(
                       child: Column(
                         children: [
                           IconButton(
                             onPressed: () async {
-                              List<Text> timeScale = const [
-                                Text('years'),
-                                Text('months'),
-                                Text('days'),
-                                Text('hours'),
-                                Text('minutes'),
+                              List<Padding> timeScale = const [
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5.0),
+                                  child: Text('months'),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5.0),
+                                  child: Text('days'),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5.0),
+                                  child: Text('hours'),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5.0),
+                                  child: Text('minutes'),
+                                ),
                               ];
                               List<Widget> timeCount = [];
-                              for (var i = 1; i < 100; i++) {
+                              for (var i = 1; i < 24; i++) {
                                 timeCount.add(Text(i.toString()));
                               }
-                              String selectedTimeScale = 'years';
+                              int selectedTimeScale = 0;
                               int selectedTimeCount = 1;
                               await showDialog(
                                 context: context,
                                 builder: (context) => Dialog(
                                   child: SizedBox(
-                                    width: 250,
-                                    height: 170,
+                                    width: 300, // make this adaptable
+                                    height: 200,
                                     child: Column(
                                       children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: CupertinoPicker(
-                                                // inspiritaion in notifications on my phone
-                                                itemExtent: 40,
-                                                onSelectedItemChanged: (val) {
-                                                  selectedTimeScale =
-                                                      timeScale[val].data!;
-                                                },
-                                                children: timeScale,
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: padding, bottom: padding),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: CupertinoPicker(
+                                                  // inspiritaion in notifications on my phone
+                                                  itemExtent: 30,
+                                                  onSelectedItemChanged: (val) {
+                                                    selectedTimeScale = val;
+                                                  },
+                                                  children: timeScale,
+                                                ),
                                               ),
-                                            ),
-                                            Expanded(
-                                              child: CupertinoPicker(
-                                                itemExtent: 40,
-                                                onSelectedItemChanged: (val) {
-                                                  if (selectedTimeScale !=
-                                                          'minutes' ||
-                                                      val <= 15) {
+                                              Expanded(
+                                                child: CupertinoPicker(
+                                                  itemExtent: 30,
+                                                  onSelectedItemChanged: (val) {
                                                     selectedTimeCount = val;
-                                                  }
-                                                },
-                                                children: timeCount,
+                                                  },
+                                                  children: timeCount,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                         Row(
                                           children: [
@@ -498,6 +532,13 @@ class _HomePageState extends State<HomePage> {
                                                 Navigator.pop(context);
                                               },
                                               child: const Text('Save'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                selectedTimeScale = 10;
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Cancel'),
                                             )
                                           ],
                                         ),
@@ -509,29 +550,26 @@ class _HomePageState extends State<HomePage> {
                               // approximate, do this exact
                               setState(() {
                                 switch (selectedTimeScale) {
-                                  case 'years':
-                                    newNote.notificationPeriod =
-                                        (31536000 * selectedTimeCount)
-                                            .toString();
-                                    break;
-                                  case 'months':
+                                  case 0:
                                     newNote.notificationPeriod =
                                         (2629800 * selectedTimeCount)
                                             .toString();
                                     break;
-                                  case 'days':
+                                  case 1:
                                     newNote.notificationPeriod =
                                         (86400 * selectedTimeCount).toString();
                                     break;
-                                  case 'hours':
+                                  case 2:
                                     newNote.notificationPeriod =
                                         (3600 * selectedTimeCount).toString();
                                     break;
-                                  case 'minutes':
+                                  case 3:
                                     newNote.notificationPeriod =
                                         (60 * selectedTimeCount).toString();
                                     break;
                                   default:
+                                    newNote.notificationPeriod = '';
+                                    break;
                                 }
                               });
                             },
@@ -576,7 +614,6 @@ class _HomePageState extends State<HomePage> {
                   newNote.trimProperties();
                   if (newNote.title.isNotEmpty) {
                     if (await newNote.insertIfNotExists()) {
-                      newNote.notificationPeriod = '';
                       if (newNote.timeNotification.isNotEmpty ||
                           newNote.notificationPeriod.isNotEmpty) {
                         Duration? frequency;
@@ -598,13 +635,16 @@ class _HomePageState extends State<HomePage> {
                           newNote.title,
                           initialDelay: Duration(seconds: delay),
                           inputData: newNote.toMap(),
-                          frequency: frequency!,
+                          frequency: frequency,
                         );
                       }
-                      contentTextFieldController.clear();
-                      titleTextFieldController.clear();
-                      newNote = Note.toDefault();
-                      getNotes();
+                      setState(() {
+                        contentTextFieldController.clear();
+                        titleTextFieldController.clear();
+                        newNote = Note.toDefault();
+                        isTimeNotificationSelected = false;
+                        getNotes();
+                      });
                     } else {
                       if (context.mounted) {
                         showDialog(
