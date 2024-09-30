@@ -411,7 +411,6 @@ class _HomePageState extends State<HomePage> {
                                             const LocationSelectionScreen(),
                                       ),
                                     );
-                                    print(result);
                                     setState(() {
                                       newNote.locationNotification =
                                           (result != null)

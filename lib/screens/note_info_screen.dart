@@ -69,7 +69,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     padding: EdgeInsets.only(right: halfPadding),
                     child: Icon(Icons.pin_drop),
                   ),
-                  Text(widget.note.locationNotification),
+                  Flexible(child: Text(widget.note.locationNotification)),
                 ],
               ),
             ),
