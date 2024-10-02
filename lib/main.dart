@@ -4,7 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'package:weather_note/constants.dart';
-import 'package:weather_note/notifications/location_selection_screen.dart';
+import 'package:weather_note/screens/location_selection_screen.dart';
 import 'package:weather_note/db_objects/note.dart';
 import 'package:weather_note/screens/note_info_screen.dart';
 import 'package:weather_note/notifications/notification.dart';

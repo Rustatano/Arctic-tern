@@ -44,8 +44,13 @@ class Notification {
     String? payload,
   }) async {
     await initializeNotificationPlugin();
-    await notificationsPlugin
-        .show(id, title, body, notificationDetails(channel), payload: payload);
+    await notificationsPlugin.show(
+      id,
+      title,
+      body,
+      notificationDetails(channel),
+      payload: payload,
+    );
   }
 }
 

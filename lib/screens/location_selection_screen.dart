@@ -15,6 +15,7 @@ class LocationSelectionScreen extends StatefulWidget {
 
 class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
   Future<Position> currentPosition = Geolocator.getCurrentPosition();
+  MapController mapController = MapController();
   Map<String, double> result = {
     'lat': 0.0,
     'long': 0.0,
@@ -33,11 +34,15 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
           List<Marker> markers = [
             Marker(
               point: LatLng(position.latitude, position.longitude),
-              child: Icon(Icons.my_location, color: theme.colorScheme.onPrimary,),
+              child: Icon(
+                Icons.my_location,
+                color: theme.colorScheme.onPrimary,
+              ),
             ),
           ];
           resultWidget = Scaffold(
             body: FlutterMap(
+              mapController: mapController,
               options: MapOptions(
                 initialCenter: LatLng(position.latitude, position.longitude),
                 initialZoom: 15,
@@ -112,7 +117,32 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'weather_note',
                 ),
-                MarkerLayer(markers: markers)
+                MarkerLayer(markers: markers),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(padding),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: theme.colorScheme.primary,
+                      ),
+                      width: 80,
+                      height: 80,
+                      child: IconButton(
+                          onPressed: () {
+                            mapController.move(
+                              LatLng(position.latitude, position.longitude),
+                              15,
+                            );
+                          },
+                          icon: Icon(
+                            Icons.my_location,
+                            color: theme.colorScheme.onPrimary,
+                          )),
+                    ),
+                  ),
+                )
               ],
             ),
             appBar: AppBar(
@@ -134,18 +164,19 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
           resultWidget = Scaffold(
             body: Center(
               child: Column(
-                children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: doublePadding),
-                    child: Text('Loading the map...'),
-                  ),
-                ],
-              ),
+                mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: doublePadding),
+                      child: Text('Loading the map...'),
+                    ),
+                  ],
+                ),
             ),
             appBar: AppBar(
               title: const Text('Select Location'),
