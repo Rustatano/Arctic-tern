@@ -8,7 +8,7 @@ import 'package:weather_note/screens/location_selection_screen.dart';
 import 'package:weather_note/db_objects/note.dart';
 import 'package:weather_note/screens/note_info_screen.dart';
 import 'package:weather_note/notifications/notification.dart';
-import 'package:weather_note/screens/settings_page.dart';
+import 'package:weather_note/screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -252,7 +252,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const SettingsPage(),
+                      builder: (context) => const SettingsScreen(),
                     ),
                   );
                 },
