@@ -165,18 +165,18 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: CircularProgressIndicator(),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: doublePadding),
-                      child: Text('Loading the map...'),
-                    ),
-                  ],
-                ),
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: doublePadding),
+                    child: Text('Loading the map...'),
+                  ),
+                ],
+              ),
             ),
             appBar: AppBar(
               title: const Text('Select Location'),
