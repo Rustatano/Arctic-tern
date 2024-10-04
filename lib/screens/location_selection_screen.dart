@@ -25,7 +25,6 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return FutureBuilder(
       future: currentPosition,
       builder: (context, snapshot) {
@@ -37,7 +36,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               point: LatLng(position.latitude, position.longitude),
               child: Icon(
                 Icons.my_location,
-                color: theme.colorScheme.onPrimary,
+                color: Colors.black,
               ),
             ),
           ];
@@ -78,9 +77,9 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                       itemExtent: 40,
                                       onSelectedItemChanged: (v) {
                                         setState(() {
-                                          var tmp = meters[v].child! as Text;
+                                          var text = meters[v].child! as Text;
                                           result['deviation'] =
-                                              double.parse(tmp.data!);
+                                              double.parse(text.data!);
                                         });
                                       },
                                       children: meters,
@@ -126,29 +125,65 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: theme.colorScheme.primary,
+                        color: colorScheme.primary,
                       ),
-                      width: 80,
-                      height: 80,
+                      width: 70,
+                      height: 70,
                       child: IconButton(
-                          onPressed: () {
-                            mapController.move(
-                              LatLng(position.latitude, position.longitude),
-                              15,
-                            );
-                          },
-                          icon: Icon(
-                            Icons.my_location,
-                            color: theme.colorScheme.onPrimary,
-                          )),
+                        onPressed: () {
+                          mapController.moveAndRotate(
+                            LatLng(
+                              position.latitude,
+                              position.longitude,
+                            ),
+                            15,
+                            0,
+                          );
+                        },
+                        icon: Icon(
+                          Icons.my_location,
+                          color: colorScheme.onPrimary,
+                        ),
+                        color: colorScheme.primary,
+                      ),
                     ),
                   ),
-                )
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: EdgeInsets.all(padding),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: colorScheme.primary,
+                      ),
+                      width: 50,
+                      height: 50,
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            mapController.rotate(0);
+                          });
+                        },
+                        icon: Icon(
+                          CupertinoIcons.compass,
+                          color: colorScheme.onPrimary,
+                        ),
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
             appBar: AppBar(
-              title: const Text('Select Location'),
-              backgroundColor: theme.colorScheme.primary,
+              title: Text(
+                'Select Location',
+                style: TextStyle(color: colorScheme.onPrimary),
+              ),
+              backgroundColor: colorScheme.primary,
+              iconTheme: IconThemeData(color: colorScheme.onPrimary),
             ),
           );
         } else if (snapshot.hasError) {
@@ -157,8 +192,13 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               child: Text(snapshot.error.toString()),
             ),
             appBar: AppBar(
-              title: const Text('Select Location'),
-              backgroundColor: theme.colorScheme.primary,
+              title: Text(
+                'Select Location',
+                style: TextStyle(
+                  color: colorScheme.onPrimary,
+                ),
+              ),
+              backgroundColor: colorScheme.primary,
             ),
           );
         } else {
@@ -180,8 +220,16 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               ),
             ),
             appBar: AppBar(
-              title: const Text('Select Location'),
-              backgroundColor: theme.colorScheme.primary,
+              title: Text(
+                'Select Location',
+                style: TextStyle(
+                  color: colorScheme.onPrimary,
+                ),
+              ),
+              backgroundColor: colorScheme.primary,
+              iconTheme: IconThemeData(
+                color: colorScheme.onPrimary,
+              ),
             ),
           );
         }

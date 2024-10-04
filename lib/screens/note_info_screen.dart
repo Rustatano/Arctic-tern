@@ -17,34 +17,8 @@ class NoteInfoScreen extends StatefulWidget {
 class _NoteInfoScreenState extends State<NoteInfoScreen> {
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(widget.note.title),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditScreen(
-                      note: widget.note,
-                      refreshNotesCallback: widget.refreshNotesCallback),
-                ),
-              );
-            },
-            child: Text(
-              'Edit',
-              style: TextStyle(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -85,6 +59,18 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: halfPadding),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Icon(Icons.refresh),
+                  ),
+                  Text(widget.note.notificationPeriod),
+                ],
+              ),
+            ),
             const Divider(),
             Expanded(
               child: ListView(
@@ -95,6 +81,33 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
             ),
           ],
         ),
+      ),
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+        backgroundColor: colorScheme.primary,
+        title: Text(
+          widget.note.title,
+          style: TextStyle(color: colorScheme.onPrimary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditScreen(
+                    note: widget.note,
+                    refreshNotesCallback: widget.refreshNotesCallback,
+                  ),
+                ),
+              );
+            },
+            child: Text(
+              'Edit',
+              style: TextStyle(color: colorScheme.onPrimary),
+            ),
+          ),
+        ],
       ),
     );
   }

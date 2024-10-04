@@ -1,14 +1,14 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:weather_note/db_objects/note.dart';
 import 'package:workmanager/workmanager.dart';
 
 class Notification {
-  String channel;
-
-  Notification(
-    this.channel,
-  );
+  String channel = 'Notification';
 
   final FlutterLocalNotificationsPlugin notificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -37,7 +37,7 @@ class Notification {
     );
   }
 
-  Future<void> showTimeNotification({
+  Future<void> showNotification({
     int id = 0,
     String? title,
     String? body,
@@ -99,9 +99,16 @@ void callbackDispatcher() {
   Workmanager().executeTask(
     (task, inputData) async {
       WidgetsFlutterBinding.ensureInitialized();
-      await Notification('Notifications').showTimeNotification(
-          title: inputData?['title'], body: inputData?['content']);
+      
+      if (inputData?['locationNotification'] != '') {
+        final currentPosition = await Geolocator.getCurrentPosition();
 
+        if (sqrt(pow(currentPosition.latitude, 2) + pow(currentPosition.longitude, 2)) > jsonDecode(inputData?['locationNotification'])['deviation']) {
+          return Future.value(true);
+        }
+      }
+
+      await Notification().showNotification(title: inputData?['title']);
       if (inputData?['notificationPeriod'] == '') {
         // one time task
         inputData!['timeNotification'] = '';

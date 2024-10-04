@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,17 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Weather Note',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 0, 255, 191),
-          primary: const Color.fromARGB(255, 0, 255, 191),
-          secondary: const Color.fromARGB(255, 160, 255, 231),
-          onPrimary: Colors.black,
-          surface: const Color.fromARGB(255, 255, 240, 255),
-          tertiary: const Color.fromARGB(255, 0, 100, 80),
-        ),
-        useMaterial3: true,
-      ),
+      theme: themeData,
       home: const HomePage(),
     );
   }
@@ -55,22 +47,20 @@ class _HomePageState extends State<HomePage> {
   bool isTimeNotificationSelected = false;
 
   List<Color> greyOutIfNotActive(Note note) {
-    final ThemeData theme = Theme.of(context);
-
     List<Color> colors = [
-      theme.colorScheme.secondary,
-      theme.colorScheme.secondary,
-      theme.colorScheme.secondary,
+      colorScheme.secondary,
+      colorScheme.secondary,
+      colorScheme.secondary,
     ];
 
     if (note.timeNotification.isNotEmpty) {
-      colors[0] = theme.colorScheme.tertiary;
+      colors[0] = colorScheme.onSecondary;
     }
     if (note.locationNotification.isNotEmpty) {
-      colors[1] = theme.colorScheme.tertiary;
+      colors[1] = colorScheme.onSecondary;
     }
     if (note.weatherNotification.isNotEmpty) {
-      colors[2] = theme.colorScheme.tertiary;
+      colors[2] = colorScheme.onSecondary;
     }
 
     return colors;
@@ -111,11 +101,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return PageView(
       children: [
         Scaffold(
-          backgroundColor: theme.colorScheme.surface,
+          backgroundColor: colorScheme.surface,
           body: Column(
             children: [
               Padding(
@@ -128,14 +117,16 @@ class _HomePageState extends State<HomePage> {
                       // search notes
                     });
                   },
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(radius),
                       ),
                     ),
                     hintText: 'Search notes',
-                    prefixIcon: Icon(Icons.search),
+                    hintStyle: TextStyle(color: colorScheme.onSurface),
+                    prefixIcon:
+                        Icon(Icons.search, color: colorScheme.onSurface),
                   ),
                 ),
               ),
@@ -194,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.all(halfPadding / 2),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.secondary,
+                            color: colorScheme.secondary,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(radius),
                             ),
@@ -207,8 +198,9 @@ class _HomePageState extends State<HomePage> {
                                 Expanded(
                                   child: Text(
                                     notes[index].title,
-                                    style: const TextStyle(
-                                        fontSize: mediumFontSize),
+                                    style: TextStyle(
+                                        fontSize: mediumFontSize,
+                                        color: colorScheme.onSecondary),
                                   ),
                                 ),
                                 Expanded(
@@ -234,7 +226,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ],
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -256,9 +248,25 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.settings)),
-            backgroundColor: theme.colorScheme.primary,
+                icon: Icon(
+                  Icons.settings,
+                  color: colorScheme.onPrimary,
+                )),
+            backgroundColor: colorScheme.primary,
+            // Category selection, home screen
             title: DropdownMenu(
+              trailingIcon: Icon(
+                Icons.arrow_drop_down,
+                color: colorScheme.onPrimary,
+              ),
+              selectedTrailingIcon: Icon(
+                Icons.arrow_drop_up,
+                color: colorScheme.onPrimary,
+              ),
+              menuStyle: MenuStyle(
+                  backgroundColor:
+                      WidgetStateProperty.all(colorScheme.primary)),
+              textStyle: TextStyle(color: colorScheme.onPrimary),
               inputDecorationTheme: const InputDecorationTheme(
                 border: InputBorder.none,
               ),
@@ -268,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                   newNote.category = category!;
                 });
               },
-              dropdownMenuEntries: const [
+              dropdownMenuEntries: [
                 DropdownMenuEntry(
                   value: 'Category',
                   label: 'Category',
@@ -298,7 +306,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Scaffold(
-          backgroundColor: theme.colorScheme.surface,
+          backgroundColor: colorScheme.surface,
           body: Padding(
             padding: const EdgeInsets.all(padding),
             child: ListView(
@@ -315,9 +323,11 @@ class _HomePageState extends State<HomePage> {
                             newNote.title = title;
                           });
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Enter a note title',
+                          hintStyle:
+                              TextStyle(color: colorScheme.onSurface),
                         ),
                       ),
                     ),
@@ -326,8 +336,20 @@ class _HomePageState extends State<HomePage> {
                 const Divider(),
                 Row(
                   children: [
+                    // Category selection, new note
                     DropdownMenu(
-                      inputDecorationTheme: const InputDecorationTheme(
+                      trailingIcon: Icon(
+                        Icons.arrow_drop_down,
+                        color: colorScheme.onPrimary,
+                      ),
+                      selectedTrailingIcon: Icon(
+                        Icons.arrow_drop_up,
+                        color: colorScheme.onPrimary,
+                      ),
+                      menuStyle: MenuStyle(
+                          backgroundColor: WidgetStateProperty.all(
+                              colorScheme.primary)),
+                      inputDecorationTheme: InputDecorationTheme(
                         border: InputBorder.none,
                       ),
                       initialSelection: 'Category',
@@ -388,7 +410,10 @@ class _HomePageState extends State<HomePage> {
                                 });
                               }
                             },
-                            icon: const Icon(Icons.access_time),
+                            icon: Icon(
+                              Icons.access_time,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
                           Text(
                             newNote.timeNotification,
@@ -414,7 +439,7 @@ class _HomePageState extends State<HomePage> {
                                     setState(() {
                                       newNote.locationNotification =
                                           (result != null)
-                                              ? result.toString()
+                                              ? jsonEncode(result)
                                               : '';
                                     });
                                   }
@@ -429,7 +454,10 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       )
                                     },
-                            icon: const Icon(Icons.pin_drop),
+                            icon: Icon(
+                              Icons.pin_drop,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
                           Text(newNote.locationNotification),
                         ],
@@ -453,7 +481,10 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       )
                                     },
-                            icon: const Icon(Icons.cloud),
+                            icon: Icon(
+                              Icons.cloud,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
                           Text(newNote.weatherNotification),
                         ],
@@ -548,6 +579,7 @@ class _HomePageState extends State<HomePage> {
                               );
                               // approximate, do this exact
                               setState(() {
+                                selectedTimeCount++;
                                 switch (selectedTimeScale) {
                                   case 0:
                                     newNote.notificationPeriod =
@@ -572,12 +604,15 @@ class _HomePageState extends State<HomePage> {
                                 }
                               });
                             },
-                            icon: const Icon(Icons.refresh),
+                            icon: Icon(
+                              Icons.refresh,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
                           Text(newNote.notificationPeriod),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
                 const Divider(),
@@ -593,10 +628,12 @@ class _HomePageState extends State<HomePage> {
                             newNote.content = content;
                           });
                         },
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Start typing here',
-                        ),
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Start typing here',
+                            hintStyle:
+                                TextStyle(color: colorScheme.onSurface)),
+                        cursorColor: colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -605,8 +642,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           appBar: AppBar(
-            backgroundColor: theme.colorScheme.primary,
-            title: const Text('New Note'),
+            backgroundColor: colorScheme.primary,
+            title: Text(
+              'New Note',
+              style: TextStyle(color: colorScheme.onPrimary),
+            ),
             actions: [
               TextButton(
                 onPressed: () async {
@@ -657,18 +697,12 @@ class _HomePageState extends State<HomePage> {
                       }
                     }
                   } else {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const AlertDialog(
-                        title: Text('Error'),
-                        content: Text('Note title is required'),
-                      ),
-                    );
+                    newNote.title = '(no title)';
                   }
                 },
                 child: Text(
                   'Save',
-                  style: TextStyle(color: theme.colorScheme.onPrimary),
+                  style: TextStyle(color: colorScheme.onPrimary),
                 ),
               ),
             ],
