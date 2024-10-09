@@ -12,8 +12,11 @@ class EditScreen extends StatefulWidget {
   final Note note;
   final Function refreshNotesCallback;
 
-  const EditScreen(
-      {super.key, required this.note, required this.refreshNotesCallback});
+  const EditScreen({
+    super.key,
+    required this.note,
+    required this.refreshNotesCallback,
+  });
 
   @override
   State<EditScreen> createState() => _EditScreenState();
@@ -24,7 +27,6 @@ class _EditScreenState extends State<EditScreen> {
   late TextEditingController titleTextController;
   late TextEditingController contentTextController;
   late String prevTitle;
-  bool isTimeNotificationSelected = false;
 
   @override
   void initState() {
@@ -117,88 +119,6 @@ class _EditScreenState extends State<EditScreen> {
                           final date = await showDateTimePicker(
                               context: context,
                               initialDate: editedNote.timeNotification);
-                          setState(() {
-                            editedNote.timeNotification = '';
-                          });
-                          if (date != null) {
-                            setState(() {
-                              editedNote.timeNotification =
-                                  date.toString().substring(0, 16);
-                              isTimeNotificationSelected = true;
-                            });
-                          }
-                        },
-                        icon: Icon(
-                          Icons.access_time,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      Text(
-                        editedNote.timeNotification,
-                        style: const TextStyle(fontSize: smallFontSize),
-                      ),
-                    ],
-                  ),
-                ),
-                // location notification
-                Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: (isTimeNotificationSelected)
-                            ? () async {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const LocationSelectionScreen(),
-                                  ),
-                                );
-                                setState(() {
-                                  editedNote.locationNotification =
-                                      (result != null)
-                                          ? jsonEncode(result)
-                                          : '';
-                                });
-                              }
-                            : () => {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => const AlertDialog(
-                                      title: Text('Note'),
-                                      content: Text(
-                                        'You must select time notification first',
-                                      ),
-                                    ),
-                                  )
-                                },
-                        icon: Icon(
-                          Icons.pin_drop,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      Text(editedNote.locationNotification),
-                    ],
-                  ),
-                ),
-                // weather notification
-                Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.cloud),
-                      ),
-                      Text(editedNote.weatherNotification),
-                    ],
-                  ),
-                ),
-                // repeat
-                Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () async {
                           List<Padding> timeScale = const [
                             Padding(
                               padding: EdgeInsets.only(top: 5.0),
@@ -217,17 +137,32 @@ class _EditScreenState extends State<EditScreen> {
                               child: Text('minutes'),
                             ),
                           ];
+                          if (date == null) {
+                            setState(() {
+                              editedNote.timeNotification = '';
+                              editedNote.notificationPeriod = '';
+                            });
+                            return;
+                          }
                           List<Widget> timeCount = [];
-                          for (var i = 1; i < 24; i++) {
-                            timeCount.add(Text(i.toString()));
+                          for (var i = 1; i < 32; i++) {
+                            timeCount.add(
+                              Padding(
+                                padding: const EdgeInsets.only(top: 5.0),
+                                child: Text(i.toString()),
+                              ),
+                            );
                           }
                           int selectedTimeScale = 0;
                           int selectedTimeCount = 1;
+                          if (!context.mounted) {
+                            return;
+                          }
                           await showDialog(
                             context: context,
                             builder: (context) => Dialog(
                               child: SizedBox(
-                                width: 300, // make this adaptable
+                                width: 300,
                                 height: 200,
                                 child: Column(
                                   children: [
@@ -238,7 +173,6 @@ class _EditScreenState extends State<EditScreen> {
                                         children: [
                                           Expanded(
                                             child: CupertinoPicker(
-                                              // inspiritaion in notifications on my phone
                                               itemExtent: 30,
                                               onSelectedItemChanged: (val) {
                                                 selectedTimeScale = val;
@@ -262,17 +196,17 @@ class _EditScreenState extends State<EditScreen> {
                                       children: [
                                         TextButton(
                                           onPressed: () {
+                                            selectedTimeScale = -1;
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
                                             Navigator.pop(context);
                                           },
                                           child: const Text('Save'),
                                         ),
-                                        TextButton(
-                                          onPressed: () {
-                                            selectedTimeScale = 10;
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Cancel'),
-                                        )
                                       ],
                                     ),
                                   ],
@@ -305,16 +239,63 @@ class _EditScreenState extends State<EditScreen> {
                                 break;
                             }
                           });
+                          setState(() {
+                            editedNote.timeNotification =
+                                date.toString().substring(0, 16);
+                          });
                         },
                         icon: Icon(
-                          Icons.refresh,
+                          Icons.access_time,
                           color: colorScheme.onSurface,
                         ),
                       ),
-                      Text(editedNote.notificationPeriod),
+                      Text(
+                        '${editedNote.timeNotification} ${editedNote.notificationPeriod}',
+                        style: const TextStyle(fontSize: smallFontSize),
+                      ),
                     ],
                   ),
-                )
+                ),
+                // location notification
+                Expanded(
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const LocationSelectionScreen(),
+                            ),
+                          );
+                          setState(() {
+                            editedNote.locationNotification =
+                                (result != null) ? jsonEncode(result) : '';
+                          });
+                        },
+                        icon: Icon(
+                          Icons.pin_drop,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(editedNote.locationNotification),
+                    ],
+                  ),
+                ),
+                // weather notification
+                Expanded(
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.cloud),
+                      ),
+                      Text(editedNote.weatherNotification),
+                    ],
+                  ),
+                ),
+                // repeat
               ],
             ),
             const Divider(),
@@ -353,28 +334,46 @@ class _EditScreenState extends State<EditScreen> {
             onPressed: () async {
               editedNote.trimProperties();
               if (editedNote.title.isNotEmpty) {
-                if (!await Note.exists(editedNote.title) ||
-                    editedNote.title == prevTitle) {
-                  if (editedNote.timeNotification.isNotEmpty) {
-                    Workmanager().cancelByUniqueName(prevTitle);
-                    int delay = ((DateTime.parse(editedNote.timeNotification)
-                                    .millisecondsSinceEpoch -
-                                DateTime.now().millisecondsSinceEpoch) /
-                            1000)
-                        .round();
-                    Workmanager().registerOneOffTask(
-                      editedNote.title,
-                      editedNote.title,
-                      initialDelay: Duration(seconds: delay),
-                      inputData: editedNote.toMap(),
+                if (!await editedNote.exists() ||
+                    prevTitle == editedNote.title) {
+                  if (editedNote.timeNotification != '' ||
+                      editedNote.locationNotification == '' &&
+                          editedNote.weatherNotification == '') {
+                    Duration? frequency;
+                    int delay = 0;
+                    if (editedNote.notificationPeriod != '') {
+                      frequency = Duration(
+                          seconds: int.parse(editedNote.notificationPeriod));
+                    }
+                    if (editedNote.timeNotification != '') {
+                      delay = ((DateTime.parse(editedNote.timeNotification)
+                                      .millisecondsSinceEpoch -
+                                  DateTime.now().millisecondsSinceEpoch) /
+                              1000)
+                          .round();
+                      Workmanager().registerPeriodicTask(
+                        editedNote.title,
+                        editedNote.title,
+                        initialDelay: Duration(seconds: delay),
+                        inputData: editedNote.toMap(),
+                        frequency: frequency,
+                      );
+                    }
+                    await editedNote.insert();
+                    setState(() {
+                      editedNote = Note.toDefault();
+                      widget.refreshNotesCallback();
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    });
+                  } else if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text('Note'),
+                        content: Text('You must select time notification'),
+                      ),
                     );
-                  }
-
-                  await Note.removeNote(prevTitle);
-                  await editedNote.insert();
-                  if (context.mounted) {
-                    widget.refreshNotesCallback();
-                    Navigator.of(context).popUntil((route) => route.isFirst);
                   }
                 } else {
                   if (context.mounted) {
@@ -389,13 +388,7 @@ class _EditScreenState extends State<EditScreen> {
                   }
                 }
               } else {
-                showDialog(
-                  context: context,
-                  builder: (context) => const AlertDialog(
-                    title: Text('Error'),
-                    content: Text('Note title is required'),
-                  ),
-                );
+                editedNote.title = '(no title)';
               }
             },
             child: Text(

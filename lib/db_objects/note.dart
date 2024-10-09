@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:workmanager/workmanager.dart';
 
 class Note {
   String title;
@@ -72,21 +70,7 @@ class Note {
     );
   }
 
-  Future<bool> insertIfNotExists() async {
-    final db = await getDB();
-    if (await exists(title)) {
-      return false;
-    }
-    db.insert(
-      'note',
-      toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    return true;
-  }
-
   static Future<void> removeNote(String title) async {
-    Workmanager().cancelByUniqueName(title);
     final db = await getDB();
     db.delete(
       'note',
@@ -102,20 +86,19 @@ class Note {
   }
 
   static Future<Database> getDB() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    final db = openDatabase(
+    final db = await openDatabase(
       version: 1,
       join(await getDatabasesPath(), 'note.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE IF NOT EXISTS note(title TEXT PRIMARY KEY, category TEXT, content TEXT, dateModified TEXT, timeNotification TEXT, locationNotification TEXT, weatherNotification TEXT, notificationPeriod INT)',
+          'CREATE TABLE IF NOT EXISTS note(title TEXT PRIMARY KEY, category TEXT, content TEXT, dateModified TEXT, timeNotification TEXT, locationNotification TEXT, weatherNotification TEXT, notificationPeriod TEXT)',
         );
       },
     );
     return db;
   }
 
-  static Future<bool> exists(String title) async {
+  Future<bool> exists() async {
     final db = await getDB();
     final query = await db.query(
       'note',

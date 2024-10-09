@@ -99,23 +99,61 @@ void callbackDispatcher() {
   Workmanager().executeTask(
     (task, inputData) async {
       WidgetsFlutterBinding.ensureInitialized();
-      
-      if (inputData?['locationNotification'] != '') {
-        final currentPosition = await Geolocator.getCurrentPosition();
-
-        if (sqrt(pow(currentPosition.latitude, 2) + pow(currentPosition.longitude, 2)) > jsonDecode(inputData?['locationNotification'])['deviation']) {
-          return Future.value(true);
+      Map<String, dynamic> input = inputData!; // removing null check
+      if (input['notificationPeriod'] == '') {
+        if (input['locationNotification'] == '') {
+          if (input['weatherNotification'] == '') {
+            // timed notification
+            input['timeNotification'] = '';
+            Note note = Note.fromMap(input);
+            await Note.removeNote(input['title']);
+            await note.insert();
+            await Notification().showNotification(title: input['title']);
+            Workmanager().cancelByUniqueName(input['title']);
+          } else {
+            // timed weather notification
+          }
+        } else {
+          if (input['weatherNotification'] == '') {
+            // timed location notification
+            final currentPosition = await Geolocator.getCurrentPosition();
+            if (sqrt(pow(currentPosition.latitude, 2) +
+                    pow(currentPosition.longitude, 2)) >
+                jsonDecode(input['locationNotification'])['deviation']) {
+              input['timeNotification'] = '';
+              input['locationNotification'] = '';
+              await Note.removeNote(input['title']);
+              Note note = Note.fromMap(input);
+              await note.insert();
+              await Workmanager().cancelByUniqueName(input['title']);
+            } else {
+              await Notification().showNotification(title: input['title']);
+            }
+          } else {
+            // timed location + weather notification
+          }
         }
-      }
-
-      await Notification().showNotification(title: inputData?['title']);
-      if (inputData?['notificationPeriod'] == '') {
-        // one time task
-        inputData!['timeNotification'] = '';
-        await Note.removeNote(inputData['title']);
-        Note note = Note.fromMap(inputData);
-        await note.insertIfNotExists();
-        await Workmanager().cancelByUniqueName(inputData['title']);
+      } else {
+        if (input['locationNotification'] == '') {
+          if (input['weatherNotification'] == '') {
+            // timed repeated notification
+            await Notification().showNotification(title: input['title']);
+          } else {
+            // timed repeated weather notification
+          }
+        } else {
+          if (input['weatherNotification'] == '') {
+            // timed repeated location notification
+            final currentPosition = await Geolocator.getCurrentPosition();
+            if (sqrt(pow(currentPosition.latitude, 2) +
+                    pow(currentPosition.longitude, 2)) <
+                jsonDecode(input['locationNotification'])['deviation']) {
+              await Notification().showNotification(title: input['title']);
+            }
+          } else {
+            // timed repeated location + weather notification
+          }
+        }
       }
       return Future.value(true);
     },
