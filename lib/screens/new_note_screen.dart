@@ -113,103 +113,87 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               children: [
                 // time notification
                 Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () async {
-                          final date = await showDateTimePicker(
-                              context: context,
-                              initialDate: newNote.timeNotification);
-                          /*
-                              if (!context.mounted) return;
-                              BaseUnit baseUnit = BaseUnit.minute;
-                              await showDialog(
-                                context: context,
-                                builder: (context) => Dialog(
-                                  child: SizedBox(),
-                                ),
-                              );
-                              */
-                          Duration? repeat;
-                          if (context.mounted && date != null) {
-                            repeat = await showDialog(
-                              context: context,
-                              builder: (context) => DurationPickerDialog(
-                                initialTime: Duration.zero,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: colorScheme.surface,
-                                ),
-                              ),
-                            );
+                  child: IconButton(
+                    onPressed: () async {
+                      final date = await showDateTimePicker(
+                          context: context,
+                          initialDate: newNote.timeNotification);
+                      Duration? repeat;
+                      if (context.mounted && date != null) {
+                        repeat = await showDialog(
+                          context: context,
+                          builder: (context) => DurationPickerDialog(
+                            initialTime: Duration.zero,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: colorScheme.surface,
+                            ),
+                          ),
+                        );
+                      }
+                      setState(() {
+                        if (date != null) {
+                          newNote.timeNotification =
+                              date.toString().substring(0, 16);
+                          if (repeat == Duration.zero) {
+                            newNote.notificationPeriod = '';
+                          } else if (repeat != null) {
+                            newNote.notificationPeriod =
+                                (repeat.inMinutes * 60).toString();
                           }
-                          setState(() {
-                            if (date != null) {
-                              newNote.timeNotification =
-                                  date.toString().substring(0, 16);
-                              if (repeat == Duration.zero) {
-                                newNote.notificationPeriod = '';
-                              } else if (repeat != null) {
-                                newNote.notificationPeriod =
-                                    (repeat.inMinutes * 60).toString();
-                              }
-                            } else {
-                              newNote.timeNotification = '';
-                            }
-                          });
-                        },
-                        icon: Icon(
-                          Icons.access_time,
-                          color: colorScheme.onSurface,
-                        ),
+                        } else {
+                          newNote.timeNotification = '';
+                        }
+                      });
+                    },
+                    icon: Badge(
+                      isLabelVisible: newNote.timeNotification != '',
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.access_time,
+                        color: colorScheme.onSurface,
                       ),
-                      Text(
-                        '${newNote.timeNotification} ${newNote.notificationPeriod}',
-                        style: const TextStyle(fontSize: smallFontSize),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
                 // location notification
                 Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const LocationSelectionScreen(),
-                            ),
-                          );
-                          setState(() {
-                            newNote.locationNotification =
-                                (result != null) ? jsonEncode(result) : '';
-                          });
-                        },
-                        icon: Icon(
-                          Icons.pin_drop,
-                          color: colorScheme.onSurface,
+                  child: IconButton(
+                    disabledColor: colorScheme.primary,
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LocationSelectionScreen(),
                         ),
+                      );
+                      setState(() {
+                        newNote.locationNotification =
+                            (result != null) ? jsonEncode(result) : '';
+                      });
+                    },
+                    icon: Badge(
+                      isLabelVisible: newNote.locationNotification != '',
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.pin_drop,
+                        color: colorScheme.onSurface,
                       ),
-                      Text(newNote.locationNotification),
-                    ],
+                    ),
                   ),
                 ),
                 // weather notification
                 Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.cloud,
-                          color: colorScheme.onSurface,
-                        ),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Badge(
+                      isLabelVisible: newNote.weatherNotification != '',
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.cloud,
+                        color: colorScheme.onSurface,
                       ),
-                      Text(newNote.weatherNotification),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -250,62 +234,59 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
           TextButton(
             onPressed: () async {
               newNote.trimProperties();
-              if (newNote.title.isNotEmpty) {
-                if (!await newNote.exists()) {
-                  if (newNote.timeNotification != '' ||
-                      newNote.locationNotification == '' &&
-                          newNote.weatherNotification == '') {
-                    Duration? frequency;
-                    int delay = 0;
-                    if (newNote.notificationPeriod != '') {
-                      frequency = Duration(
-                          seconds: int.parse(newNote.notificationPeriod));
-                    }
-                    if (newNote.timeNotification != '') {
-                      delay = ((DateTime.parse(newNote.timeNotification)
-                                      .millisecondsSinceEpoch -
-                                  DateTime.now().millisecondsSinceEpoch) /
-                              1000)
-                          .round();
-                      Workmanager().registerPeriodicTask(
-                        newNote.title,
-                        newNote.title,
-                        initialDelay: Duration(seconds: delay),
-                        inputData: newNote.toMap(),
-                        frequency: frequency,
-                      );
-                    }
-                    await newNote.insert();
-                    setState(() {
-                      contentTextFieldController.clear();
-                      titleTextFieldController.clear();
-                      newNote = Note.toDefault();
-                      widget.refreshNotesCallback();
-                      Navigator.pop(context);
-                    });
-                  } else if (context.mounted) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text('Note'),
-                        content: Text('You must select time notification'),
-                      ),
+              if (newNote.title.isEmpty) newNote.title = DateTime.now().toString().substring(5, 19);
+              if (!await newNote.exists()) {
+                if (newNote.timeNotification != '' ||
+                    newNote.locationNotification == '' &&
+                        newNote.weatherNotification == '') {
+                  Duration? frequency;
+                  int delay = 0;
+                  if (newNote.notificationPeriod != '') {
+                    frequency = Duration(
+                        seconds: int.parse(newNote.notificationPeriod));
+                  }
+                  if (newNote.timeNotification != '') {
+                    delay = ((DateTime.parse(newNote.timeNotification)
+                                    .millisecondsSinceEpoch -
+                                DateTime.now().millisecondsSinceEpoch) /
+                            1000)
+                        .round();
+                    Workmanager().registerPeriodicTask(
+                      newNote.title,
+                      newNote.title,
+                      initialDelay: Duration(seconds: delay),
+                      inputData: newNote.toMap(),
+                      frequency: frequency,
                     );
                   }
-                } else {
-                  if (context.mounted) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const AlertDialog(
-                        title: Text('Error'),
-                        content: Text(
-                            'Note title already exists. Notes cannot have the same titles'),
-                      ),
-                    );
-                  }
+                  await newNote.insert();
+                  setState(() {
+                    contentTextFieldController.clear();
+                    titleTextFieldController.clear();
+                    newNote = Note.toDefault();
+                    widget.refreshNotesCallback();
+                    Navigator.pop(context);
+                  });
+                } else if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Note'),
+                      content: Text('You must select time notification'),
+                    ),
+                  );
                 }
               } else {
-                newNote.title = '(no title)';
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const AlertDialog(
+                      title: Text('Error'),
+                      content: Text(
+                          'Note title already exists. Notes cannot have the same titles'),
+                    ),
+                  );
+                }
               }
             },
             child: Text(

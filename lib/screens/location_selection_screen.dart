@@ -64,7 +64,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                     builder: (context) => Dialog(
                       child: SizedBox(
                         width: 300,
-                        height: 200,
+                        height: 150,
                         child: Padding(
                           padding: const EdgeInsets.all(padding),
                           child: Column(
@@ -89,18 +89,22 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                               ),
                               Row(
                                 children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('Cancel'),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
                                   ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.pop(context, result);
-                                    },
-                                    child: const Text('Save'),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.pop(context, result);
+                                      },
+                                      child: const Text('Save'),
+                                    ),
                                   ),
                                 ],
                               ),
