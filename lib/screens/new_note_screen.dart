@@ -148,6 +148,11 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                     },
                     icon: Badge(
                       isLabelVisible: newNote.timeNotification != '',
+                      label: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 10,
+                      ),
                       backgroundColor: Colors.green,
                       child: Icon(
                         Icons.access_time,
@@ -174,6 +179,11 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                     },
                     icon: Badge(
                       isLabelVisible: newNote.locationNotification != '',
+                      label: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 10,
+                      ),
                       backgroundColor: Colors.green,
                       child: Icon(
                         Icons.pin_drop,
@@ -188,6 +198,11 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                     onPressed: () {},
                     icon: Badge(
                       isLabelVisible: newNote.weatherNotification != '',
+                      label: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 10,
+                      ),
                       backgroundColor: Colors.green,
                       child: Icon(
                         Icons.cloud,
@@ -234,7 +249,9 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
           TextButton(
             onPressed: () async {
               newNote.trimProperties();
-              if (newNote.title.isEmpty) newNote.title = DateTime.now().toString().substring(5, 19);
+              if (newNote.title.isEmpty) {
+                newNote.title = DateTime.now().toString().substring(5, 19);
+              }
               if (!await newNote.exists()) {
                 if (newNote.timeNotification != '' ||
                     newNote.locationNotification == '' &&
