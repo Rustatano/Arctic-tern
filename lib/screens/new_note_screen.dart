@@ -79,28 +79,40 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                       newNote.category = category!;
                     });
                   },
-                  dropdownMenuEntries: const [
+                  dropdownMenuEntries: [
                     DropdownMenuEntry(
+                      style: ButtonStyle(
+                        foregroundColor:
+                            WidgetStatePropertyAll(colorScheme.onPrimary),
+                      ),
                       value: 'Category',
                       label: 'Category',
                       leadingIcon: Icon(
-                        Icons.square,
+                        Icons.square_rounded,
                         color: Colors.white,
                       ),
                     ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
                     DropdownMenuEntry(
+                      style: ButtonStyle(
+                        foregroundColor:
+                            WidgetStatePropertyAll(colorScheme.onPrimary),
+                      ),
                       value: 'School',
                       label: 'School',
                       leadingIcon: Icon(
-                        Icons.square,
+                        Icons.square_rounded,
                         color: Colors.blue,
                       ),
                     ),
                     DropdownMenuEntry(
+                      style: ButtonStyle(
+                        foregroundColor:
+                            WidgetStatePropertyAll(colorScheme.onPrimary),
+                      ),
                       value: 'Work',
                       label: 'Work',
                       leadingIcon: Icon(
-                        Icons.square,
+                        Icons.square_rounded,
                         color: Colors.red,
                       ),
                     ),
@@ -239,7 +251,15 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
         ),
       ),
       appBar: AppBar(
-        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.close,
+            color: colorScheme.onPrimary,
+          ),
+        ),
         backgroundColor: colorScheme.primary,
         title: Text(
           'New Note',
@@ -306,9 +326,9 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 }
               }
             },
-            child: Text(
-              'Save',
-              style: TextStyle(color: colorScheme.onPrimary),
+            child: Icon(
+              Icons.check,
+              color: colorScheme.onPrimary,
             ),
           ),
         ],

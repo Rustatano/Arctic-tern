@@ -16,10 +16,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-    List<Note> notes = [];
+  List<Note> notes = [];
 
   List<Color> greyOutIfNotActive(Note note) {
     List<Color> colors = [
+      colorScheme.secondary,
       colorScheme.secondary,
       colorScheme.secondary,
       colorScheme.secondary,
@@ -34,10 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if (note.weatherNotification.isNotEmpty) {
       colors[2] = colorScheme.onSecondary;
     }
+    if (note.notificationPeriod.isNotEmpty) {
+      colors[3] = colorScheme.onSecondary;
+    }
 
     return colors;
   }
-    Future<void> getNotes() async {
+
+  Future<void> getNotes() async {
     final n = await Note.getNotes();
     setState(() {
       notes = n.reversed.toList();
@@ -69,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     getNotes();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,17 +177,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           Radius.circular(radius),
                         ),
                       ),
-                      height: doublePadding,
+                      height: 80,
                       child: Padding(
                         padding: const EdgeInsets.all(padding / 3),
-                        child: Row(
+                        child: Column(
                           children: [
                             Expanded(
                               child: Text(
                                 notes[index].title,
                                 style: TextStyle(
-                                    fontSize: mediumFontSize,
-                                    color: colorScheme.onSecondary),
+                                  fontSize: mediumFontSize,
+                                  color: colorScheme.onSecondary,
+                                ),
                               ),
                             ),
                             Expanded(
@@ -254,26 +261,35 @@ class _HomeScreenState extends State<HomeScreen> {
           onSelected: (String? category) {},
           dropdownMenuEntries: [
             DropdownMenuEntry(
+              style: ButtonStyle(
+                foregroundColor: WidgetStatePropertyAll(colorScheme.onPrimary),
+              ),
               value: 'Category',
               label: 'Category',
               leadingIcon: Icon(
-                Icons.square,
+                Icons.square_rounded,
                 color: Colors.white,
               ),
             ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
             DropdownMenuEntry(
+              style: ButtonStyle(
+                foregroundColor: WidgetStatePropertyAll(colorScheme.onPrimary),
+              ),
               value: 'School',
               label: 'School',
               leadingIcon: Icon(
-                Icons.square,
+                Icons.square_rounded,
                 color: Colors.blue,
               ),
             ),
             DropdownMenuEntry(
+              style: ButtonStyle(
+                foregroundColor: WidgetStatePropertyAll(colorScheme.onPrimary),
+              ),
               value: 'Work',
               label: 'Work',
               leadingIcon: Icon(
-                Icons.square,
+                Icons.square_rounded,
                 color: Colors.red,
               ),
             ),
