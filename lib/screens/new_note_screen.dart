@@ -151,7 +151,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                             newNote.notificationPeriod = '';
                           } else if (repeat != null) {
                             newNote.notificationPeriod =
-                                (repeat.inMinutes * 60).toString();
+                                (repeat.inMinutes).toString();
                           }
                         } else {
                           newNote.timeNotification = '';
@@ -278,23 +278,46 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         newNote.weatherNotification == '') {
                   Duration? frequency;
                   int delay = 0;
-                  if (newNote.notificationPeriod != '') {
-                    frequency = Duration(
-                        seconds: int.parse(newNote.notificationPeriod));
-                  }
                   if (newNote.timeNotification != '') {
                     delay = ((DateTime.parse(newNote.timeNotification)
                                     .millisecondsSinceEpoch -
                                 DateTime.now().millisecondsSinceEpoch) /
                             1000)
                         .round();
-                    Workmanager().registerPeriodicTask(
-                      newNote.title,
-                      newNote.title,
-                      initialDelay: Duration(seconds: delay),
-                      inputData: newNote.toMap(),
-                      frequency: frequency,
-                    );
+                    int repeatPeriod = int.parse(newNote.notificationPeriod);
+                    if (newNote.notificationPeriod != '') {
+                      frequency = Duration(minutes: repeatPeriod);
+                      if (newNote.locationNotification != '') {
+                        int count = 1;
+                        while (count * repeatPeriod < 15) {
+                          count++;
+                        }
+                        for (var i = 0; i < count; i++) {
+                          Workmanager().registerPeriodicTask(
+                            newNote.title + i.toString(),
+                            newNote.title + i.toString(),
+                            initialDelay: Duration(seconds: delay + i * repeatPeriod * 60),
+                            frequency: Duration(minutes: count * repeatPeriod),
+                            inputData: newNote.toMap(),
+                          );
+                        }
+                      } else {
+                        Workmanager().registerPeriodicTask(
+                          newNote.title,
+                          newNote.title,
+                          initialDelay: Duration(seconds: delay),
+                          inputData: newNote.toMap(),
+                          frequency: frequency,
+                        );
+                      }
+                    } else {
+                      Workmanager().registerPeriodicTask(
+                        newNote.title,
+                        newNote.title,
+                        initialDelay: Duration(seconds: delay),
+                        inputData: newNote.toMap(),
+                      );
+                    }
                   }
                   await newNote.insert();
                   setState(() {

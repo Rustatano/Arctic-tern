@@ -150,12 +150,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: const Text('Cancel'),
                             ),
                             TextButton(
-                              onPressed: () {
-                                Note.removeNote(notes[index].title);
-                                Workmanager()
-                                    .cancelByUniqueName(notes[index].title);
-                                getNotes();
-                                Navigator.of(context).pop();
+                              onPressed: () async {
+                                int count = 1;
+                                int repeatPeriod =
+                                    int.parse(notes[index].notificationPeriod);
+
+                                while (count * repeatPeriod < 15) {
+                                  count++;
+                                }
+                                for (var i = 0; i < count; i++) {
+                                  Workmanager().cancelByUniqueName(
+                                      notes[index].title + i.toString());
+                                }
+                                await Note.removeNote(notes[index].title);
+                                await getNotes();
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
                               },
                               child: const Text(
                                 'Delete',
@@ -210,6 +221,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Icon(
                                       Icons.cloud,
                                       color: iconColors[2],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Icon(
+                                      Icons.refresh,
+                                      color: iconColors[3],
                                     ),
                                   ),
                                 ],
