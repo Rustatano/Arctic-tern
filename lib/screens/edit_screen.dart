@@ -4,10 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'package:weather_note/constants.dart';
-import 'package:weather_note/db_objects/note.dart';
-import 'package:weather_note/notifications/notification.dart';
-import 'package:weather_note/screens/location_selection_screen.dart';
+import 'package:arctic_tern/constants.dart';
+import 'package:arctic_tern/db_objects/note.dart';
+import 'package:arctic_tern/notifications/notification.dart';
+import 'package:arctic_tern/screens/location_selection_screen.dart';
 
 class EditScreen extends StatefulWidget {
   final Note note;

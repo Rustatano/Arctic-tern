@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'package:weather_note/constants.dart';
-import 'package:weather_note/db_objects/note.dart';
-import 'package:weather_note/screens/new_note_screen.dart';
-import 'package:weather_note/screens/note_info_screen.dart';
-import 'package:weather_note/screens/settings_screen.dart';
+import 'package:arctic_tern/constants.dart';
+import 'package:arctic_tern/db_objects/note.dart';
+import 'package:arctic_tern/screens/new_note_screen.dart';
+import 'package:arctic_tern/screens/note_info_screen.dart';
+import 'package:arctic_tern/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -71,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     askForPermission();
-    super.initState();
     getNotes();
+    super.initState();
   }
 
   @override
@@ -151,16 +151,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             TextButton(
                               onPressed: () async {
-                                int count = 1;
-                                int repeatPeriod =
-                                    int.parse(notes[index].notificationPeriod);
+                                if (notes[index].notificationPeriod != '') {
+                                  int count = 1;
+                                  int repeatPeriod = int.parse(
+                                      notes[index].notificationPeriod);
 
-                                while (count * repeatPeriod < 15) {
-                                  count++;
-                                }
-                                for (var i = 0; i < count; i++) {
-                                  Workmanager().cancelByUniqueName(
-                                      notes[index].title + i.toString());
+                                  while (count * repeatPeriod < 15) {
+                                    count++;
+                                  }
+                                  for (var i = 0; i < count; i++) {
+                                    Workmanager().cancelByUniqueName(
+                                        notes[index].title + i.toString());
+                                  }
                                 }
                                 await Note.removeNote(notes[index].title);
                                 await getNotes();
@@ -200,6 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontSize: mediumFontSize,
                                   color: colorScheme.onSecondary,
                                 ),
+                                maxLines: null, // TODO: modify
                               ),
                             ),
                             Expanded(

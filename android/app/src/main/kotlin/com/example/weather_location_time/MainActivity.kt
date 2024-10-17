@@ -1,4 +1,4 @@
-package com.example.weatherNote
+package com.example.arcticTern
 
 import io.flutter.embedding.android.FlutterActivity
 

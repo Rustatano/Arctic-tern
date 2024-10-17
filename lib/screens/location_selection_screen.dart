@@ -4,7 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'package:weather_note/constants.dart';
+import 'package:arctic_tern/constants.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
   const LocationSelectionScreen({super.key});
@@ -119,7 +119,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'weather_note',
+                  userAgentPackageName: 'arctic_tern',
                 ),
                 MarkerLayer(markers: markers),
                 Align(

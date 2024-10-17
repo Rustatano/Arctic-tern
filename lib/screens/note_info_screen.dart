@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:weather_note/constants.dart';
-import 'package:weather_note/db_objects/note.dart';
-import 'package:weather_note/screens/edit_screen.dart';
+import 'package:arctic_tern/constants.dart';
+import 'package:arctic_tern/db_objects/note.dart';
+import 'package:arctic_tern/screens/edit_screen.dart';
 
 class NoteInfoScreen extends StatefulWidget {
   final Note note;

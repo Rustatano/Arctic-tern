@@ -1,13 +1,13 @@
 import 'dart:convert';
 
+import 'package:arctic_tern/notifications/notification.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:duration_picker/duration_picker.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'package:weather_note/constants.dart';
-import 'package:weather_note/db_objects/note.dart';
-import 'package:weather_note/notifications/notification.dart';
-import 'package:weather_note/screens/location_selection_screen.dart';
+import 'package:arctic_tern/constants.dart';
+import 'package:arctic_tern/db_objects/note.dart';
+import 'package:arctic_tern/screens/location_selection_screen.dart';
 
 class NewNoteScreen extends StatefulWidget {
   final Function refreshNotesCallback;
@@ -128,30 +128,116 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   child: IconButton(
                     onPressed: () async {
                       final date = await showDateTimePicker(
-                          context: context,
-                          initialDate: newNote.timeNotification);
-                      Duration? repeat;
-                      if (context.mounted && date != null) {
-                        repeat = await showDialog(
-                          context: context,
-                          builder: (context) => DurationPickerDialog(
-                            initialTime: Duration.zero,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: colorScheme.surface,
+                        context: context,
+                        initialDate: newNote.timeNotification,
+                      );
+                      String? repeatCount;
+                      String? repeatType;
+                      List<Text> timeCountList = [];
+                      List<Text> timeTypeList = [
+                        Text('days'),
+                        Text('weeks'),
+                        Text('months'),
+                        Text('years'),
+                      ];
+                      for (var i = 0; i < 100; i++) {
+                        timeCountList.add(Text(i.toString()));
+                      }
+                      if (!context.mounted) return;
+
+                      showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          child: SizedBox(
+                            width: 200,
+                            height: 400,
+                            child: Padding(
+                              padding: const EdgeInsets.all(halfPadding),
+                              child: Column(
+                                children: [
+                                  Text('Select repeat time'),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: CupertinoPicker(
+                                            itemExtent: 40,
+                                            onSelectedItemChanged: (valIndex) {
+                                              repeatCount =
+                                                  timeCountList[valIndex].data!;
+                                            },
+                                            children: timeCountList,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: CupertinoPicker(
+                                            itemExtent: 40,
+                                            onSelectedItemChanged: (valIndex) {
+                                              repeatType =
+                                                  timeTypeList[valIndex].data!;
+                                            },
+                                            children: timeTypeList,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          repeatCount = '';
+                                          repeatType = '';
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text('Save'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        );
-                      }
+                        ),
+                      );
                       setState(() {
                         if (date != null) {
                           newNote.timeNotification =
                               date.toString().substring(0, 16);
-                          if (repeat == Duration.zero) {
+                          if (repeatCount == '0' ||
+                              repeatCount == null ||
+                              repeatType == '' ||
+                              repeatType == null) {
                             newNote.notificationPeriod = '';
-                          } else if (repeat != null) {
-                            newNote.notificationPeriod =
-                                (repeat.inMinutes).toString();
+                          } else {
+                            int repeat = 0;
+                            switch (repeatType) {
+                              case 'days':
+                                repeat = int.parse(repeatCount!) * 60 * 24;
+                                break;
+                              case 'weeks':
+                                repeat = int.parse(repeatCount!) * 60 * 24 * 7;
+                                break;
+                              case 'months':
+                                repeat = int.parse(repeatCount!) *
+                                    60 *
+                                    24 *
+                                    30; // not accurate
+                                break;
+                              case 'years':
+                                repeat =
+                                    int.parse(repeatCount!) * 60 * 24 * 365;
+                                break;
+                              default:
+                            }
+                            newNote.notificationPeriod = repeat.toString();
                           }
                         } else {
                           newNote.timeNotification = '';
@@ -284,8 +370,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                                 DateTime.now().millisecondsSinceEpoch) /
                             1000)
                         .round();
-                    int repeatPeriod = int.parse(newNote.notificationPeriod);
                     if (newNote.notificationPeriod != '') {
+                      int repeatPeriod = int.parse(newNote.notificationPeriod);
                       frequency = Duration(minutes: repeatPeriod);
                       if (newNote.locationNotification != '') {
                         int count = 1;
@@ -296,7 +382,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                           Workmanager().registerPeriodicTask(
                             newNote.title + i.toString(),
                             newNote.title + i.toString(),
-                            initialDelay: Duration(seconds: delay + i * repeatPeriod * 60),
+                            initialDelay: Duration(
+                                seconds: delay + i * repeatPeriod * 60),
                             frequency: Duration(minutes: count * repeatPeriod),
                             inputData: newNote.toMap(),
                           );
@@ -311,7 +398,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         );
                       }
                     } else {
-                      Workmanager().registerPeriodicTask(
+                      Workmanager().registerOneOffTask(
                         newNote.title,
                         newNote.title,
                         initialDelay: Duration(seconds: delay),

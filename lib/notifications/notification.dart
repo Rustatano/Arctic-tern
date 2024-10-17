@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:weather_note/db_objects/note.dart';
+import 'package:arctic_tern/db_objects/note.dart';
 import 'package:workmanager/workmanager.dart';
 
 class Notification {
@@ -15,7 +15,7 @@ class Notification {
 
   Future<void> initializeNotificationPlugin() async {
     AndroidInitializationSettings androidInitializationSettings =
-        const AndroidInitializationSettings('icon3');
+        const AndroidInitializationSettings('launcher_icon');
 
     InitializationSettings initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
@@ -109,7 +109,6 @@ void callbackDispatcher() {
             await Note.removeNote(input['title']);
             await note.insert();
             await Notification().showNotification(title: input['title']);
-            Workmanager().cancelByUniqueName(input['title']);
           } else {
             // timed weather notification
           }
