@@ -51,20 +51,58 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> askForPermission() async {
     await Permission.notification
-        .onDeniedCallback(() {})
+        .onDeniedCallback(() {
+          openAppSettings();
+        })
         .onGrantedCallback(() {})
-        .onPermanentlyDeniedCallback(() {})
-        .onRestrictedCallback(() {})
-        .onLimitedCallback(() {})
-        .onProvisionalCallback(() {})
+        .onPermanentlyDeniedCallback(() {
+          openAppSettings();
+        })
+        .onRestrictedCallback(() {
+          openAppSettings();
+        })
+        .onLimitedCallback(() {
+          openAppSettings();
+        })
+        .onProvisionalCallback(() {
+          openAppSettings();
+        })
         .request();
-    await Permission.locationWhenInUse
-        .onDeniedCallback(() {})
+    await Permission.location
+        .onDeniedCallback(() {
+          openAppSettings();
+        })
         .onGrantedCallback(() {})
-        .onPermanentlyDeniedCallback(() {})
-        .onRestrictedCallback(() {})
-        .onLimitedCallback(() {})
-        .onProvisionalCallback(() {})
+        .onPermanentlyDeniedCallback(() {
+          openAppSettings();
+        })
+        .onRestrictedCallback(() {
+          openAppSettings();
+        })
+        .onLimitedCallback(() {
+          openAppSettings();
+        })
+        .onProvisionalCallback(() {
+          openAppSettings();
+        })
+        .request();
+    await Permission.locationAlways
+        .onDeniedCallback(() {
+          openAppSettings();
+        })
+        .onGrantedCallback(() {})
+        .onPermanentlyDeniedCallback(() {
+          openAppSettings();
+        })
+        .onRestrictedCallback(() {
+          openAppSettings();
+        })
+        .onLimitedCallback(() {
+          openAppSettings();
+        })
+        .onProvisionalCallback(() {
+          openAppSettings();
+        })
         .request();
   }
 

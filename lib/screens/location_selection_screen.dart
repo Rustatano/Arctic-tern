@@ -20,7 +20,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
   Map<String, double> result = {
     'lat': 0.0,
     'long': 0.0,
-    'deviation': 10.0,
+    'radius': 10.0,
   };
 
   @override
@@ -71,14 +71,14 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                             children: [
                               Row(
                                 children: [
-                                  const Text('Set deviation:'),
+                                  const Text('Set radius:'),
                                   Expanded(
                                     child: CupertinoPicker(
                                       itemExtent: 40,
                                       onSelectedItemChanged: (v) {
                                         setState(() {
                                           var text = meters[v].child! as Text;
-                                          result['deviation'] =
+                                          result['radius'] =
                                               double.parse(text.data!);
                                         });
                                       },

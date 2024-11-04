@@ -131,82 +131,89 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         context: context,
                         initialDate: newNote.timeNotification,
                       );
-                      String? repeatCount;
-                      String? repeatType;
-                      List<Text> timeCountList = [];
-                      List<Text> timeTypeList = [
-                        Text('days'),
-                        Text('weeks'),
-                        Text('months'),
-                        Text('years'),
-                      ];
-                      for (var i = 0; i < 100; i++) {
-                        timeCountList.add(Text(i.toString()));
-                      }
-                      if (!context.mounted) return;
 
-                      showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          child: SizedBox(
-                            width: 200,
-                            height: 400,
-                            child: Padding(
-                              padding: const EdgeInsets.all(halfPadding),
-                              child: Column(
-                                children: [
-                                  Text('Select repeat time'),
-                                  Expanded(
-                                    child: Row(
+                      String? repeatType;
+                      String? repeatCount;
+                      if (date != null) {
+                        List<Text> timeCountList = [];
+                        List<Text> timeTypeList = [
+                          Text('days'),
+                          Text('weeks'),
+                          Text('months'),
+                          Text('years'),
+                        ];
+                        for (var i = 0; i < 100; i++) {
+                          timeCountList.add(Text(i.toString()));
+                        }
+                        if (!context.mounted) return;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            child: SizedBox(
+                              width: 200,
+                              height: 400,
+                              child: Padding(
+                                padding: const EdgeInsets.all(halfPadding),
+                                child: Column(
+                                  children: [
+                                    Text('Select repeat time'),
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: CupertinoPicker(
+                                              itemExtent: 40,
+                                              onSelectedItemChanged:
+                                                  (valIndex) {
+                                                repeatCount =
+                                                    timeCountList[valIndex]
+                                                        .data!;
+                                              },
+                                              children: timeCountList,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: CupertinoPicker(
+                                              itemExtent: 40,
+                                              onSelectedItemChanged:
+                                                  (valIndex) {
+                                                repeatType =
+                                                    timeTypeList[valIndex]
+                                                        .data!;
+                                              },
+                                              children: timeTypeList,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        Expanded(
-                                          child: CupertinoPicker(
-                                            itemExtent: 40,
-                                            onSelectedItemChanged: (valIndex) {
-                                              repeatCount =
-                                                  timeCountList[valIndex].data!;
-                                            },
-                                            children: timeCountList,
-                                          ),
+                                        TextButton(
+                                          onPressed: () {
+                                            repeatCount = '';
+                                            repeatType = '';
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Cancel'),
                                         ),
-                                        Expanded(
-                                          child: CupertinoPicker(
-                                            itemExtent: 40,
-                                            onSelectedItemChanged: (valIndex) {
-                                              repeatType =
-                                                  timeTypeList[valIndex].data!;
-                                            },
-                                            children: timeTypeList,
-                                          ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Save'),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      TextButton(
-                                        onPressed: () {
-                                          repeatCount = '';
-                                          repeatType = '';
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text('Save'),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                       setState(() {
                         if (date != null) {
                           newNote.timeNotification =
@@ -226,12 +233,11 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                                 repeat = int.parse(repeatCount!) * 60 * 24 * 7;
                                 break;
                               case 'months':
-                                repeat = int.parse(repeatCount!) *
-                                    60 *
-                                    24 *
-                                    30; // not accurate
+                                // not accurate
+                                repeat = int.parse(repeatCount!) * 60 * 24 * 30;
                                 break;
                               case 'years':
+                                // not accurate
                                 repeat =
                                     int.parse(repeatCount!) * 60 * 24 * 365;
                                 break;

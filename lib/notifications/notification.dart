@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -98,7 +99,6 @@ Future<DateTime?> showDateTimePicker({
 void callbackDispatcher() {
   Workmanager().executeTask(
     (task, inputData) async {
-      WidgetsFlutterBinding.ensureInitialized();
       Map<String, dynamic> input = inputData!; // removing null check
       if (input['notificationPeriod'] == '') {
         if (input['locationNotification'] == '') {
@@ -114,20 +114,23 @@ void callbackDispatcher() {
           }
         } else {
           if (input['weatherNotification'] == '') {
-            // timed location notification
-            final currentPosition = await Geolocator.getCurrentPosition();
-            if (sqrt(pow(currentPosition.latitude, 2) +
-                    pow(currentPosition.longitude, 2)) >
-                jsonDecode(input['locationNotification'])['deviation']) {
+            final currentPosition = await Geolocator.getCurrentPosition(forceAndroidLocationManager: true);
+            if (Geolocator.distanceBetween(
+                  jsonDecode(input['locationNotification'])['lat'] as double,
+                  jsonDecode(input['locationNotification'])['long'] as double,
+                  currentPosition.latitude,
+                  currentPosition.longitude,
+                ) >
+                jsonDecode(input['locationNotification'])['radius']) {
+            } else {
               input['timeNotification'] = '';
               input['locationNotification'] = '';
-              await Note.removeNote(input['title']);
               Note note = Note.fromMap(input);
+              await Note.removeNote(input['title']);
               await note.insert();
-              await Workmanager().cancelByUniqueName(input['title']);
-            } else {
               await Notification().showNotification(title: input['title']);
             }
+            await Workmanager().cancelByUniqueName(input['title']);
           } else {
             // timed location + weather notification
           }
@@ -146,7 +149,7 @@ void callbackDispatcher() {
             final currentPosition = await Geolocator.getCurrentPosition();
             if (sqrt(pow(currentPosition.latitude, 2) +
                     pow(currentPosition.longitude, 2)) <
-                jsonDecode(input['locationNotification'])['deviation']) {
+                jsonDecode(input['locationNotification'])['radius']) {
               await Notification().showNotification(title: input['title']);
             }
           } else {
