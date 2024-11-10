@@ -11,12 +11,10 @@ import 'package:arctic_tern/screens/location_selection_screen.dart';
 
 class EditScreen extends StatefulWidget {
   final Note note;
-  final Function refreshNotesCallback;
 
   const EditScreen({
     super.key,
     required this.note,
-    required this.refreshNotesCallback,
   });
 
   @override
@@ -285,7 +283,7 @@ class _EditScreenState extends State<EditScreen> {
                   ),
                 ),
                 // weather notification
-                Expanded(
+                /*Expanded(
                   child: Column(
                     children: [
                       IconButton(
@@ -295,7 +293,7 @@ class _EditScreenState extends State<EditScreen> {
                       Text(editedNote.weatherNotification),
                     ],
                   ),
-                ),
+                ),*/
                 // repeat
               ],
             ),
@@ -338,8 +336,8 @@ class _EditScreenState extends State<EditScreen> {
                 if (!await editedNote.exists() ||
                     prevTitle == editedNote.title) {
                   if (editedNote.timeNotification != '' ||
-                      editedNote.locationNotification == '' &&
-                          editedNote.weatherNotification == '') {
+                      editedNote.locationNotification == ''/* &&
+                          editedNote.weatherNotification == ''*/) {
                     Duration? frequency;
                     int delay = 0;
                     if (editedNote.notificationPeriod != '') {
@@ -363,7 +361,6 @@ class _EditScreenState extends State<EditScreen> {
                     await editedNote.insert();
                     setState(() {
                       editedNote = Note.toDefault();
-                      widget.refreshNotesCallback();
                       Navigator.pop(context);
                       Navigator.pop(context);
                     });

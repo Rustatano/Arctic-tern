@@ -5,10 +5,8 @@ import 'package:arctic_tern/screens/edit_screen.dart';
 
 class NoteInfoScreen extends StatefulWidget {
   final Note note;
-  final Function refreshNotesCallback;
 
-  const NoteInfoScreen(
-      {super.key, required this.note, required this.refreshNotesCallback});
+  const NoteInfoScreen({super.key, required this.note});
 
   @override
   State<NoteInfoScreen> createState() => _NoteInfoScreenState();
@@ -47,7 +45,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                 ],
               ),
             ),
-            Padding(
+            /*Padding(
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
                 children: [
@@ -58,7 +56,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                   Text(widget.note.weatherNotification),
                 ],
               ),
-            ),
+            ),*/
             Padding(
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
@@ -97,7 +95,6 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                 MaterialPageRoute(
                   builder: (context) => EditScreen(
                     note: widget.note,
-                    refreshNotesCallback: widget.refreshNotesCallback,
                   ),
                 ),
               );

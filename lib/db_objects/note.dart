@@ -8,7 +8,7 @@ class Note {
   String dateModified;
   String timeNotification;
   String locationNotification;
-  String weatherNotification;
+  //String weatherNotification;
   String notificationPeriod;
 
   Note({
@@ -18,7 +18,7 @@ class Note {
     required this.dateModified,
     required this.timeNotification,
     required this.locationNotification,
-    required this.weatherNotification,
+    //required this.weatherNotification,
     required this.notificationPeriod,
   });
 
@@ -30,7 +30,7 @@ class Note {
       dateModified: '',
       timeNotification: '',
       locationNotification: '',
-      weatherNotification: '',
+      //weatherNotification: '',
       notificationPeriod: '',
     );
   }
@@ -43,7 +43,7 @@ class Note {
       'dateModified': dateModified,
       'timeNotification': timeNotification,
       'locationNotification': locationNotification,
-      'weatherNotification': weatherNotification,
+      //'weatherNotification': weatherNotification,
       'notificationPeriod': notificationPeriod,
     };
   }
@@ -56,7 +56,7 @@ class Note {
       dateModified: map['dateModified'] as String,
       timeNotification: map['timeNotification'] as String,
       locationNotification: map['locationNotification'] as String,
-      weatherNotification: map['weatherNotification'] as String,
+      //weatherNotification: map['weatherNotification'] as String,
       notificationPeriod: map['notificationPeriod'] as String,
     );
   }
@@ -79,10 +79,15 @@ class Note {
     );
   }
 
-  static Future<List<Note>> getNotes() async {
+  static Future<List<Note>> getNotes(Map<String, String> filter) async {
     final db = await getDB();
-    final list = await db.query('note');
-    return list.map((e) => Note.fromMap(e)).toList();
+    List<Map<String, Object?>> list;
+    if (filter['category'] == 'All Categories') {
+      list = await db.query('note');
+    } else {
+      list = await db.query('note', where: 'category = ?', whereArgs: [filter['category']]);
+    }
+    return list.map((note) => Note.fromMap(note)).toList();
   }
 
   static Future<Database> getDB() async {
@@ -112,10 +117,5 @@ class Note {
     title = title.trim();
     category = category.trim();
     content = content.trim();
-  }
-
-  @override
-  String toString() {
-    return 'Notification{title: $title, category: $category, content: $content, dateModified: $dateModified, timeNotification: $timeNotification, locationNotification: $locationNotification, weatherNotification: $weatherNotification}';
   }
 }

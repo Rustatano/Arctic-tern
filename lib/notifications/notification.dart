@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -102,6 +101,39 @@ void callbackDispatcher() {
       Map<String, dynamic> input = inputData!; // removing null check
       if (input['notificationPeriod'] == '') {
         if (input['locationNotification'] == '') {
+          // timed notification
+          input['timeNotification'] = '';
+          Note note = Note.fromMap(input);
+          await Note.removeNote(input['title']);
+          await note.insert();
+          await Notification().showNotification(title: input['title']);
+        } else {
+          final currentPosition = await Geolocator.getCurrentPosition(
+              forceAndroidLocationManager: true); // depracated but works
+          if (Geolocator.distanceBetween(
+                jsonDecode(input['locationNotification'])['lat'] as double,
+                jsonDecode(input['locationNotification'])['long'] as double,
+                currentPosition.latitude,
+                currentPosition.longitude,
+              ) >
+              jsonDecode(input['locationNotification'])['radius']) {
+          } else {
+            input['timeNotification'] = '';
+            input['locationNotification'] = '';
+            Note note = Note.fromMap(input);
+            await Note.removeNote(input['title']);
+            await note.insert();
+            await Notification().showNotification(title: input['title']);
+          }
+          await Workmanager().cancelByUniqueName(input['title']);
+        }
+      } else if (input['locationNotification'] == '') {
+      } else {}
+
+      return Future.value(true);
+      /*
+      if (input['notificationPeriod'] == '') {
+        if (input['locationNotification'] == '') {
           if (input['weatherNotification'] == '') {
             // timed notification
             input['timeNotification'] = '';
@@ -114,6 +146,7 @@ void callbackDispatcher() {
           }
         } else {
           if (input['weatherNotification'] == '') {
+            // timed location notification
             final currentPosition = await Geolocator.getCurrentPosition(forceAndroidLocationManager: true);
             if (Geolocator.distanceBetween(
                   jsonDecode(input['locationNotification'])['lat'] as double,
@@ -158,6 +191,7 @@ void callbackDispatcher() {
         }
       }
       return Future.value(true);
+      */
     },
   );
 }

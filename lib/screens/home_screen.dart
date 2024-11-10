@@ -1,3 +1,5 @@
+import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
@@ -17,40 +19,27 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Note> notes = [];
+  List<DBCategory> categories = [];
+  Map<String, String> getNotesFilter = {'category': 'All Categories'};
+  TextEditingController categoryDropdownMenuController =
+      TextEditingController();
 
-  List<Color> greyOutIfNotActive(Note note) {
-    List<Color> colors = [
-      colorScheme.secondary,
-      colorScheme.secondary,
-      colorScheme.secondary,
-      colorScheme.secondary,
-    ];
-
-    if (note.timeNotification.isNotEmpty) {
-      colors[0] = colorScheme.onSecondary;
-    }
-    if (note.locationNotification.isNotEmpty) {
-      colors[1] = colorScheme.onSecondary;
-    }
-    if (note.weatherNotification.isNotEmpty) {
-      colors[2] = colorScheme.onSecondary;
-    }
-    if (note.notificationPeriod.isNotEmpty) {
-      colors[3] = colorScheme.onSecondary;
-    }
-
-    return colors;
-  }
-
-  Future<void> getNotes() async {
-    final n = await Note.getNotes();
+  Future<void> getNotes(Map<String, String> filter) async {
+    final n = await Note.getNotes(filter);
     setState(() {
       notes = n.reversed.toList();
     });
   }
 
+  Future<void> getDBCategories() async {
+    final c = await DBCategory.getDBCategories();
+    setState(() {
+      categories = c.toList();
+    });
+  }
+
   Future<void> askForPermission() async {
-    await Permission.notification
+    if (!await Permission.notification
         .onDeniedCallback(() {
           openAppSettings();
         })
@@ -67,8 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
         .onProvisionalCallback(() {
           openAppSettings();
         })
-        .request();
-    await Permission.location
+        .request()
+        .isGranted) {
+      openAppSettings();
+    }
+    if (!await Permission.location
         .onDeniedCallback(() {
           openAppSettings();
         })
@@ -85,8 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
         .onProvisionalCallback(() {
           openAppSettings();
         })
-        .request();
-    await Permission.locationAlways
+        .request()
+        .isGranted) {
+      openAppSettings();
+    }
+    if (!await Permission.locationAlways
         .onDeniedCallback(() {
           openAppSettings();
         })
@@ -103,13 +98,18 @@ class _HomeScreenState extends State<HomeScreen> {
         .onProvisionalCallback(() {
           openAppSettings();
         })
-        .request();
+        .request()
+        .isGranted) {
+      openAppSettings();
+    }
   }
 
   @override
   void initState() {
     askForPermission();
-    getNotes();
+    getNotes(getNotesFilter);
+    getDBCategories();
+    categoryDropdownMenuController.text = 'All Categories';
     super.initState();
   }
 
@@ -118,14 +118,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  NewNoteScreen(refreshNotesCallback: getNotes),
+              builder: (context) => NewNoteScreen(),
             ),
           );
+          await getNotes(getNotesFilter);
         },
         child: Icon(Icons.add),
       ),
@@ -158,19 +158,18 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(padding),
               itemCount: notes.length,
               itemBuilder: (BuildContext context, int index) {
-                List<Color> iconColors = greyOutIfNotActive(notes[index]);
                 return GestureDetector(
                   // animation would be nice here
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => NoteInfoScreen(
                           note: notes[index],
-                          refreshNotesCallback: getNotes,
                         ),
                       ),
                     );
+                    await getNotes(getNotesFilter);
                   },
                   onLongPress: () {
                     showDialog(
@@ -203,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   }
                                 }
                                 await Note.removeNote(notes[index].title);
-                                await getNotes();
+                                await getNotes(getNotesFilter);
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
@@ -221,59 +220,154 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Note preview
                   child: Padding(
                     padding: const EdgeInsets.all(halfPadding / 2),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colorScheme.secondary,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(radius),
-                        ),
+                    child: Material(
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(radius),
                       ),
-                      height: 80,
-                      child: Padding(
-                        padding: const EdgeInsets.all(padding / 3),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                notes[index].title,
-                                style: TextStyle(
-                                  fontSize: mediumFontSize,
-                                  color: colorScheme.onSecondary,
+                      elevation: 3,
+                      color: Colors.black,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.secondary,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(radius),
+                          ),
+                        ),
+                        height: 115,
+                        child: Padding(
+                          padding: const EdgeInsets.all(padding / 3),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  (notes[index].title.length > 20)
+                                      ? '${notes[index].title.substring(1, 20)}...'
+                                      : notes[index].title,
+                                  style: TextStyle(
+                                    fontSize: mediumFontSize,
+                                    color: colorScheme.onSecondary,
+                                  ),
                                 ),
-                                maxLines: null, // TODO: modify
                               ),
-                            ),
-                            Expanded(
-                              child: Row(
+                              Expanded(
+                                child: Text(
+                                  (notes[index].content.length > 20)
+                                      ? '${notes[index].content.substring(1, 20)}...'
+                                      : notes[index].content,
+                                  style: TextStyle(
+                                    color: colorScheme.onSecondary,
+                                  ),
+                                ),
+                              ),
+                              Row(
                                 children: [
                                   Expanded(
-                                    child: Icon(
-                                      Icons.access_time,
-                                      color: iconColors[0],
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                NoteInfoScreen(
+                                              note: notes[index],
+                                            ),
+                                          ),
+                                        );
+                                        await getNotes(getNotesFilter);
+                                      },
+                                      icon: Badge(
+                                        isLabelVisible:
+                                            notes[index].timeNotification != '',
+                                        label: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 10,
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        child: Icon(
+                                          Icons.access_time,
+                                          color: colorScheme.onSecondary,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Expanded(
-                                    child: Icon(
-                                      Icons.pin_drop,
-                                      color: iconColors[1],
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                NoteInfoScreen(
+                                              note: notes[index],
+                                            ),
+                                          ),
+                                        );
+                                        await getNotes(getNotesFilter);
+                                      },
+                                      icon: Badge(
+                                        isLabelVisible:
+                                            notes[index].locationNotification !=
+                                                '',
+                                        label: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 10,
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        child: Icon(
+                                          Icons.pin_drop,
+                                          color: colorScheme.onSecondary,
+                                        ),
+                                      ),
                                     ),
                                   ),
+                                  /*Expanded(
+                                      child: Badge(
+                                        isLabelVisible:
+                                            notes[index].weatherNotification !=
+                                                '',
+                                        child: Icon(
+                                          Icons.cloud,
+                                          color: iconColors[2],
+                                        ),
+                                      ),
+                                    ),*/
                                   Expanded(
-                                    child: Icon(
-                                      Icons.cloud,
-                                      color: iconColors[2],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Icon(
-                                      Icons.refresh,
-                                      color: iconColors[3],
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                NoteInfoScreen(
+                                              note: notes[index],
+                                            ),
+                                          ),
+                                        );
+                                        await getNotes(getNotesFilter);
+                                      },
+                                      icon: Badge(
+                                        isLabelVisible:
+                                            notes[index].notificationPeriod !=
+                                                '',
+                                        label: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 10,
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        child: Icon(
+                                          Icons.refresh,
+                                          color: colorScheme.onSecondary,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -286,13 +380,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SettingsScreen(),
                 ),
               );
+              await getNotes(getNotesFilter);
             },
             icon: Icon(
               Icons.settings,
@@ -315,43 +410,73 @@ class _HomeScreenState extends State<HomeScreen> {
           inputDecorationTheme: const InputDecorationTheme(
             border: InputBorder.none,
           ),
-          initialSelection: 'Category',
-          onSelected: (String? category) {},
-          dropdownMenuEntries: [
-            DropdownMenuEntry(
+          controller: categoryDropdownMenuController,
+          onSelected: (String? category) async {
+            if (category == null) return;
+            if (category == 'Manage') {
+              categoryDropdownMenuController.text = 'All Categories';
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CategoryManagerScreen(),
+                ),
+              );
+            } else {
+              setState(() {
+                categoryDropdownMenuController.text = category;
+              });
+            }
+            await getNotes(getNotesFilter);
+          },
+          dropdownMenuEntries: List.generate(categories.length + 2, (i) {
+            if (i == categories.length) {
+              return DropdownMenuEntry(
+                value: 'All Categories',
+                label: 'All Categories',
+                style: ButtonStyle(
+                  foregroundColor: WidgetStatePropertyAll(
+                    colorScheme.onPrimary,
+                  ),
+                ),
+                leadingIcon: Icon(
+                  Icons.all_inbox_rounded,
+                  color: colorScheme.onSecondary,
+                ),
+              );
+            } else if (i == categories.length + 1) {
+              return DropdownMenuEntry(
+                value: 'Manage',
+                label: 'Manage',
+                style: ButtonStyle(
+                  foregroundColor: WidgetStatePropertyAll(
+                    colorScheme.onPrimary,
+                  ),
+                ),
+                leadingIcon: Icon(
+                  Icons.menu,
+                  color: colorScheme.onSecondary,
+                ),
+              );
+            }
+            return DropdownMenuEntry(
+              value: categories[i].category,
+              label: categories[i].category,
               style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(colorScheme.onPrimary),
+                foregroundColor: WidgetStatePropertyAll(
+                  colorScheme.onPrimary,
+                ),
               ),
-              value: 'Category',
-              label: 'Category',
               leadingIcon: Icon(
                 Icons.square_rounded,
-                color: Colors.white,
+                color: Color.fromARGB(
+                  255,
+                  int.parse(categories[i].r),
+                  int.parse(categories[i].g),
+                  int.parse(categories[i].b),
+                ),
               ),
-            ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
-            DropdownMenuEntry(
-              style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(colorScheme.onPrimary),
-              ),
-              value: 'School',
-              label: 'School',
-              leadingIcon: Icon(
-                Icons.square_rounded,
-                color: Colors.blue,
-              ),
-            ),
-            DropdownMenuEntry(
-              style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(colorScheme.onPrimary),
-              ),
-              value: 'Work',
-              label: 'Work',
-              leadingIcon: Icon(
-                Icons.square_rounded,
-                color: Colors.red,
-              ),
-            ),
-          ],
+            );
+          }).reversed.toList(),
         ),
       ),
     );

@@ -1,19 +1,17 @@
 import 'dart:convert';
 
-import 'package:arctic_tern/notifications/notification.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
 
+import 'package:arctic_tern/notifications/notification.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
 import 'package:arctic_tern/screens/location_selection_screen.dart';
 
 class NewNoteScreen extends StatefulWidget {
-  final Function refreshNotesCallback;
   const NewNoteScreen({
     super.key,
-    required this.refreshNotesCallback,
   });
 
   @override
@@ -33,26 +31,22 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
         padding: const EdgeInsets.all(padding),
         child: ListView(
           children: [
-            Row(
-              children: [
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width - doublePadding,
-                  child: TextField(
-                    controller: titleTextFieldController,
-                    maxLines: null,
-                    onChanged: (String title) {
-                      setState(() {
-                        newNote.title = title;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Enter a note title',
-                      hintStyle: TextStyle(color: colorScheme.onSurface),
-                    ),
-                  ),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width - doublePadding,
+              child: TextField(
+                controller: titleTextFieldController,
+                maxLines: null,
+                onChanged: (String title) {
+                  setState(() {
+                    newNote.title = title;
+                  });
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Enter a note title',
+                  hintStyle: TextStyle(color: colorScheme.onSurface),
                 ),
-              ],
+              ),
             ),
             const Divider(),
             Row(
@@ -297,7 +291,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   ),
                 ),
                 // weather notification
-                Expanded(
+                /*Expanded(
                   child: IconButton(
                     onPressed: () {},
                     icon: Badge(
@@ -314,7 +308,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                       ),
                     ),
                   ),
-                ),
+                ),*/
               ],
             ),
             const Divider(),
@@ -366,8 +360,10 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               }
               if (!await newNote.exists()) {
                 if (newNote.timeNotification != '' ||
-                    newNote.locationNotification == '' &&
-                        newNote.weatherNotification == '') {
+                        newNote.locationNotification ==
+                            '' /* &&
+                        newNote.weatherNotification == ''*/
+                    ) {
                   Duration? frequency;
                   int delay = 0;
                   if (newNote.timeNotification != '') {
@@ -417,7 +413,6 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                     contentTextFieldController.clear();
                     titleTextFieldController.clear();
                     newNote = Note.toDefault();
-                    widget.refreshNotesCallback();
                     Navigator.pop(context);
                   });
                 } else if (context.mounted) {

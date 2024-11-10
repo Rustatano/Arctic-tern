@@ -8,8 +8,8 @@
         android:label="GeoNote"
         android:name="${applicationName}"
         android:icon="@drawable/launcher_icon"
-        android:allowBackup="false"
-        android:fullBackupOnly="false">
+        android:allowBackup="true"
+        android:fullBackupOnly="true">
 
         <activity
             android:name=".MainActivity"
@@ -32,10 +32,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service
-            android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="location"
-        />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
