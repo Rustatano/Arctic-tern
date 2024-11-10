@@ -25,7 +25,7 @@ class Note {
   static Note toDefault() {
     return Note(
       title: '',
-      category: 'Category',
+      category: 'No Category',
       content: '',
       dateModified: '',
       timeNotification: '',

@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getDBCategories() async {
     final c = await DBCategory.getDBCategories();
     setState(() {
-      categories = c.toList();
+      categories = c;
     });
   }
 
@@ -123,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context) => NewNoteScreen(),
             ),
           );
+          await getDBCategories();
           await getNotes(getNotesFilter);
         },
         child: Icon(Icons.add),

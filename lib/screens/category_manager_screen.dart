@@ -1,7 +1,8 @@
-import 'package:arctic_tern/constants.dart';
-import 'package:arctic_tern/db_objects/categories.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
+
+import 'package:arctic_tern/constants.dart';
+import 'package:arctic_tern/db_objects/categories.dart';
 
 class CategoryManagerScreen extends StatefulWidget {
   const CategoryManagerScreen({super.key});
@@ -19,7 +20,7 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
   Future<void> getDBCategories() async {
     final c = await DBCategory.getDBCategories();
     setState(() {
-      categories = c.toList();
+      categories = c;
     });
   }
 
@@ -153,16 +154,6 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
           color: colorScheme.onPrimary,
         ),
         backgroundColor: colorScheme.primary,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.check,
-            ),
-          ),
-        ],
       ),
     );
   }

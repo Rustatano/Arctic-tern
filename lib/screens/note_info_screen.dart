@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
 import 'package:arctic_tern/screens/edit_screen.dart';

@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
 
+import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
 import 'package:arctic_tern/notifications/notification.dart';
@@ -23,17 +26,28 @@ class EditScreen extends StatefulWidget {
 
 class _EditScreenState extends State<EditScreen> {
   late Note editedNote;
-  late TextEditingController titleTextController;
-  late TextEditingController contentTextController;
+  late TextEditingController titleTextFieldController;
+  late TextEditingController contentTextFieldController;
   late String prevTitle;
+  late String currentCategory;
+  List<DBCategory> categories = [];
+  
+  Future<void> getDBCategories() async {
+    final c = await DBCategory.getDBCategories();
+    setState(() {
+      categories = c;
+    });
+  }
 
   @override
   void initState() {
-    super.initState();
+    getDBCategories();
     editedNote = Note.fromMap(widget.note.toMap()); // copy note
-    titleTextController = TextEditingController(text: widget.note.title);
-    contentTextController = TextEditingController(text: widget.note.content);
+    titleTextFieldController = TextEditingController(text: widget.note.title);
+    contentTextFieldController = TextEditingController(text: widget.note.content);
     prevTitle = widget.note.title;
+    currentCategory = widget.note.category;
+    super.initState();
   }
 
   @override
@@ -50,7 +64,7 @@ class _EditScreenState extends State<EditScreen> {
                   width: MediaQuery.sizeOf(context).width - doublePadding,
                   child: TextField(
                     maxLines: null,
-                    controller: titleTextController,
+                    controller: titleTextFieldController,
                     onChanged: (String title) {
                       setState(() {
                         editedNote.title = title;
@@ -67,42 +81,93 @@ class _EditScreenState extends State<EditScreen> {
             const Divider(),
             Row(
               children: [
-                DropdownMenu(
-                  inputDecorationTheme: const InputDecorationTheme(
-                    border: InputBorder.none,
-                  ),
-                  initialSelection: editedNote.category,
-                  onSelected: (String? category) {
-                    setState(() {
-                      editedNote.category = category!;
-                    });
+                // Category selection, edit note
+                DropdownButton(
+                  value: currentCategory,
+                  onChanged: (String? category) async {
+                    if (category == null) return;
+                    if (category == 'Manage') {
+                      setState(() {
+                        currentCategory = 'No Category';
+                      });
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryManagerScreen(),
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        currentCategory = category;
+                        editedNote.category = currentCategory;
+                      });
+                    }
+                    await getDBCategories();
                   },
-                  dropdownMenuEntries: const [
-                    DropdownMenuEntry(
-                      value: 'Category',
-                      label: 'Category',
-                      leadingIcon: Icon(
-                        Icons.square,
-                        color: Colors.white,
+                  items: List.generate(categories.length + 2, (i) {
+                    if (i == categories.length) {
+                      return DropdownMenuItem(
+                        value: 'No Category',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.all_inbox_rounded,
+                              color: colorScheme.onSurface,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: halfPadding),
+                              child: Text(
+                                'No Category',
+                                style: TextStyle(color: colorScheme.onSurface),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (i == categories.length + 1) {
+                      return DropdownMenuItem(
+                        value: 'Manage',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.menu,
+                              color: colorScheme.onSurface,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: halfPadding),
+                              child: Text(
+                                'Manage',
+                                style: TextStyle(color: colorScheme.onSurface),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return DropdownMenuItem(
+                      value: categories[i].category,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.square_rounded,
+                            color: Color.fromARGB(
+                              255,
+                              int.parse(categories[i].r),
+                              int.parse(categories[i].g),
+                              int.parse(categories[i].b),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              categories[i].category,
+                              style: TextStyle(color: colorScheme.onSurface),
+                            ),
+                          ),
+                        ],
                       ),
-                    ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
-                    DropdownMenuEntry(
-                      value: 'School',
-                      label: 'School',
-                      leadingIcon: Icon(
-                        Icons.square,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    DropdownMenuEntry(
-                      value: 'Work',
-                      label: 'Work',
-                      leadingIcon: Icon(
-                        Icons.square,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
+                    );
+                  }).reversed.toList(),
                 ),
               ],
             ),
@@ -111,100 +176,85 @@ class _EditScreenState extends State<EditScreen> {
               children: [
                 // time notification
                 Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () async {
-                          final date = await showDateTimePicker(
-                              context: context,
-                              initialDate: editedNote.timeNotification);
-                          List<Padding> timeScale = const [
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.0),
-                              child: Text('months'),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.0),
-                              child: Text('days'),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.0),
-                              child: Text('hours'),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.0),
-                              child: Text('minutes'),
-                            ),
-                          ];
-                          if (date == null) {
-                            setState(() {
-                              editedNote.timeNotification = '';
-                              editedNote.notificationPeriod = '';
-                            });
-                            return;
-                          }
-                          List<Widget> timeCount = [];
-                          for (var i = 1; i < 32; i++) {
-                            timeCount.add(
-                              Padding(
-                                padding: const EdgeInsets.only(top: 5.0),
-                                child: Text(i.toString()),
-                              ),
-                            );
-                          }
-                          int selectedTimeScale = 0;
-                          int selectedTimeCount = 1;
-                          if (!context.mounted) {
-                            return;
-                          }
-                          await showDialog(
-                            context: context,
-                            builder: (context) => Dialog(
-                              child: SizedBox(
-                                width: 300,
-                                height: 200,
+                  child: IconButton(
+                    onPressed: () async {
+                      final date = await showDateTimePicker(
+                        context: context,
+                        initialDate: editedNote.timeNotification,
+                      );
+
+                      String? repeatType;
+                      String? repeatCount;
+                      if (date != null) {
+                        List<Text> timeCountList = [];
+                        List<Text> timeTypeList = [
+                          Text('days'),
+                          Text('weeks'),
+                          Text('months'),
+                          Text('years'),
+                        ];
+                        for (var i = 0; i < 100; i++) {
+                          timeCountList.add(Text(i.toString()));
+                        }
+                        if (!context.mounted) return;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            child: SizedBox(
+                              width: 200,
+                              height: 400,
+                              child: Padding(
+                                padding: const EdgeInsets.all(halfPadding),
                                 child: Column(
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: padding, bottom: padding),
+                                    Text('Select repeat time'),
+                                    Expanded(
                                       child: Row(
                                         children: [
                                           Expanded(
                                             child: CupertinoPicker(
-                                              itemExtent: 30,
-                                              onSelectedItemChanged: (val) {
-                                                selectedTimeScale = val;
+                                              itemExtent: 40,
+                                              onSelectedItemChanged:
+                                                  (valIndex) {
+                                                repeatCount =
+                                                    timeCountList[valIndex]
+                                                        .data!;
                                               },
-                                              children: timeScale,
+                                              children: timeCountList,
                                             ),
                                           ),
                                           Expanded(
                                             child: CupertinoPicker(
-                                              itemExtent: 30,
-                                              onSelectedItemChanged: (val) {
-                                                selectedTimeCount = val;
+                                              itemExtent: 40,
+                                              onSelectedItemChanged:
+                                                  (valIndex) {
+                                                repeatType =
+                                                    timeTypeList[valIndex]
+                                                        .data!;
                                               },
-                                              children: timeCount,
+                                              children: timeTypeList,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
                                     Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         TextButton(
                                           onPressed: () {
-                                            selectedTimeScale = -1;
+                                            repeatCount = '';
+                                            repeatType = '';
                                             Navigator.pop(context);
                                           },
-                                          child: const Text('Cancel'),
+                                          child: Text('Cancel'),
                                         ),
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
-                                          child: const Text('Save'),
+                                          child: Text('Save'),
                                         ),
                                       ],
                                     ),
@@ -212,89 +262,110 @@ class _EditScreenState extends State<EditScreen> {
                                 ),
                               ),
                             ),
-                          );
-                          // approximate, do this exact
-                          setState(() {
-                            selectedTimeCount++;
-                            switch (selectedTimeScale) {
-                              case 0:
-                                editedNote.notificationPeriod =
-                                    (2629800 * selectedTimeCount).toString();
+                          ),
+                        );
+                      }
+                      setState(() {
+                        if (date != null) {
+                          editedNote.timeNotification =
+                              date.toString().substring(0, 16);
+                          if (repeatCount == '0' ||
+                              repeatCount == null ||
+                              repeatType == '' ||
+                              repeatType == null) {
+                            editedNote.notificationPeriod = '';
+                          } else {
+                            int repeat = 0;
+                            switch (repeatType) {
+                              case 'days':
+                                repeat = int.parse(repeatCount!) * 60 * 24;
                                 break;
-                              case 1:
-                                editedNote.notificationPeriod =
-                                    (86400 * selectedTimeCount).toString();
+                              case 'weeks':
+                                repeat = int.parse(repeatCount!) * 60 * 24 * 7;
                                 break;
-                              case 2:
-                                editedNote.notificationPeriod =
-                                    (3600 * selectedTimeCount).toString();
+                              case 'months':
+                                // not accurate
+                                repeat = int.parse(repeatCount!) * 60 * 24 * 30;
                                 break;
-                              case 3:
-                                editedNote.notificationPeriod =
-                                    (60 * selectedTimeCount).toString();
+                              case 'years':
+                                // not accurate
+                                repeat =
+                                    int.parse(repeatCount!) * 60 * 24 * 365;
                                 break;
                               default:
-                                editedNote.notificationPeriod = '';
-                                break;
                             }
-                          });
-                          setState(() {
-                            editedNote.timeNotification =
-                                date.toString().substring(0, 16);
-                          });
-                        },
-                        icon: Icon(
-                          Icons.access_time,
-                          color: colorScheme.onSurface,
-                        ),
+                            editedNote.notificationPeriod = repeat.toString();
+                          }
+                        } else {
+                          editedNote.timeNotification = '';
+                        }
+                      });
+                    },
+                    icon: Badge(
+                      isLabelVisible: editedNote.timeNotification != '',
+                      label: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 10,
                       ),
-                      Text(
-                        '${editedNote.timeNotification} ${editedNote.notificationPeriod}',
-                        style: const TextStyle(fontSize: smallFontSize),
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.access_time,
+                        color: colorScheme.onSurface,
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 // location notification
                 Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const LocationSelectionScreen(),
-                            ),
-                          );
-                          setState(() {
-                            editedNote.locationNotification =
-                                (result != null) ? jsonEncode(result) : '';
-                          });
-                        },
-                        icon: Icon(
-                          Icons.pin_drop,
-                          color: colorScheme.onSurface,
+                  child: IconButton(
+                    disabledColor: colorScheme.primary,
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LocationSelectionScreen(),
                         ),
+                      );
+                      setState(() {
+                        editedNote.locationNotification =
+                            (result != null) ? jsonEncode(result) : '';
+                      });
+                    },
+                    icon: Badge(
+                      isLabelVisible: editedNote.locationNotification != '',
+                      label: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 10,
                       ),
-                      Text(editedNote.locationNotification),
-                    ],
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.pin_drop,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
                   ),
                 ),
                 // weather notification
                 /*Expanded(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.cloud),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Badge(
+                      isLabelVisible: editedNote.weatherNotification != '',
+                      label: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 10,
                       ),
-                      Text(editedNote.weatherNotification),
-                    ],
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.cloud,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
                   ),
                 ),*/
-                // repeat
               ],
             ),
             const Divider(),
@@ -303,17 +374,18 @@ class _EditScreenState extends State<EditScreen> {
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - doublePadding,
                   child: TextField(
-                    controller: contentTextController,
+                    controller: contentTextFieldController,
                     maxLines: null,
                     onChanged: (String content) {
                       setState(() {
                         editedNote.content = content;
                       });
                     },
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Start typing here',
-                    ),
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Start typing here',
+                        hintStyle: TextStyle(color: colorScheme.onSurface)),
+                    cursorColor: colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -336,8 +408,10 @@ class _EditScreenState extends State<EditScreen> {
                 if (!await editedNote.exists() ||
                     prevTitle == editedNote.title) {
                   if (editedNote.timeNotification != '' ||
-                      editedNote.locationNotification == ''/* &&
-                          editedNote.weatherNotification == ''*/) {
+                          editedNote.locationNotification ==
+                              '' /* &&
+                          editedNote.weatherNotification == ''*/
+                      ) {
                     Duration? frequency;
                     int delay = 0;
                     if (editedNote.notificationPeriod != '') {
@@ -358,6 +432,7 @@ class _EditScreenState extends State<EditScreen> {
                         frequency: frequency,
                       );
                     }
+                    await Note.removeNote(prevTitle);
                     await editedNote.insert();
                     setState(() {
                       editedNote = Note.toDefault();

@@ -30,7 +30,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   Future<void> getDBCategories() async {
     final c = await DBCategory.getDBCategories();
     setState(() {
-      categories = c.toList();
+      categories = c;
     });
   }
 
@@ -89,7 +89,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                       });
                     }
                     await getDBCategories();
-                    newNote.category = category;
+                    newNote.category = currentCategory;
                   },
                   items: List.generate(categories.length + 2, (i) {
                     if (i == categories.length) {
