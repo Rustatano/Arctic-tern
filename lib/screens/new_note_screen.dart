@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
@@ -20,8 +22,23 @@ class NewNoteScreen extends StatefulWidget {
 
 class _NewNoteScreenState extends State<NewNoteScreen> {
   Note newNote = Note.toDefault();
+  List<DBCategory> categories = [];
   TextEditingController contentTextFieldController = TextEditingController();
   TextEditingController titleTextFieldController = TextEditingController();
+  String currentCategory = 'No Category';
+
+  Future<void> getDBCategories() async {
+    final c = await DBCategory.getDBCategories();
+    setState(() {
+      categories = c.toList();
+    });
+  }
+
+  @override
+  void initState() {
+    getDBCategories();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,65 +69,92 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
             Row(
               children: [
                 // Category selection, new note
-                DropdownMenu(
-                  trailingIcon: Icon(
-                    Icons.arrow_drop_down,
-                    color: colorScheme.onSurface,
-                  ),
-                  selectedTrailingIcon: Icon(
-                    Icons.arrow_drop_up,
-                    color: colorScheme.onPrimary,
-                  ),
-                  menuStyle: MenuStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(colorScheme.primary)),
-                  inputDecorationTheme: InputDecorationTheme(
-                    border: InputBorder.none,
-                  ),
-                  initialSelection: 'Category',
-                  onSelected: (String? category) {
-                    setState(() {
-                      newNote.category = category!;
-                    });
+                DropdownButton(
+                  value: currentCategory,
+                  onChanged: (String? category) async {
+                    if (category == null) return;
+                    if (category == 'Manage') {
+                      setState(() {
+                        currentCategory = 'No Category';
+                      });
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryManagerScreen(),
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        currentCategory = category;
+                      });
+                    }
+                    await getDBCategories();
+                    newNote.category = category;
                   },
-                  dropdownMenuEntries: [
-                    DropdownMenuEntry(
-                      style: ButtonStyle(
-                        foregroundColor:
-                            WidgetStatePropertyAll(colorScheme.onPrimary),
+                  items: List.generate(categories.length + 2, (i) {
+                    if (i == categories.length) {
+                      return DropdownMenuItem(
+                        value: 'No Category',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.all_inbox_rounded,
+                              color: colorScheme.onSurface,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: halfPadding),
+                              child: Text(
+                                'No Category',
+                                style: TextStyle(color: colorScheme.onSurface),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (i == categories.length + 1) {
+                      return DropdownMenuItem(
+                        value: 'Manage',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.menu,
+                              color: colorScheme.onSurface,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: halfPadding),
+                              child: Text(
+                                'Manage',
+                                style: TextStyle(color: colorScheme.onSurface),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return DropdownMenuItem(
+                      value: categories[i].category,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.square_rounded,
+                            color: Color.fromARGB(
+                              255,
+                              int.parse(categories[i].r),
+                              int.parse(categories[i].g),
+                              int.parse(categories[i].b),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              categories[i].category,
+                              style: TextStyle(color: colorScheme.onSurface),
+                            ),
+                          ),
+                        ],
                       ),
-                      value: 'Category',
-                      label: 'Category',
-                      leadingIcon: Icon(
-                        Icons.square_rounded,
-                        color: Colors.white,
-                      ),
-                    ), // make sure user cant create category named 'Category' & 'Create', it would cause collision
-                    DropdownMenuEntry(
-                      style: ButtonStyle(
-                        foregroundColor:
-                            WidgetStatePropertyAll(colorScheme.onPrimary),
-                      ),
-                      value: 'School',
-                      label: 'School',
-                      leadingIcon: Icon(
-                        Icons.square_rounded,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    DropdownMenuEntry(
-                      style: ButtonStyle(
-                        foregroundColor:
-                            WidgetStatePropertyAll(colorScheme.onPrimary),
-                      ),
-                      value: 'Work',
-                      label: 'Work',
-                      leadingIcon: Icon(
-                        Icons.square_rounded,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
+                    );
+                  }).reversed.toList(),
                 ),
               ],
             ),

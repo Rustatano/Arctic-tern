@@ -18,7 +18,7 @@ class DBCategory {
 
   static DBCategory toDefault() {
     return DBCategory(
-      category: 'Category',
+      category: 'No Category',
       r: (Random().nextInt(156) + 100).toString(),
       g: (Random().nextInt(156) + 100).toString(),
       b: (Random().nextInt(156) + 100).toString(),
@@ -52,12 +52,12 @@ class DBCategory {
     );
   }
 
-  static Future<void> removeDBCategory(String title) async {
+  static Future<void> removeDBCategory(String category) async {
     final db = await getDB();
     db.delete(
       'category',
-      where: 'title = ?',
-      whereArgs: [title],
+      where: 'category = ?',
+      whereArgs: [category],
     );
   }
 

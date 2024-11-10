@@ -82,7 +82,7 @@ class Note {
   static Future<List<Note>> getNotes(Map<String, String> filter) async {
     final db = await getDB();
     List<Map<String, Object?>> list;
-    if (filter['category'] == 'All Categories') {
+    if (filter['category'] == 'No Category') {
       list = await db.query('note');
     } else {
       list = await db.query('note', where: 'category = ?', whereArgs: [filter['category']]);

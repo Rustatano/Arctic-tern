@@ -20,9 +20,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Note> notes = [];
   List<DBCategory> categories = [];
-  Map<String, String> getNotesFilter = {'category': 'All Categories'};
-  TextEditingController categoryDropdownMenuController =
-      TextEditingController();
+  Map<String, String> getNotesFilter = {'category': 'No Category'};
+  String currentCategory = 'No Category';
 
   Future<void> getNotes(Map<String, String> filter) async {
     final n = await Note.getNotes(filter);
@@ -109,7 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
     askForPermission();
     getNotes(getNotesFilter);
     getDBCategories();
-    categoryDropdownMenuController.text = 'All Categories';
     super.initState();
   }
 
@@ -395,26 +393,15 @@ class _HomeScreenState extends State<HomeScreen> {
             )),
         backgroundColor: colorScheme.primary,
         // Category selection, home screen
-        title: DropdownMenu(
-          trailingIcon: Icon(
-            Icons.arrow_drop_down,
-            color: colorScheme.onPrimary,
-          ),
-          selectedTrailingIcon: Icon(
-            Icons.arrow_drop_up,
-            color: colorScheme.onPrimary,
-          ),
-          menuStyle: MenuStyle(
-              backgroundColor: WidgetStateProperty.all(colorScheme.primary)),
-          textStyle: TextStyle(color: colorScheme.onPrimary),
-          inputDecorationTheme: const InputDecorationTheme(
-            border: InputBorder.none,
-          ),
-          controller: categoryDropdownMenuController,
-          onSelected: (String? category) async {
+        title: DropdownButton(
+          dropdownColor: colorScheme.primary,
+          value: currentCategory,
+          onChanged: (String? category) async {
             if (category == null) return;
             if (category == 'Manage') {
-              categoryDropdownMenuController.text = 'All Categories';
+              setState(() {
+                currentCategory = 'No Category';
+              });
               await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -423,57 +410,74 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             } else {
               setState(() {
-                categoryDropdownMenuController.text = category;
+                currentCategory = category;
               });
             }
+            getNotesFilter['category'] = currentCategory;
+            await getDBCategories();
             await getNotes(getNotesFilter);
           },
-          dropdownMenuEntries: List.generate(categories.length + 2, (i) {
+          items: List.generate(categories.length + 2, (i) {
             if (i == categories.length) {
-              return DropdownMenuEntry(
-                value: 'All Categories',
-                label: 'All Categories',
-                style: ButtonStyle(
-                  foregroundColor: WidgetStatePropertyAll(
-                    colorScheme.onPrimary,
-                  ),
-                ),
-                leadingIcon: Icon(
-                  Icons.all_inbox_rounded,
-                  color: colorScheme.onSecondary,
+              return DropdownMenuItem(
+                value: 'No Category',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.all_inbox_rounded,
+                      color: colorScheme.onPrimary,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: halfPadding),
+                      child: Text(
+                        'No Category',
+                        style: TextStyle(color: colorScheme.onPrimary),
+                      ),
+                    ),
+                  ],
                 ),
               );
             } else if (i == categories.length + 1) {
-              return DropdownMenuEntry(
+              return DropdownMenuItem(
                 value: 'Manage',
-                label: 'Manage',
-                style: ButtonStyle(
-                  foregroundColor: WidgetStatePropertyAll(
-                    colorScheme.onPrimary,
-                  ),
-                ),
-                leadingIcon: Icon(
-                  Icons.menu,
-                  color: colorScheme.onSecondary,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.menu,
+                      color: colorScheme.onPrimary,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: halfPadding),
+                      child: Text(
+                        'Manage',
+                        style: TextStyle(color: colorScheme.onPrimary),
+                      ),
+                    ),
+                  ],
                 ),
               );
             }
-            return DropdownMenuEntry(
+            return DropdownMenuItem(
               value: categories[i].category,
-              label: categories[i].category,
-              style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(
-                  colorScheme.onPrimary,
-                ),
-              ),
-              leadingIcon: Icon(
-                Icons.square_rounded,
-                color: Color.fromARGB(
-                  255,
-                  int.parse(categories[i].r),
-                  int.parse(categories[i].g),
-                  int.parse(categories[i].b),
-                ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.square_rounded,
+                    color: Color.fromARGB(
+                      255,
+                      int.parse(categories[i].r),
+                      int.parse(categories[i].g),
+                      int.parse(categories[i].b),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: halfPadding),
+                    child: Text(
+                      categories[i].category,
+                      style: TextStyle(color: colorScheme.onPrimary),
+                    ),
+                  ),
+                ],
               ),
             );
           }).reversed.toList(),

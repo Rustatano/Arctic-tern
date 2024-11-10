@@ -40,7 +40,8 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(top: padding, left: padding, right: padding),
+                    padding:
+                        const EdgeInsets.only(left: padding, right: padding),
                     child: TextField(
                       controller: categoryNameTextFieldController,
                       maxLines: null,
@@ -92,11 +93,44 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                             Radius.circular(radius),
                           ),
                         ),
-                        height: 60,
+                        height: 50,
                         child: Padding(
                           padding: const EdgeInsets.all(padding / 3),
                           child: Row(
-                            children: [],
+                            children: [
+                              Icon(
+                                Icons.square_rounded,
+                                color: Color.fromARGB(
+                                  255,
+                                  int.parse(categories[index].r),
+                                  int.parse(categories[index].g),
+                                  int.parse(categories[index].b),
+                                ),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: padding, right: padding),
+                                  child: Text(
+                                    categories[index].category,
+                                    style: TextStyle(
+                                      color: colorScheme.onSecondary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () async {
+                                  // TODO cancel task with this category
+                                  DBCategory.removeDBCategory(categories[index].category);
+                                  await getDBCategories();
+                                },
+                                icon: Icon(
+                                  Icons.delete,
+                                  color: colorScheme.onSecondary,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
