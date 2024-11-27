@@ -1,5 +1,5 @@
+import 'package:arctic_tern/db_objects/note.dart';
 import 'package:flutter/material.dart';
-import 'package:workmanager/workmanager.dart';
 
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/categories.dart';
@@ -122,8 +122,13 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                               ),
                               IconButton(
                                 onPressed: () async {
-                                  // TODO cancel task with this category
-                                  DBCategory.removeDBCategory(categories[index].category);
+                                  List<Note> notes = await Note.getNotes(
+                                      {'category': categories[index].category});
+                                  for (var note in notes) {
+                                    Note.removeNote(note.title);
+                                  }
+                                  DBCategory.removeDBCategory(
+                                      categories[index].category);
                                   await getDBCategories();
                                 },
                                 icon: Icon(

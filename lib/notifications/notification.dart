@@ -97,101 +97,39 @@ Future<DateTime?> showDateTimePicker({
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask(
-    (task, inputData) async {
-      Map<String, dynamic> input = inputData!; // removing null check
-      if (input['notificationPeriod'] == '') {
-        if (input['locationNotification'] == '') {
+    (task, _) async {
+      List<Note> notes = await Note.getNotes({'active': 'true'});
+
+      for (var note in notes) {
+        if (note.from == '' && note.to == '') continue;
+        if (note.location == '') {
           // timed notification
-          input['timeNotification'] = '';
-          Note note = Note.fromMap(input);
-          await Note.removeNote(input['title']);
-          await note.insert();
-          await Notification().showNotification(title: input['title']);
+          int from = (DateTime.parse(note.from).millisecondsSinceEpoch / 1000).floor();
+          int to = (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
+          int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
+
+          if (!(from - 30 < now && now < from + (to - from) + 30)) continue;
+
+          await Notification().showNotification(title: note.title);
         } else {
+          // timed location notification
           final currentPosition = await Geolocator.getCurrentPosition(
-              forceAndroidLocationManager: true); // depracated but works
+            // ignore: deprecated_member_use
+            forceAndroidLocationManager: true,
+          );
           if (Geolocator.distanceBetween(
-                jsonDecode(input['locationNotification'])['lat'] as double,
-                jsonDecode(input['locationNotification'])['long'] as double,
+                jsonDecode(note.location)['lat'] as double,
+                jsonDecode(note.location)['long'] as double,
                 currentPosition.latitude,
                 currentPosition.longitude,
               ) >
-              jsonDecode(input['locationNotification'])['radius']) {
+              jsonDecode(note.location)['radius']) {
           } else {
-            input['timeNotification'] = '';
-            input['locationNotification'] = '';
-            Note note = Note.fromMap(input);
-            await Note.removeNote(input['title']);
-            await note.insert();
-            await Notification().showNotification(title: input['title']);
-          }
-          await Workmanager().cancelByUniqueName(input['title']);
-        }
-      } else if (input['locationNotification'] == '') {
-      } else {}
-
-      return Future.value(true);
-      /*
-      if (input['notificationPeriod'] == '') {
-        if (input['locationNotification'] == '') {
-          if (input['weatherNotification'] == '') {
-            // timed notification
-            input['timeNotification'] = '';
-            Note note = Note.fromMap(input);
-            await Note.removeNote(input['title']);
-            await note.insert();
-            await Notification().showNotification(title: input['title']);
-          } else {
-            // timed weather notification
-          }
-        } else {
-          if (input['weatherNotification'] == '') {
-            // timed location notification
-            final currentPosition = await Geolocator.getCurrentPosition(forceAndroidLocationManager: true);
-            if (Geolocator.distanceBetween(
-                  jsonDecode(input['locationNotification'])['lat'] as double,
-                  jsonDecode(input['locationNotification'])['long'] as double,
-                  currentPosition.latitude,
-                  currentPosition.longitude,
-                ) >
-                jsonDecode(input['locationNotification'])['radius']) {
-            } else {
-              input['timeNotification'] = '';
-              input['locationNotification'] = '';
-              Note note = Note.fromMap(input);
-              await Note.removeNote(input['title']);
-              await note.insert();
-              await Notification().showNotification(title: input['title']);
-            }
-            await Workmanager().cancelByUniqueName(input['title']);
-          } else {
-            // timed location + weather notification
-          }
-        }
-      } else {
-        if (input['locationNotification'] == '') {
-          if (input['weatherNotification'] == '') {
-            // timed repeated notification
-            await Notification().showNotification(title: input['title']);
-          } else {
-            // timed repeated weather notification
-          }
-        } else {
-          if (input['weatherNotification'] == '') {
-            // timed repeated location notification
-            final currentPosition = await Geolocator.getCurrentPosition();
-            if (sqrt(pow(currentPosition.latitude, 2) +
-                    pow(currentPosition.longitude, 2)) <
-                jsonDecode(input['locationNotification'])['radius']) {
-              await Notification().showNotification(title: input['title']);
-            }
-          } else {
-            // timed repeated location + weather notification
+            await Notification().showNotification(title: note.title);
           }
         }
       }
       return Future.value(true);
-      */
     },
   );
 }

@@ -6,20 +6,22 @@ class Note {
   String category;
   String content;
   String dateModified;
-  String timeNotification;
-  String locationNotification;
-  //String weatherNotification;
-  String notificationPeriod;
+  String from;
+  String to;
+  String location;
+  String repeat;
+  String active;
 
   Note({
     required this.title,
     required this.category,
     required this.content,
     required this.dateModified,
-    required this.timeNotification,
-    required this.locationNotification,
-    //required this.weatherNotification,
-    required this.notificationPeriod,
+    required this.from,
+    required this.to,
+    required this.location,
+    required this.repeat,
+    required this.active,
   });
 
   static Note toDefault() {
@@ -28,36 +30,39 @@ class Note {
       category: 'No Category',
       content: '',
       dateModified: '',
-      timeNotification: '',
-      locationNotification: '',
-      //weatherNotification: '',
-      notificationPeriod: '',
+      from: '',
+      to: '',
+      location: '',
+      repeat: '',
+      active: 'false',
     );
   }
 
   Map<String, String> toMap() {
     return {
-      'title': title,
-      'category': category,
-      'content': content,
-      'dateModified': dateModified,
-      'timeNotification': timeNotification,
-      'locationNotification': locationNotification,
-      //'weatherNotification': weatherNotification,
-      'notificationPeriod': notificationPeriod,
+      '_title': title,
+      '_category': category,
+      '_content': content,
+      '_dateModified': dateModified,
+      '_from': from,
+      '_to': to,
+      '_location': location,
+      '_repeat': repeat,
+      '_active': active
     };
   }
 
   static Note fromMap(Map<String, Object?> map) {
     return Note(
-      title: map['title'] as String,
-      category: map['category'] as String,
-      content: map['content'] as String,
-      dateModified: map['dateModified'] as String,
-      timeNotification: map['timeNotification'] as String,
-      locationNotification: map['locationNotification'] as String,
-      //weatherNotification: map['weatherNotification'] as String,
-      notificationPeriod: map['notificationPeriod'] as String,
+      title: map['_title'] as String,
+      category: map['_category'] as String,
+      content: map['_content'] as String,
+      dateModified: map['_dateModified'] as String,
+      from: map['_from'] as String,
+      to: map['_to'] as String,
+      location: map['_location'] as String,
+      repeat: map['_repeat'] as String,
+      active: map['_active'] as String,
     );
   }
 
@@ -74,18 +79,24 @@ class Note {
     final db = await getDB();
     db.delete(
       'note',
-      where: 'title = ?',
+      where: '_title = ?',
       whereArgs: [title],
     );
   }
 
-  static Future<List<Note>> getNotes(Map<String, String> filter) async {
+  static Future<List<Note>> getNotes(Map<String, String>? filter) async {
     final db = await getDB();
     List<Map<String, Object?>> list;
-    if (filter['category'] == 'No Category') {
+    if (filter == null) {
       list = await db.query('note');
     } else {
-      list = await db.query('note', where: 'category = ?', whereArgs: [filter['category']]);
+      String where = '';
+      List<String> whereArgs = [];
+      for (var f in filter.entries) {
+        where += '_${f.key} = ?';
+        whereArgs.add(f.value);
+      }
+      list = await db.query('note', where: where, whereArgs: whereArgs);
     }
     return list.map((note) => Note.fromMap(note)).toList();
   }
@@ -96,7 +107,7 @@ class Note {
       join(await getDatabasesPath(), 'note.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE IF NOT EXISTS note(title TEXT PRIMARY KEY, category TEXT, content TEXT, dateModified TEXT, timeNotification TEXT, locationNotification TEXT, weatherNotification TEXT, notificationPeriod TEXT)',
+          'CREATE TABLE IF NOT EXISTS note(_title TEXT PRIMARY KEY, _category TEXT, _content TEXT, _dateModified TEXT, _from TEXT, _to TEXT, _location TEXT, _repeat TEXT, _active TEXT)',
         );
       },
     );
@@ -107,7 +118,7 @@ class Note {
     final db = await getDB();
     final query = await db.query(
       'note',
-      where: 'title = ?',
+      where: '_title = ?',
       whereArgs: [title],
     );
     return query.isNotEmpty;

@@ -15,6 +15,7 @@ ThemeData ligthThemeData = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     brightness: Brightness.light,
     seedColor: const Color.fromARGB(255, 7, 114, 125),
+    surface: Colors.white,
   ),
   useMaterial3: true,
 );
@@ -23,6 +24,7 @@ ThemeData darkThemeData = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     brightness: Brightness.dark,
     seedColor: const Color.fromARGB(255, 255, 89, 94),
+    surface: Colors.white,
   ),
   useMaterial3: true,
 );

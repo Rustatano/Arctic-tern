@@ -30,7 +30,19 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     padding: EdgeInsets.only(right: halfPadding),
                     child: Icon(Icons.access_time),
                   ),
-                  Text(widget.note.timeNotification),
+                  Text(widget.note.from),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: halfPadding),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Icon(Icons.access_time),
+                  ),
+                  Text(widget.note.to),
                 ],
               ),
             ),
@@ -42,22 +54,10 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     padding: EdgeInsets.only(right: halfPadding),
                     child: Icon(Icons.pin_drop),
                   ),
-                  Flexible(child: Text(widget.note.locationNotification)),
+                  Flexible(child: Text(widget.note.location)),
                 ],
               ),
             ),
-            /*Padding(
-              padding: const EdgeInsets.only(bottom: halfPadding),
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: halfPadding),
-                    child: Icon(Icons.cloud),
-                  ),
-                  Text(widget.note.weatherNotification),
-                ],
-              ),
-            ),*/
             Padding(
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
@@ -66,7 +66,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     padding: EdgeInsets.only(right: halfPadding),
                     child: Icon(Icons.refresh),
                   ),
-                  Text(widget.note.notificationPeriod),
+                  Text(widget.note.repeat),
                 ],
               ),
             ),

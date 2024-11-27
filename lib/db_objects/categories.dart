@@ -17,11 +17,12 @@ class DBCategory {
   });
 
   static DBCategory toDefault() {
+    Random random = Random();
     return DBCategory(
       category: 'No Category',
-      r: (Random().nextInt(156) + 100).toString(),
-      g: (Random().nextInt(156) + 100).toString(),
-      b: (Random().nextInt(156) + 100).toString(),
+      r: (random.nextInt(156) + 100).toString(),
+      g: (random.nextInt(156) + 100).toString(),
+      b: (random.nextInt(156) + 100).toString(),
     );
   }
 

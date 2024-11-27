@@ -1,9 +1,9 @@
-import 'package:arctic_tern/db_objects/categories.dart';
-import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 
+import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
 import 'package:arctic_tern/screens/new_note_screen.dart';
@@ -103,11 +103,32 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void startBGTasks() async {
+    int seconds = DateTime.now().second;
+    int minutes = DateTime.now().minute;
+    int delay = 60 * (((minutes / 5).floor() + 1) * 5 - minutes) - seconds;
+    for (var i = 0; i < 3; i++) {
+      await Workmanager().registerPeriodicTask(
+        "notification_checker$i",
+        "notification_checker$i",
+        frequency: Duration(minutes: 15),
+        existingWorkPolicy: ExistingWorkPolicy.replace,
+        backoffPolicy: BackoffPolicy.linear,
+        backoffPolicyDelay: Duration(minutes: 15),
+        initialDelay: Duration(
+          minutes: i * 5,
+          seconds: delay,
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     askForPermission();
     getNotes(getNotesFilter);
     getDBCategories();
+    startBGTasks();
     super.initState();
   }
 
@@ -187,19 +208,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             TextButton(
                               onPressed: () async {
-                                if (notes[index].notificationPeriod != '') {
-                                  int count = 1;
-                                  int repeatPeriod = int.parse(
-                                      notes[index].notificationPeriod);
-
-                                  while (count * repeatPeriod < 15) {
-                                    count++;
-                                  }
-                                  for (var i = 0; i < count; i++) {
-                                    Workmanager().cancelByUniqueName(
-                                        notes[index].title + i.toString());
-                                  }
-                                }
+                                Workmanager()
+                                    .cancelByUniqueName(notes[index].title);
                                 await Note.removeNote(notes[index].title);
                                 await getNotes(getNotesFilter);
                                 if (context.mounted) {
@@ -261,22 +271,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: IconButton(
-                                      onPressed: () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                NoteInfoScreen(
-                                              note: notes[index],
-                                            ),
-                                          ),
-                                        );
-                                        await getNotes(getNotesFilter);
-                                      },
-                                      icon: Badge(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Badge(
                                         isLabelVisible:
-                                            notes[index].timeNotification != '',
+                                            notes[index].from != '',
                                         label: Icon(
                                           Icons.check,
                                           color: Colors.white,
@@ -291,23 +290,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                   Expanded(
-                                    child: IconButton(
-                                      onPressed: () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                NoteInfoScreen(
-                                              note: notes[index],
-                                            ),
-                                          ),
-                                        );
-                                        await getNotes(getNotesFilter);
-                                      },
-                                      icon: Badge(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Badge(
                                         isLabelVisible:
-                                            notes[index].locationNotification !=
-                                                '',
+                                            notes[index].location != '',
                                         label: Icon(
                                           Icons.check,
                                           color: Colors.white,
@@ -321,35 +308,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  /*Expanded(
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
                                       child: Badge(
                                         isLabelVisible:
-                                            notes[index].weatherNotification !=
-                                                '',
-                                        child: Icon(
-                                          Icons.cloud,
-                                          color: iconColors[2],
-                                        ),
-                                      ),
-                                    ),*/
-                                  Expanded(
-                                    child: IconButton(
-                                      onPressed: () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                NoteInfoScreen(
-                                              note: notes[index],
-                                            ),
-                                          ),
-                                        );
-                                        await getNotes(getNotesFilter);
-                                      },
-                                      icon: Badge(
-                                        isLabelVisible:
-                                            notes[index].notificationPeriod !=
-                                                '',
+                                            notes[index].repeat != '',
                                         label: Icon(
                                           Icons.check,
                                           color: Colors.white,
