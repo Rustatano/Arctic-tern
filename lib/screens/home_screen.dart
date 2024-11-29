@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
         "notification_checker$i",
         "notification_checker$i",
         frequency: Duration(minutes: 15),
-        existingWorkPolicy: ExistingWorkPolicy.replace,
+        existingWorkPolicy: ExistingWorkPolicy.update,
         backoffPolicy: BackoffPolicy.linear,
         backoffPolicyDelay: Duration(minutes: 15),
         initialDelay: Duration(
@@ -249,8 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  (notes[index].title.length > 20)
-                                      ? '${notes[index].title.substring(1, 20)}...'
+                                  (notes[index].title.length > 21)
+                                      ? '${notes[index].title.substring(0, 20)}...'
                                       : notes[index].title,
                                   style: TextStyle(
                                     fontSize: mediumFontSize,
@@ -260,8 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               Expanded(
                                 child: Text(
-                                  (notes[index].content.length > 20)
-                                      ? '${notes[index].content.substring(1, 20)}...'
+                                  (notes[index].content.length > 21)
+                                      ? '${notes[index].content.substring(0, 20)}...'
                                       : notes[index].content,
                                   style: TextStyle(
                                     color: colorScheme.onSecondary,
@@ -308,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
+                                  /*
                                   Expanded(
                                     child: Align(
                                       alignment: Alignment.center,
@@ -327,6 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
+                                  */
                                 ],
                               ),
                             ],

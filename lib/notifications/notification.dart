@@ -108,7 +108,7 @@ void callbackDispatcher() {
           int to = (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
           int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
 
-          if (!(from - 30 < now && now < from + (to - from) + 30)) continue;
+          if (!(from - 150 <= now && now < from + (to - from) + 150)) continue;
 
           await Notification().showNotification(title: note.title);
         } else {

@@ -58,6 +58,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                 ],
               ),
             ),
+            /*
             Padding(
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
@@ -70,6 +71,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                 ],
               ),
             ),
+            */
             const Divider(),
             Expanded(
               child: ListView(

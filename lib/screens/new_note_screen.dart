@@ -1,9 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 
 import 'package:arctic_tern/db_objects/categories.dart';
 import 'package:arctic_tern/screens/category_manager_screen.dart';
-import 'package:arctic_tern/notifications/notification.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
 import 'package:arctic_tern/screens/location_selection_screen.dart';
@@ -151,6 +152,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               }).reversed.toList(),
             ),
             const Divider(color: Colors.black),
+            // time from
             TextButton(
               style: ButtonStyle(
                 foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
@@ -159,18 +161,31 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               onPressed: () async {
                 showModalBottomSheet(
                   context: context,
-                  constraints: BoxConstraints.tight(Size(
+                  constraints: BoxConstraints.tight(
+                    Size(
                       MediaQuery.sizeOf(context).width,
-                      MediaQuery.sizeOf(context).height * 0.33)),
+                      MediaQuery.sizeOf(context).height * 0.33,
+                    ),
+                  ),
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: getCorrectedDateTime(),
+                      initDateTime: (newNote.to == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(newNote.to),
+                      minDateTime: (newNote.to == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(newNote.to),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
-                      onConfirm: (dateTime, selectedIndex) {
+                      onConfirm: (from, _) {
                         setState(() {
-                          newNote.from = dateTime.toString().substring(0, 16);
+                          newNote.from = from.toString().substring(0, 16);
+                        });
+                      },
+                      onCancel: () {
+                        setState(() {
+                          newNote.from = '';
                         });
                       },
                     ),
@@ -179,6 +194,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               },
               child: Text('From: ${newNote.from}'),
             ),
+            // time to
             TextButton(
               style: ButtonStyle(
                 foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
@@ -187,18 +203,31 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               onPressed: () async {
                 showModalBottomSheet(
                   context: context,
-                  constraints: BoxConstraints.tight(Size(
+                  constraints: BoxConstraints.tight(
+                    Size(
                       MediaQuery.sizeOf(context).width,
-                      MediaQuery.sizeOf(context).height * 0.33)),
+                      MediaQuery.sizeOf(context).height * 0.33,
+                    ),
+                  ),
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: getCorrectedDateTime(),
+                      initDateTime: (newNote.from == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(newNote.from),
+                      minDateTime: (newNote.from == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(newNote.from),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
-                      onConfirm: (dateTime, selectedIndex) {
+                      onConfirm: (to, _) {
                         setState(() {
-                          newNote.to = dateTime.toString().substring(0, 16);
+                          newNote.to = to.toString().substring(0, 16);
+                        });
+                      },
+                      onCancel: () {
+                        setState(() {
+                          newNote.to = '';
                         });
                       },
                     ),
@@ -207,20 +236,43 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               },
               child: Text('To: ${newNote.to}'),
             ),
+            /*
+            TextButton(
+              style: ButtonStyle(
+                foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
+                alignment: Alignment.centerLeft,
+              ),
+              onPressed: () async {},
+              child: Text('Repeat every: ${newNote.repeat}'),
+            ),
+            */
+            // location
             TextButton(
               style: ButtonStyle(
                 foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
                 alignment: Alignment.centerLeft,
               ),
               onPressed: () async {
-                
+                Map<String, double>? location = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LocationSelectionScreen(),
+                  ),
+                );
+                if (location != null) {
+                  setState(() {
+                    if (newNote.from == '') {
+                      newNote.from = getCorrectedDateTime().toString().substring(0, 16);
+                    }
+                    newNote.location = jsonEncode(location);
+                  });
+                }
               },
-              child: Text('Repeat every: ${newNote.repeat}'),
+              child: Text('Location: ${newNote.location}'),
             ),
             const Divider(
               color: Colors.black,
             ),
-
             TextField(
               controller: contentTextFieldController,
               maxLines: null,
@@ -263,7 +315,6 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               if (!await newNote.exists()) {
                 if (newNote.from != '' && newNote.to != '' ||
                     newNote.from == '' && newNote.to == '') {
-                  // TODO: fix
                   newNote.active = 'true';
                   await newNote.insert();
                   setState(() {
@@ -287,8 +338,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                     context: context,
                     builder: (context) => const AlertDialog(
                       title: Text('Error'),
-                      content: Text(
-                          'Note title already exists. Notes cannot have the same titles'),
+                      content: Text('Note with the same title already exists.'),
                     ),
                   );
                 }

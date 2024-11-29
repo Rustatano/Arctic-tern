@@ -9,7 +9,7 @@ class Note {
   String from;
   String to;
   String location;
-  String repeat;
+  //String repeat;
   String active;
 
   Note({
@@ -20,7 +20,7 @@ class Note {
     required this.from,
     required this.to,
     required this.location,
-    required this.repeat,
+    //required this.repeat,
     required this.active,
   });
 
@@ -33,12 +33,12 @@ class Note {
       from: '',
       to: '',
       location: '',
-      repeat: '',
+      //repeat: '',
       active: 'false',
     );
   }
 
-  Map<String, String> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       '_title': title,
       '_category': category,
@@ -47,12 +47,12 @@ class Note {
       '_from': from,
       '_to': to,
       '_location': location,
-      '_repeat': repeat,
+      //'_repeat': repeat,
       '_active': active
     };
   }
 
-  static Note fromMap(Map<String, Object?> map) {
+  static Note fromMap(Map<String, dynamic> map) {
     return Note(
       title: map['_title'] as String,
       category: map['_category'] as String,
@@ -61,7 +61,7 @@ class Note {
       from: map['_from'] as String,
       to: map['_to'] as String,
       location: map['_location'] as String,
-      repeat: map['_repeat'] as String,
+      //repeat: map['_repeat'] as String,
       active: map['_active'] as String,
     );
   }
@@ -107,7 +107,7 @@ class Note {
       join(await getDatabasesPath(), 'note.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE IF NOT EXISTS note(_title TEXT PRIMARY KEY, _category TEXT, _content TEXT, _dateModified TEXT, _from TEXT, _to TEXT, _location TEXT, _repeat TEXT, _active TEXT)',
+          'CREATE TABLE IF NOT EXISTS note(_title TEXT PRIMARY KEY, _category TEXT, _content TEXT, _dateModified TEXT, _from TEXT, _to TEXT, _location TEXT, _active TEXT)', // _repeat TEXT,
         );
       },
     );

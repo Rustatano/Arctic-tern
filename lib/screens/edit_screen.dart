@@ -1,12 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
-import 'package:workmanager/workmanager.dart';
 
 import 'package:arctic_tern/db_objects/categories.dart';
 import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
-import 'package:arctic_tern/notifications/notification.dart';
 import 'package:arctic_tern/screens/location_selection_screen.dart';
 
 class EditScreen extends StatefulWidget {
@@ -162,6 +162,7 @@ class _EditScreenState extends State<EditScreen> {
               }).reversed.toList(),
             ),
             const Divider(color: Colors.black),
+// time from
             TextButton(
               style: ButtonStyle(
                 foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
@@ -170,19 +171,31 @@ class _EditScreenState extends State<EditScreen> {
               onPressed: () async {
                 showModalBottomSheet(
                   context: context,
-                  constraints: BoxConstraints.tight(Size(
+                  constraints: BoxConstraints.tight(
+                    Size(
                       MediaQuery.sizeOf(context).width,
-                      MediaQuery.sizeOf(context).height * 0.33)),
+                      MediaQuery.sizeOf(context).height * 0.33,
+                    ),
+                  ),
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: getCorrectedDateTime(),
+                      initDateTime: (editedNote.to == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(editedNote.to),
+                      minDateTime: (editedNote.to == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(editedNote.to),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
-                      onConfirm: (dateTime, selectedIndex) {
+                      onConfirm: (from, _) {
                         setState(() {
-                          editedNote.from =
-                              dateTime.toString().substring(0, 16);
+                          editedNote.from = from.toString().substring(0, 16);
+                        });
+                      },
+                      onCancel: () {
+                        setState(() {
+                          editedNote.from = '';
                         });
                       },
                     ),
@@ -191,6 +204,7 @@ class _EditScreenState extends State<EditScreen> {
               },
               child: Text('From: ${editedNote.from}'),
             ),
+            // time to
             TextButton(
               style: ButtonStyle(
                 foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
@@ -199,18 +213,31 @@ class _EditScreenState extends State<EditScreen> {
               onPressed: () async {
                 showModalBottomSheet(
                   context: context,
-                  constraints: BoxConstraints.tight(Size(
+                  constraints: BoxConstraints.tight(
+                    Size(
                       MediaQuery.sizeOf(context).width,
-                      MediaQuery.sizeOf(context).height * 0.33)),
+                      MediaQuery.sizeOf(context).height * 0.33,
+                    ),
+                  ),
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: getCorrectedDateTime(),
+                      initDateTime: (editedNote.from == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(editedNote.from),
+                      minDateTime: (editedNote.from == '')
+                          ? getCorrectedDateTime()
+                          : DateTime.parse(editedNote.from),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
-                      onConfirm: (dateTime, selectedIndex) {
+                      onConfirm: (to, _) {
                         setState(() {
-                          editedNote.to = dateTime.toString().substring(0, 16);
+                          editedNote.to = to.toString().substring(0, 16);
+                        });
+                      },
+                      onCancel: () {
+                        setState(() {
+                          editedNote.to = '';
                         });
                       },
                     ),
@@ -219,6 +246,7 @@ class _EditScreenState extends State<EditScreen> {
               },
               child: Text('To: ${editedNote.to}'),
             ),
+            /*
             TextButton(
               style: ButtonStyle(
                 foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
@@ -227,10 +255,34 @@ class _EditScreenState extends State<EditScreen> {
               onPressed: () async {},
               child: Text('Repeat every: ${editedNote.repeat}'),
             ),
-            const Divider(
+            */
+            // location
+            TextButton(
+              style: ButtonStyle(
+                foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
+                alignment: Alignment.centerLeft,
+              ),
+              onPressed: () async {
+                Map<String, double>? location = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LocationSelectionScreen(),
+                  ),
+                );
+                if (location != null) {
+                  setState(() {
+                    if (editedNote.from == '') {
+                      editedNote.from = getCorrectedDateTime().toString().substring(0, 16);
+                    }
+                    editedNote.location = jsonEncode(location);
+                  });
+                }
+              },
+              child: Text('Location: ${editedNote.location}'),
+            ),
+            Divider(
               color: Colors.black,
             ),
-
             TextField(
               controller: contentTextFieldController,
               maxLines: null,
@@ -260,7 +312,7 @@ class _EditScreenState extends State<EditScreen> {
         ),
         backgroundColor: colorScheme.primary,
         title: Text(
-          'New Note',
+          'Edit Note',
           style: TextStyle(color: colorScheme.onPrimary),
         ),
         actions: [
@@ -273,7 +325,6 @@ class _EditScreenState extends State<EditScreen> {
 
               if (editedNote.from != '' && editedNote.to != '' ||
                   editedNote.from == '' && editedNote.to == '') {
-                // TODO: fix
                 editedNote.active = 'true';
                 await Note.removeNote(prevTitle);
                 await editedNote.insert();
