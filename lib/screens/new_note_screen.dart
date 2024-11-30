@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 
-import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/db_objects/category.dart';
 import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
@@ -262,7 +262,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 if (location != null) {
                   setState(() {
                     if (newNote.from == '') {
-                      newNote.from = getCorrectedDateTime().toString().substring(0, 16);
+                      newNote.from =
+                          getCorrectedDateTime().toString().substring(0, 16);
                     }
                     newNote.location = jsonEncode(location);
                   });
@@ -313,16 +314,17 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 newNote.title = DateTime.now().toString().substring(5, 19);
               }
               if (!await newNote.exists()) {
+                if (newNote.from == '' &&
+                    newNote.to == '' &&
+                    newNote.location == '') {
+                  newNote.active = 'false';
+                } else {
+                  newNote.active = 'true';
+                }
                 if (newNote.from != '' && newNote.to != '' ||
                     newNote.from == '' && newNote.to == '') {
-                  newNote.active = 'true';
                   await newNote.insert();
-                  setState(() {
-                    contentTextFieldController.clear();
-                    titleTextFieldController.clear();
-                    newNote = Note.toDefault();
-                    Navigator.pop(context);
-                  });
+                  if (context.mounted) Navigator.pop(context);
                 } else if (context.mounted) {
                   showDialog(
                     context: context,

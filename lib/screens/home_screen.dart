@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/db_objects/category.dart';
 import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
@@ -103,32 +103,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void startBGTasks() async {
-    int seconds = DateTime.now().second;
-    int minutes = DateTime.now().minute;
-    int delay = 60 * (((minutes / 5).floor() + 1) * 5 - minutes) - seconds;
-    for (var i = 0; i < 3; i++) {
-      await Workmanager().registerPeriodicTask(
-        "notification_checker$i",
-        "notification_checker$i",
-        frequency: Duration(minutes: 15),
-        existingWorkPolicy: ExistingWorkPolicy.update,
-        backoffPolicy: BackoffPolicy.linear,
-        backoffPolicyDelay: Duration(minutes: 15),
-        initialDelay: Duration(
-          minutes: i * 5,
-          seconds: delay,
-        ),
-      );
-    }
-  }
-
   @override
   void initState() {
     askForPermission();
     getNotes(getNotesFilter);
     getDBCategories();
-    startBGTasks();
     super.initState();
   }
 
@@ -156,9 +135,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 left: padding, right: padding, top: padding),
             child: TextField(
               maxLines: null,
-              onChanged: (String searchQuery) {
+              onChanged: (String searchQuery) async {
+                searchQuery = searchQuery.trim().toLowerCase();
+                await getNotes(getNotesFilter);
+                List<Note> searchedNotes = [];
+                for (var note in notes) {
+                  if (note.title.toLowerCase().contains(searchQuery) || note.content.toLowerCase().contains(searchQuery)) {
+                    searchedNotes.add(note);
+                  }
+                }
                 setState(() {
-                  // search notes
+                  notes = searchedNotes;
                 });
               },
               decoration: InputDecoration(
@@ -210,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               onPressed: () async {
                                 Workmanager()
                                     .cancelByUniqueName(notes[index].title);
-                                await Note.removeNote(notes[index].title);
+                                await Note.remove(notes[index].title);
                                 await getNotes(getNotesFilter);
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
@@ -250,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                 child: Text(
                                   (notes[index].title.length > 21)
-                                      ? '${notes[index].title.substring(0, 20)}...'
+                                      ? '${notes[index].title.substring(0, 20).trim()}...'
                                       : notes[index].title,
                                   style: TextStyle(
                                     fontSize: mediumFontSize,
@@ -261,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                 child: Text(
                                   (notes[index].content.length > 21)
-                                      ? '${notes[index].content.substring(0, 20)}...'
+                                      ? '${notes[index].content.substring(0, 20).trim()}...'
                                       : notes[index].content,
                                   style: TextStyle(
                                     color: colorScheme.onSecondary,
@@ -382,7 +369,6 @@ class _HomeScreenState extends State<HomeScreen> {
             }
             getNotesFilter['category'] = currentCategory;
             await getDBCategories();
-            await getNotes(getNotesFilter);
           },
           items: List.generate(categories.length + 2, (i) {
             if (i == categories.length) {

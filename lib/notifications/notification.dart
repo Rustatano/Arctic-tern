@@ -102,16 +102,13 @@ void callbackDispatcher() {
 
       for (var note in notes) {
         if (note.from == '' && note.to == '') continue;
-        if (note.location == '') {
-          // timed notification
-          int from = (DateTime.parse(note.from).millisecondsSinceEpoch / 1000).floor();
-          int to = (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
-          int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
 
-          if (!(from - 150 <= now && now < from + (to - from) + 150)) continue;
+        int from = (DateTime.parse(note.from).millisecondsSinceEpoch / 1000).floor();
+        int to = (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
+        int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
+        if (!(from - 150 <= now && now < from + (to - from) + 150)) continue;
 
-          await Notification().showNotification(title: note.title);
-        } else {
+        if (note.location != '') {
           // timed location notification
           final currentPosition = await Geolocator.getCurrentPosition(
             // ignore: deprecated_member_use
@@ -122,12 +119,15 @@ void callbackDispatcher() {
                 jsonDecode(note.location)['long'] as double,
                 currentPosition.latitude,
                 currentPosition.longitude,
-              ) >
+              ) <=
               jsonDecode(note.location)['radius']) {
-          } else {
             await Notification().showNotification(title: note.title);
           }
+        } else {
+          // timed notification
+          await Notification().showNotification(title: note.title);
         }
+        
       }
       return Future.value(true);
     },

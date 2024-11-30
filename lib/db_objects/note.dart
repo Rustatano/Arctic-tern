@@ -75,13 +75,18 @@ class Note {
     );
   }
 
-  static Future<void> removeNote(String title) async {
+  static Future<void> remove(String title) async {
     final db = await getDB();
     db.delete(
       'note',
       where: '_title = ?',
       whereArgs: [title],
     );
+  }
+
+  Future<void> update(Note newNote) async {
+    remove(title);
+    newNote.insert();
   }
 
   static Future<List<Note>> getNotes(Map<String, String>? filter) async {

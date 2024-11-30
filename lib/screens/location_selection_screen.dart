@@ -28,7 +28,6 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
     return FutureBuilder(
       future: currentPosition,
       builder: (context, snapshot) {
-        Widget resultWidget = Scaffold();
         if (snapshot.hasData) {
           Position position = snapshot.data!;
           List<Marker> markers = [
@@ -40,7 +39,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               ),
             ),
           ];
-          resultWidget = Scaffold(
+          return Scaffold(
             body: FlutterMap(
               mapController: mapController,
               options: MapOptions(
@@ -191,7 +190,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             ),
           );
         } else if (snapshot.hasError) {
-          resultWidget = Scaffold(
+          return Scaffold(
             body: Center(
               child: Text(snapshot.error.toString()),
             ),
@@ -206,7 +205,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             ),
           );
         } else {
-          resultWidget = Scaffold(
+          return Scaffold(
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -237,7 +236,6 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             ),
           );
         }
-        return resultWidget;
       },
     );
   }

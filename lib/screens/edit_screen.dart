@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 
-import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/db_objects/category.dart';
 import 'package:arctic_tern/screens/category_manager_screen.dart';
 import 'package:arctic_tern/constants.dart';
 import 'package:arctic_tern/db_objects/note.dart';
@@ -25,7 +25,7 @@ class _EditScreenState extends State<EditScreen> {
   late Note editedNote;
   late TextEditingController titleTextFieldController;
   late TextEditingController contentTextFieldController;
-  late String prevTitle;
+  late Note prevNote;
   late String currentCategory;
   List<DBCategory> categories = [];
 
@@ -43,7 +43,7 @@ class _EditScreenState extends State<EditScreen> {
     titleTextFieldController = TextEditingController(text: widget.note.title);
     contentTextFieldController =
         TextEditingController(text: widget.note.content);
-    prevTitle = widget.note.title;
+    prevNote = widget.note;
     currentCategory = widget.note.category;
     super.initState();
   }
@@ -322,19 +322,18 @@ class _EditScreenState extends State<EditScreen> {
               if (editedNote.title.isEmpty) {
                 editedNote.title = DateTime.now().toString().substring(5, 19);
               }
+              if (editedNote.from == '' &&
+                    editedNote.to == '' &&
+                    editedNote.location == '') {
+                  editedNote.active = 'false';
+                } else {
+                  editedNote.active = 'true';
+                }
 
               if (editedNote.from != '' && editedNote.to != '' ||
                   editedNote.from == '' && editedNote.to == '') {
-                editedNote.active = 'true';
-                await Note.removeNote(prevTitle);
-                await editedNote.insert();
-                setState(() {
-                  contentTextFieldController.clear();
-                  titleTextFieldController.clear();
-                  editedNote = Note.toDefault();
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                });
+                await prevNote.update(editedNote);
+                if (context.mounted) Navigator.popUntil(context, (route) => route.isFirst);
               } else if (context.mounted) {
                 showDialog(
                   context: context,

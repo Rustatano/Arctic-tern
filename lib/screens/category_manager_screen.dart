@@ -2,7 +2,7 @@ import 'package:arctic_tern/db_objects/note.dart';
 import 'package:flutter/material.dart';
 
 import 'package:arctic_tern/constants.dart';
-import 'package:arctic_tern/db_objects/categories.dart';
+import 'package:arctic_tern/db_objects/category.dart';
 
 class CategoryManagerScreen extends StatefulWidget {
   const CategoryManagerScreen({super.key});
@@ -125,7 +125,7 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                                   List<Note> notes = await Note.getNotes(
                                       {'category': categories[index].category});
                                   for (var note in notes) {
-                                    Note.removeNote(note.title);
+                                    Note.remove(note.title);
                                   }
                                   DBCategory.removeDBCategory(
                                       categories[index].category);

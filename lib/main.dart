@@ -8,6 +8,7 @@ import 'package:arctic_tern/constants.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Workmanager().initialize(callbackDispatcher);
+  await startBGTasks();
   runApp(const MyApp());
 }
 
@@ -23,3 +24,23 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+Future<void> startBGTasks() async {
+    int seconds = DateTime.now().second;
+    int minutes = DateTime.now().minute;
+    int delay = 60 * (((minutes / 5).floor() + 1) * 5 - minutes) - seconds;
+    for (var i = 0; i < 3; i++) {
+      await Workmanager().registerPeriodicTask(
+        "notification_checker$i",
+        "notification_checker$i",
+        frequency: Duration(minutes: 15),
+        existingWorkPolicy: ExistingWorkPolicy.append,
+        backoffPolicy: BackoffPolicy.linear,
+        backoffPolicyDelay: Duration(minutes: 15),
+        initialDelay: Duration(
+          minutes: i * 5,
+          seconds: delay,
+        ),
+      );
+    }
+  }

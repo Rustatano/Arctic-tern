@@ -17,7 +17,7 @@ class DBCategory {
   });
 
   static DBCategory toDefault() {
-    Random random = Random();
+    Random random = Random.secure();
     return DBCategory(
       category: 'No Category',
       r: (random.nextInt(156) + 100).toString(),
