@@ -170,15 +170,32 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: (newNote.to == '')
+                      initDateTime: (newNote.from == '')
                           ? getCorrectedDateTime()
-                          : DateTime.parse(newNote.to),
-                      minDateTime: (newNote.to == '')
-                          ? getCorrectedDateTime()
-                          : DateTime.parse(newNote.to),
+                          : DateTime.parse(newNote.from),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
                       onConfirm: (from, _) {
+                        if (newNote.to.isNotEmpty) {
+                          var to = DateTime.parse(newNote.to);
+                          if (newNote.from.isNotEmpty && DateTime.parse(newNote.from)
+                              .isAtSameMomentAs(to)) {
+                            setState(() {
+                              newNote.to = from.toString().substring(0, 16);
+                            });
+                          } else if (from.isAfter(to)) {
+                            setState(() {
+                              newNote.to = from
+                                  .add(Duration(
+                                      seconds: ((from.millisecondsSinceEpoch -
+                                                  to.millisecondsSinceEpoch) /
+                                              1000)
+                                          .floor()))
+                                  .toString()
+                                  .substring(0, 16);
+                            });
+                          }
+                        }
                         setState(() {
                           newNote.from = from.toString().substring(0, 16);
                         });
@@ -212,15 +229,32 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: (newNote.from == '')
+                      initDateTime: (newNote.to == '')
                           ? getCorrectedDateTime()
-                          : DateTime.parse(newNote.from),
-                      minDateTime: (newNote.from == '')
-                          ? getCorrectedDateTime()
-                          : DateTime.parse(newNote.from),
+                          : DateTime.parse(newNote.to),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
                       onConfirm: (to, _) {
+                        if (newNote.from.isNotEmpty) {
+                          var from = DateTime.parse(newNote.from);
+                          if (newNote.to.isNotEmpty && DateTime.parse(newNote.to)
+                              .isAtSameMomentAs(from)) {
+                            setState(() {
+                              newNote.from = to.toString().substring(0, 16);
+                            });
+                          } else if (to.isBefore(from)) {
+                            setState(() {
+                              newNote.from = to
+                                  .add(Duration(
+                                      seconds: ((to.millisecondsSinceEpoch -
+                                                  from.millisecondsSinceEpoch) /
+                                              1000)
+                                          .floor()))
+                                  .toString()
+                                  .substring(0, 16);
+                            });
+                          }
+                        }
                         setState(() {
                           newNote.to = to.toString().substring(0, 16);
                         });

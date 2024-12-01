@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:arctic_tern/db_objects/note.dart';
 import 'package:workmanager/workmanager.dart';
+
+import 'package:arctic_tern/main.dart';
+import 'package:arctic_tern/db_objects/note.dart';
 
 class Notification {
   String channel = 'Notification';
@@ -97,7 +99,7 @@ Future<DateTime?> showDateTimePicker({
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask(
-    (task, _) async {
+    (task, inputData) async {
       List<Note> notes = await Note.getNotes({'active': 'true'});
 
       for (var note in notes) {
@@ -129,6 +131,7 @@ void callbackDispatcher() {
         }
         
       }
+      await startBGTasks();
       return Future.value(true);
     },
   );
