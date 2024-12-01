@@ -22,12 +22,27 @@ class _HomeScreenState extends State<HomeScreen> {
   List<DBCategory> categories = [];
   Map<String, String> getNotesFilter = {'category': 'No Category'};
   String currentCategory = 'No Category';
+  String searchQuery = '';
 
-  Future<void> getNotes(Map<String, String> filter) async {
-    final n = await Note.getNotes(filter);
-    setState(() {
-      notes = n.reversed.toList();
-    });
+  Future<void> getNotes(Map<String, String> filter, String searchQuery) async {
+    final n = (await Note.getNotes(filter)).reversed.toList();
+    if (searchQuery == '') {
+      setState(() {
+        notes = n;
+      });
+    } else {
+      searchQuery = searchQuery.trim().toLowerCase();
+      List<Note> searchedNotes = [];
+      for (var note in n) {
+        if (note.title.toLowerCase().contains(searchQuery) ||
+            note.content.toLowerCase().contains(searchQuery)) {
+          searchedNotes.add(note);
+        }
+      }
+      setState(() {
+        notes = searchedNotes;
+      });
+    }
   }
 
   Future<void> getDBCategories() async {
@@ -106,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     askForPermission();
-    getNotes(getNotesFilter);
+    getNotes(getNotesFilter, searchQuery);
     getDBCategories();
     super.initState();
   }
@@ -124,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
           await getDBCategories();
-          await getNotes(getNotesFilter);
+          await getNotes(getNotesFilter, searchQuery);
         },
         child: Icon(Icons.add),
       ),
@@ -135,18 +150,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 left: padding, right: padding, top: padding),
             child: TextField(
               maxLines: null,
-              onChanged: (String searchQuery) async {
-                searchQuery = searchQuery.trim().toLowerCase();
-                await getNotes(getNotesFilter);
-                List<Note> searchedNotes = [];
-                for (var note in notes) {
-                  if (note.title.toLowerCase().contains(searchQuery) || note.content.toLowerCase().contains(searchQuery)) {
-                    searchedNotes.add(note);
-                  }
-                }
+              onChanged: (String search) async {
                 setState(() {
-                  notes = searchedNotes;
+                  searchQuery = search;
                 });
+                await getNotes(getNotesFilter, searchQuery);
               },
               decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -176,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     );
-                    await getNotes(getNotesFilter);
+                    await getNotes(getNotesFilter, searchQuery);
                   },
                   onLongPress: () {
                     showDialog(
@@ -198,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Workmanager()
                                     .cancelByUniqueName(notes[index].title);
                                 await Note.remove(notes[index].title);
-                                await getNotes(getNotesFilter);
+                                await getNotes(getNotesFilter, searchQuery);
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
@@ -261,8 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Align(
                                       alignment: Alignment.center,
                                       child: Badge(
-                                        isLabelVisible:
-                                            notes[index].from != '',
+                                        isLabelVisible: notes[index].from != '',
                                         label: Icon(
                                           Icons.check,
                                           color: Colors.white,
@@ -339,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => const SettingsScreen(),
                 ),
               );
-              await getNotes(getNotesFilter);
+              await getNotes(getNotesFilter, searchQuery);
             },
             icon: Icon(
               Icons.settings,
@@ -367,8 +374,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 currentCategory = category;
               });
             }
-            getNotesFilter['category'] = currentCategory;
+            setState(() {
+              getNotesFilter['category'] = currentCategory;
+            });
             await getDBCategories();
+            await getNotes(getNotesFilter, searchQuery);
           },
           items: List.generate(categories.length + 2, (i) {
             if (i == categories.length) {
