@@ -360,9 +360,6 @@ class _HomeScreenState extends State<HomeScreen> {
           onChanged: (String? category) async {
             if (category == null) return;
             if (category == 'Manage') {
-              setState(() {
-                currentCategory = 'No Category';
-              });
               await Navigator.push(
                 context,
                 MaterialPageRoute(
