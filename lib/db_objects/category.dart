@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -17,12 +15,11 @@ class DBCategory {
   });
 
   static DBCategory toDefault() {
-    Random random = Random.secure();
     return DBCategory(
-      category: 'No Category',
-      r: (random.nextInt(156) + 100).toString(),
-      g: (random.nextInt(156) + 100).toString(),
-      b: (random.nextInt(156) + 100).toString(),
+      category: '',
+      r: '',
+      g: '',
+      b: '',
     );
   }
 
@@ -44,7 +41,10 @@ class DBCategory {
     );
   }
 
-  Future<void> insert() async {
+  Future<void> insert(int r, int g, int b) async {
+    this.r = r.toString();
+    this.g = g.toString();
+    this.b = b.toString();
     final db = await getDB();
     db.insert(
       'category',

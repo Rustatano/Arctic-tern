@@ -20,22 +20,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Note> notes = [];
   List<DBCategory> categories = [];
-  Map<String, String> getNotesFilter = {'category': 'No Category'};
-  String currentCategory = 'No Category';
-  String searchQuery = '';
+  Map<String, String> getNotesFilter = {
+    'category': 'No Category',
+    'searchQuery': ''
+  };
 
-  Future<void> getNotes(Map<String, String> filter, String searchQuery) async {
+  Future<void> getNotes(Map<String, String> filter) async {
     final n = (await Note.getNotes(filter)).reversed.toList();
-    if (searchQuery == '') {
+    if (filter['searchQuery'] == '') {
       setState(() {
         notes = n;
       });
     } else {
-      searchQuery = searchQuery.trim().toLowerCase();
+      filter['searchQuery'] = filter['searchQuery']!.trim().toLowerCase();
       List<Note> searchedNotes = [];
       for (var note in n) {
-        if (note.title.toLowerCase().contains(searchQuery) ||
-            note.content.toLowerCase().contains(searchQuery)) {
+        if (note.title.toLowerCase().contains(filter['searchQuery']!) ||
+            note.content.toLowerCase().contains(filter['searchQuery']!)) {
           searchedNotes.add(note);
         }
       }
@@ -121,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     askForPermission();
-    getNotes(getNotesFilter, searchQuery);
+    getNotes(getNotesFilter);
     getDBCategories();
     super.initState();
   }
@@ -139,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
           await getDBCategories();
-          await getNotes(getNotesFilter, searchQuery);
+          await getNotes(getNotesFilter);
         },
         child: Icon(Icons.add),
       ),
@@ -152,9 +153,9 @@ class _HomeScreenState extends State<HomeScreen> {
               maxLines: null,
               onChanged: (String search) async {
                 setState(() {
-                  searchQuery = search;
+                  getNotesFilter['searchQuery'] = search;
                 });
-                await getNotes(getNotesFilter, searchQuery);
+                await getNotes(getNotesFilter);
               },
               decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -184,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     );
-                    await getNotes(getNotesFilter, searchQuery);
+                    await getNotes(getNotesFilter);
                   },
                   onLongPress: () {
                     showDialog(
@@ -206,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Workmanager()
                                     .cancelByUniqueName(notes[index].title);
                                 await Note.remove(notes[index].title);
-                                await getNotes(getNotesFilter, searchQuery);
+                                await getNotes(getNotesFilter);
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
@@ -346,7 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => const SettingsScreen(),
                 ),
               );
-              await getNotes(getNotesFilter, searchQuery);
+              await getNotes(getNotesFilter);
             },
             icon: Icon(
               Icons.settings,
@@ -356,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Category selection, home screen
         title: DropdownButton(
           dropdownColor: colorScheme.primary,
-          value: currentCategory,
+          value: getNotesFilter['category'],
           onChanged: (String? category) async {
             if (category == null) return;
             if (category == 'Manage') {
@@ -366,16 +367,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => CategoryManagerScreen(),
                 ),
               );
+              if (!await DBCategory(category: category, r: '', g: '', b: '')
+                  .exists()) {
+                setState(() {
+                  getNotesFilter['category'] = 'No Category';
+                });
+              }
             } else {
               setState(() {
-                currentCategory = category;
+                getNotesFilter['category'] = category;
               });
             }
-            setState(() {
-              getNotesFilter['category'] = currentCategory;
-            });
             await getDBCategories();
-            await getNotes(getNotesFilter, searchQuery);
+            await getNotes(getNotesFilter);
           },
           items: List.generate(categories.length + 2, (i) {
             if (i == categories.length) {

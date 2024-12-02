@@ -162,7 +162,7 @@ class _EditScreenState extends State<EditScreen> {
               }).reversed.toList(),
             ),
             const Divider(color: Colors.black),
-// time from
+            // time from
             TextButton(
               style: ButtonStyle(
                 foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
@@ -180,15 +180,33 @@ class _EditScreenState extends State<EditScreen> {
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: (editedNote.to == '')
+                      initDateTime: (editedNote.from == '')
                           ? getCorrectedDateTime()
-                          : DateTime.parse(editedNote.to),
-                      minDateTime: (editedNote.to == '')
-                          ? getCorrectedDateTime()
-                          : DateTime.parse(editedNote.to),
+                          : DateTime.parse(editedNote.from),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
                       onConfirm: (from, _) {
+                        if (editedNote.to.isNotEmpty) {
+                          var to = DateTime.parse(editedNote.to);
+                          if (editedNote.from.isNotEmpty &&
+                              DateTime.parse(editedNote.from)
+                                  .isAtSameMomentAs(to)  && DateTime.parse(editedNote.from).isBefore(from)) {
+                            setState(() {
+                              editedNote.to = from.toString().substring(0, 16);
+                            });
+                          } else if (from.isAfter(to)) {
+                            setState(() {
+                              editedNote.to = from
+                                  .add(Duration(
+                                      seconds: ((from.millisecondsSinceEpoch -
+                                                  to.millisecondsSinceEpoch) /
+                                              1000)
+                                          .floor()))
+                                  .toString()
+                                  .substring(0, 16);
+                            });
+                          }
+                        }
                         setState(() {
                           editedNote.from = from.toString().substring(0, 16);
                         });
@@ -222,15 +240,33 @@ class _EditScreenState extends State<EditScreen> {
                   backgroundColor: colorScheme.surface,
                   builder: (context) => Center(
                     child: DateTimePickerWidget(
-                      initDateTime: (editedNote.from == '')
+                      initDateTime: (editedNote.to == '')
                           ? getCorrectedDateTime()
-                          : DateTime.parse(editedNote.from),
-                      minDateTime: (editedNote.from == '')
-                          ? getCorrectedDateTime()
-                          : DateTime.parse(editedNote.from),
+                          : DateTime.parse(editedNote.to),
                       dateFormat: 'yyyy:MM:dd:HH:mm',
                       minuteDivider: 5,
                       onConfirm: (to, _) {
+                        if (editedNote.from.isNotEmpty) {
+                          var from = DateTime.parse(editedNote.from);
+                          if (editedNote.to.isNotEmpty &&
+                              DateTime.parse(editedNote.to)
+                                  .isAtSameMomentAs(from) && DateTime.parse(editedNote.to).isAfter(to)) {
+                            setState(() {
+                              editedNote.from = to.toString().substring(0, 16);
+                            });
+                          } else if (to.isBefore(from)) {
+                            setState(() {
+                              editedNote.from = to
+                                  .add(Duration(
+                                      seconds: ((to.millisecondsSinceEpoch -
+                                                  from.millisecondsSinceEpoch) /
+                                              1000)
+                                          .floor()))
+                                  .toString()
+                                  .substring(0, 16);
+                            });
+                          }
+                        }
                         setState(() {
                           editedNote.to = to.toString().substring(0, 16);
                         });
@@ -272,7 +308,8 @@ class _EditScreenState extends State<EditScreen> {
                 if (location != null) {
                   setState(() {
                     if (editedNote.from == '') {
-                      editedNote.from = getCorrectedDateTime().toString().substring(0, 16);
+                      editedNote.from =
+                          getCorrectedDateTime().toString().substring(0, 16);
                     }
                     editedNote.location = jsonEncode(location);
                   });
@@ -323,17 +360,18 @@ class _EditScreenState extends State<EditScreen> {
                 editedNote.title = DateTime.now().toString().substring(5, 19);
               }
               if (editedNote.from == '' &&
-                    editedNote.to == '' &&
-                    editedNote.location == '') {
-                  editedNote.active = 'false';
-                } else {
-                  editedNote.active = 'true';
-                }
+                  editedNote.to == '' &&
+                  editedNote.location == '') {
+                editedNote.active = 'false';
+              } else {
+                editedNote.active = 'true';
+              }
 
               if (editedNote.from != '' && editedNote.to != '' ||
                   editedNote.from == '' && editedNote.to == '') {
                 await prevNote.update(editedNote);
-                if (context.mounted) Navigator.popUntil(context, (route) => route.isFirst);
+                if (context.mounted)
+                  Navigator.popUntil(context, (route) => route.isFirst);
               } else if (context.mounted) {
                 showDialog(
                   context: context,

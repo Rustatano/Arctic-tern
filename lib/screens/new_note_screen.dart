@@ -179,7 +179,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         if (newNote.to.isNotEmpty) {
                           var to = DateTime.parse(newNote.to);
                           if (newNote.from.isNotEmpty && DateTime.parse(newNote.from)
-                              .isAtSameMomentAs(to)) {
+                              .isAtSameMomentAs(to) && DateTime.parse(newNote.from).isBefore(from)) {
                             setState(() {
                               newNote.to = from.toString().substring(0, 16);
                             });
@@ -238,7 +238,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         if (newNote.from.isNotEmpty) {
                           var from = DateTime.parse(newNote.from);
                           if (newNote.to.isNotEmpty && DateTime.parse(newNote.to)
-                              .isAtSameMomentAs(from)) {
+                              .isAtSameMomentAs(from) && DateTime.parse(newNote.to).isAfter(to)) {
                             setState(() {
                               newNote.from = to.toString().substring(0, 16);
                             });

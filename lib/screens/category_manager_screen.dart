@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:arctic_tern/db_objects/note.dart';
 import 'package:flutter/material.dart';
 
@@ -61,7 +63,14 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    await newCategory.insert();
+                    if (newCategory.category == '' ||
+                        newCategory.category == 'No Category') return;
+                    var random = Random();
+                    await newCategory.insert(
+                      random.nextInt(156) + 100,
+                      random.nextInt(156) + 100,
+                      random.nextInt(156) + 100,
+                    );
                     await getDBCategories();
                   },
                   child: Text(

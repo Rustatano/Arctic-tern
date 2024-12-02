@@ -89,15 +89,16 @@ class Note {
     newNote.insert();
   }
 
-  static Future<List<Note>> getNotes(Map<String, String>? filter) async {
+  static Future<List<Note>> getNotes(Map<String, String> filter) async {
     final db = await getDB();
     List<Map<String, Object?>> list;
-    if (filter == null) {
+    if (filter['category'] == 'No Category') {
       list = await db.query('note');
     } else {
       String where = '';
       List<String> whereArgs = [];
       for (var f in filter.entries) {
+        if (f.key == 'searchQuery') continue; // lazy and inefficient way to solve it
         where += '_${f.key} = ?';
         whereArgs.add(f.value);
       }
