@@ -118,7 +118,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'arctic_tern',
+                  userAgentPackageName: 'com.arctic_tern.app',
                 ),
                 MarkerLayer(markers: markers),
                 Align(
