@@ -357,6 +357,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 }
                 if (newNote.from != '' && newNote.to != '' ||
                     newNote.from == '' && newNote.to == '') {
+                  newNote.dateModified = DateTime.now().toString().substring(0, 16);
                   await newNote.insert();
                   if (context.mounted) Navigator.pop(context);
                 } else if (context.mounted) {

@@ -190,7 +190,8 @@ class _EditScreenState extends State<EditScreen> {
                           var to = DateTime.parse(editedNote.to);
                           if (editedNote.from.isNotEmpty &&
                               DateTime.parse(editedNote.from)
-                                  .isAtSameMomentAs(to)  && DateTime.parse(editedNote.from).isBefore(from)) {
+                                  .isAtSameMomentAs(to) &&
+                              DateTime.parse(editedNote.from).isBefore(from)) {
                             setState(() {
                               editedNote.to = from.toString().substring(0, 16);
                             });
@@ -250,7 +251,8 @@ class _EditScreenState extends State<EditScreen> {
                           var from = DateTime.parse(editedNote.from);
                           if (editedNote.to.isNotEmpty &&
                               DateTime.parse(editedNote.to)
-                                  .isAtSameMomentAs(from) && DateTime.parse(editedNote.to).isAfter(to)) {
+                                  .isAtSameMomentAs(from) &&
+                              DateTime.parse(editedNote.to).isAfter(to)) {
                             setState(() {
                               editedNote.from = to.toString().substring(0, 16);
                             });
@@ -369,9 +371,11 @@ class _EditScreenState extends State<EditScreen> {
 
               if (editedNote.from != '' && editedNote.to != '' ||
                   editedNote.from == '' && editedNote.to == '') {
+                editedNote.dateModified = DateTime.now().toString().substring(0, 16);
                 await prevNote.update(editedNote);
-                if (context.mounted)
+                if (context.mounted) {
                   Navigator.popUntil(context, (route) => route.isFirst);
+                }
               } else if (context.mounted) {
                 showDialog(
                   context: context,

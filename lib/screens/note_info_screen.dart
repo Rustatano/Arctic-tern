@@ -30,6 +30,10 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     padding: EdgeInsets.only(right: halfPadding),
                     child: Icon(Icons.access_time),
                   ),
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Text('From: '),
+                  ),
                   Text(widget.note.from),
                 ],
               ),
@@ -42,6 +46,10 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     padding: EdgeInsets.only(right: halfPadding),
                     child: Icon(Icons.access_time),
                   ),
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Text('To: '),
+                  ),
                   Text(widget.note.to),
                 ],
               ),
@@ -53,6 +61,10 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                   const Padding(
                     padding: EdgeInsets.only(right: halfPadding),
                     child: Icon(Icons.pin_drop),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Text('Location: '),
                   ),
                   Flexible(child: Text(widget.note.location)),
                 ],
@@ -76,6 +88,11 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
             Expanded(
               child: ListView(
                 children: [
+                  Text(
+                    widget.note.dateModified,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(color: Colors.grey),
+                  ),
                   Text(widget.note.content),
                 ],
               ),
