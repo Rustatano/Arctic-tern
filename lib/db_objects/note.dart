@@ -92,17 +92,10 @@ class Note {
   static Future<List<Note>> getNotes(Map<String, String> filter) async {
     final db = await getDB();
     List<Map<String, Object?>> list;
-    if (filter['category'] == 'No Category') {
-      list = await db.query('note');
+    if (filter['category'] != 'No Category') {
+      list = await db.query('note', where: '_category = ?', whereArgs: [filter['category']]);
     } else {
-      String where = '';
-      List<String> whereArgs = [];
-      for (var f in filter.entries) {
-        if (f.key == 'searchQuery') continue; // lazy and inefficient way to solve it
-        where += '_${f.key} = ?';
-        whereArgs.add(f.value);
-      }
-      list = await db.query('note', where: where, whereArgs: whereArgs);
+      list = (await db.query('note'));
     }
     return list.map((note) => Note.fromMap(note)).toList();
   }

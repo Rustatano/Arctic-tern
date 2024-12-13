@@ -178,22 +178,26 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                       onConfirm: (from, _) {
                         if (newNote.to.isNotEmpty) {
                           var to = DateTime.parse(newNote.to);
-                          if (newNote.from.isNotEmpty && DateTime.parse(newNote.from)
-                              .isAtSameMomentAs(to) && DateTime.parse(newNote.from).isBefore(from)) {
+                          if (newNote.from.isNotEmpty &&
+                              DateTime.parse(newNote.from)
+                                  .isAtSameMomentAs(to) &&
+                              DateTime.parse(newNote.from).isBefore(from)) {
                             setState(() {
                               newNote.to = from.toString().substring(0, 16);
                             });
                           } else if (from.isAfter(to)) {
-                            setState(() {
-                              newNote.to = from
-                                  .add(Duration(
-                                      seconds: ((from.millisecondsSinceEpoch -
-                                                  to.millisecondsSinceEpoch) /
-                                              1000)
-                                          .floor()))
-                                  .toString()
-                                  .substring(0, 16);
-                            });
+                            setState(
+                              () {
+                                newNote.to = from
+                                    .add(Duration(
+                                        seconds: ((from.millisecondsSinceEpoch -
+                                                    to.millisecondsSinceEpoch) /
+                                                1000)
+                                            .floor()))
+                                    .toString()
+                                    .substring(0, 16);
+                              },
+                            );
                           }
                         }
                         setState(() {
@@ -237,8 +241,10 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                       onConfirm: (to, _) {
                         if (newNote.from.isNotEmpty) {
                           var from = DateTime.parse(newNote.from);
-                          if (newNote.to.isNotEmpty && DateTime.parse(newNote.to)
-                              .isAtSameMomentAs(from) && DateTime.parse(newNote.to).isAfter(to)) {
+                          if (newNote.to.isNotEmpty &&
+                              DateTime.parse(newNote.to)
+                                  .isAtSameMomentAs(from) &&
+                              DateTime.parse(newNote.to).isAfter(to)) {
                             setState(() {
                               newNote.from = to.toString().substring(0, 16);
                             });
@@ -299,6 +305,10 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                       newNote.from =
                           getCorrectedDateTime().toString().substring(0, 16);
                     }
+                    if (newNote.to == '') {
+                      newNote.to =
+                          getCorrectedDateTime().toString().substring(0, 16);
+                    }
                     newNote.location = jsonEncode(location);
                   });
                 }
@@ -355,20 +365,10 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 } else {
                   newNote.active = 'true';
                 }
-                if (newNote.from != '' && newNote.to != '' ||
-                    newNote.from == '' && newNote.to == '') {
-                  newNote.dateModified = DateTime.now().toString().substring(0, 16);
-                  await newNote.insert();
-                  if (context.mounted) Navigator.pop(context);
-                } else if (context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Note'),
-                      content: Text('You must select time notification'),
-                    ),
-                  );
-                }
+                newNote.dateModified =
+                    DateTime.now().toString().substring(0, 16);
+                await newNote.insert();
+                if (context.mounted) Navigator.pop(context);
               } else {
                 if (context.mounted) {
                   showDialog(

@@ -81,7 +81,7 @@ class DBCategory {
     return db;
   }
 
-  Future<bool> exists() async {
+  static Future<bool> exists(String category) async {
     final db = await getDB();
     final query = await db.query(
       'category',

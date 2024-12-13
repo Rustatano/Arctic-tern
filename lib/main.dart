@@ -34,7 +34,7 @@ Future<void> startBGTasks() async {
         "notification_checker$i",
         "notification_checker$i",
         frequency: Duration(minutes: 15),
-        existingWorkPolicy: ExistingWorkPolicy.replace,
+        existingWorkPolicy: ExistingWorkPolicy.append,
         initialDelay: Duration(
           minutes: i * 5,
           seconds: delay,

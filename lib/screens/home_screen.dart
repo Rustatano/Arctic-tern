@@ -22,7 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<DBCategory> categories = [];
   Map<String, String> getNotesFilter = {
     'category': 'No Category',
-    'searchQuery': ''
+    'searchQuery': '',
+    'dateModified': 'Newest',
   };
 
   Future<void> getNotes(Map<String, String> filter) async {
@@ -42,6 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       setState(() {
         notes = searchedNotes;
+      });
+    }
+    if (filter['dateModified'] == 'Oldest') {
+      setState(() {
+        notes = notes.reversed.toList();
       });
     }
   }
@@ -134,6 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(
+            // await needed for proper notes refresh
             context,
             MaterialPageRoute(
               builder: (context) => NewNoteScreen(),
@@ -177,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return GestureDetector(
                   // animation would be nice here
                   onTap: () async {
-                    await Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => NoteInfoScreen(
@@ -341,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () async {
-              await Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SettingsScreen(),
@@ -358,6 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: DropdownButton(
           dropdownColor: colorScheme.primary,
           value: getNotesFilter['category'],
+          items: createDropDownMenuItemList(),
           onChanged: (String? category) async {
             if (category == null) return;
             if (category == 'Manage') {
@@ -367,86 +375,131 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => CategoryManagerScreen(),
                 ),
               );
-              if (!await DBCategory(category: category, r: '', g: '', b: '')
-                  .exists()) {
-                setState(() {
-                  getNotesFilter['category'] = 'No Category';
-                });
+              if (!(await DBCategory.exists(getNotesFilter['category']!))) {
+                getNotesFilter['category'] = 'No Category';
               }
+              await getDBCategories();
+            } else if (category == 'Oldest' || category == 'Newest') {
+              setState(() {
+                getNotesFilter['dateModified'] = category;
+              });
             } else {
               setState(() {
                 getNotesFilter['category'] = category;
               });
             }
-            await getDBCategories();
             await getNotes(getNotesFilter);
           },
-          items: List.generate(categories.length + 2, (i) {
-            if (i == categories.length) {
-              return DropdownMenuItem(
-                value: 'No Category',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.all_inbox_rounded,
-                      color: colorScheme.onPrimary,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: halfPadding),
-                      child: Text(
-                        'No Category',
-                        style: TextStyle(color: colorScheme.onPrimary),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            } else if (i == categories.length + 1) {
-              return DropdownMenuItem(
-                value: 'Manage',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.menu,
-                      color: colorScheme.onPrimary,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: halfPadding),
-                      child: Text(
-                        'Manage',
-                        style: TextStyle(color: colorScheme.onPrimary),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return DropdownMenuItem(
-              value: categories[i].category,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.square_rounded,
-                    color: Color.fromARGB(
-                      255,
-                      int.parse(categories[i].r),
-                      int.parse(categories[i].g),
-                      int.parse(categories[i].b),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: halfPadding),
-                    child: Text(
-                      categories[i].category,
-                      style: TextStyle(color: colorScheme.onPrimary),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).reversed.toList(),
         ),
       ),
     );
+  }
+
+  List<DropdownMenuItem<String>> createDropDownMenuItemList() {
+    List<DropdownMenuItem<String>> list = [];
+    for (var i = 0; i < categories.length; i++) {
+      list.add(
+        DropdownMenuItem(
+          value: categories[i].category,
+          child: Row(
+            children: [
+              Icon(
+                Icons.square_rounded,
+                color: Color.fromARGB(
+                  255,
+                  int.parse(categories[i].r),
+                  int.parse(categories[i].g),
+                  int.parse(categories[i].b),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: halfPadding),
+                child: Text(
+                  categories[i].category,
+                  style: TextStyle(color: colorScheme.onPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    list.addAll(
+      [
+        DropdownMenuItem(
+          value: 'No Category',
+          child: Row(
+            children: [
+              Icon(
+                Icons.all_inbox_rounded,
+                color: colorScheme.onPrimary,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: halfPadding),
+                child: Text(
+                  'No Category',
+                  style: TextStyle(color: colorScheme.onPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
+        DropdownMenuItem(
+          value: 'Oldest',
+          child: Row(
+            children: [
+              Icon(
+                Icons.arrow_downward,
+                color: colorScheme.onPrimary,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: halfPadding),
+                child: Text(
+                  'Oldest',
+                  style: TextStyle(color: colorScheme.onPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
+        DropdownMenuItem(
+          value: 'Newest',
+          child: Row(
+            children: [
+              Icon(
+                Icons.arrow_upward,
+                color: colorScheme.onPrimary,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: halfPadding),
+                child: Text(
+                  'Newest',
+                  style: TextStyle(color: colorScheme.onPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
+        DropdownMenuItem(
+          value: 'Manage',
+          child: Row(
+            children: [
+              Icon(
+                Icons.menu,
+                color: colorScheme.onPrimary,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: halfPadding),
+                child: Text(
+                  'Manage',
+                  style: TextStyle(color: colorScheme.onPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    return list.reversed.toList();
   }
 }

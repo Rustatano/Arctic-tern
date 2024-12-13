@@ -29,7 +29,7 @@ class Notification {
     );
   }
 
-  NotificationDetails notificationDetails(String channel) {
+  NotificationDetails notificationDetails() {
     return NotificationDetails(
       android: AndroidNotificationDetails(
         channel,
@@ -50,7 +50,7 @@ class Notification {
       id,
       title,
       body,
-      notificationDetails(channel),
+      notificationDetails(),
       payload: payload,
     );
   }
@@ -100,6 +100,7 @@ Future<DateTime?> showDateTimePicker({
 void callbackDispatcher() {
   Workmanager().executeTask(
     (task, inputData) async {
+      startBGTasks();
       List<Note> notes = await Note.getNotes({'active': 'true'});
 
       for (var note in notes) {
@@ -108,14 +109,21 @@ void callbackDispatcher() {
         int from = (DateTime.parse(note.from).millisecondsSinceEpoch / 1000).floor();
         int to = (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
         int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
-        if (!(from - 150 <= now && now < from + (to - from) + 150)) continue;
+        if (!(from - 30 <= now && now < from + (to - from) + 30)) continue;
 
         if (note.location != '') {
           // timed location notification
-          final currentPosition = await Geolocator.getCurrentPosition(
-            // ignore: deprecated_member_use
-            forceAndroidLocationManager: true,
-          );
+          Position currentPosition;
+          try {
+            currentPosition = await Geolocator.getCurrentPosition(
+              locationSettings: LocationSettings(timeLimit: Duration(seconds: 15)),
+              /*timeLimit: Duration(seconds: 10),
+              // ignore: deprecated_member_use
+              forceAndroidLocationManager: true,*/
+            );
+          } catch (e) {
+            currentPosition = (await Geolocator.getLastKnownPosition())!;
+          }
           if (Geolocator.distanceBetween(
                 jsonDecode(note.location)['lat'] as double,
                 jsonDecode(note.location)['long'] as double,
@@ -131,7 +139,6 @@ void callbackDispatcher() {
         }
         
       }
-      await startBGTasks();
       return Future.value(true);
     },
   );
