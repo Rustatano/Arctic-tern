@@ -151,178 +151,13 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Icon(Icons.add),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          ListView.builder(
-            padding: const EdgeInsets.all(padding),
-            itemCount: notes.length,
-            itemBuilder: (BuildContext context, int index) {
-              return GestureDetector(
-                // animation would be nice here
-                onTap: () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NoteInfoScreen(
-                        note: notes[index],
-                      ),
-                    ),
-                  );
-                  await getNotes(getNotesFilter);
-                },
-                onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Delete Note'),
-                        content: const Text(
-                            'Are you sure you want to delete this note? (cannot be undone)'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              Workmanager()
-                                  .cancelByUniqueName(notes[index].title);
-                              await Note.remove(notes[index].title);
-                              await getNotes(getNotesFilter);
-                              if (context.mounted) {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                            child: const Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                // Note preview
-                child: Padding(
-                  padding: const EdgeInsets.all(halfPadding / 2),
-                  child: Material(
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(radius),
-                    ),
-                    elevation: 3,
-                    color: Colors.black,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colorScheme.secondary,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(radius),
-                        ),
-                      ),
-                      height: 115,
-                      child: Padding(
-                        padding: const EdgeInsets.all(padding / 3),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                (notes[index].title.length > 21)
-                                    ? '${notes[index].title.substring(0, 20).trim()}...'
-                                    : notes[index].title,
-                                style: TextStyle(
-                                  fontSize: mediumFontSize,
-                                  color: colorScheme.onSecondary,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                (notes[index].content.length > 21)
-                                    ? '${notes[index].content.substring(0, 20).trim()}...'
-                                    : notes[index].content,
-                                style: TextStyle(
-                                  color: colorScheme.onSecondary,
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Badge(
-                                      isLabelVisible: notes[index].from != '',
-                                      label: Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 10,
-                                      ),
-                                      backgroundColor: Colors.green,
-                                      child: Icon(
-                                        Icons.access_time,
-                                        color: colorScheme.onSecondary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Badge(
-                                      isLabelVisible:
-                                          notes[index].location != '',
-                                      label: Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 10,
-                                      ),
-                                      backgroundColor: Colors.green,
-                                      child: Icon(
-                                        Icons.pin_drop,
-                                        color: colorScheme.onSecondary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                /*
-                                  Expanded(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Badge(
-                                        isLabelVisible:
-                                            notes[index].repeat != '',
-                                        label: Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 10,
-                                        ),
-                                        backgroundColor: Colors.green,
-                                        child: Icon(
-                                          Icons.refresh,
-                                          color: colorScheme.onSecondary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  */
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
           Padding(
             padding: const EdgeInsets.only(
                 left: padding,
                 right: padding,
-                top: padding,
+                top: halfPadding,
                 bottom: halfPadding),
             child: TextField(
               maxLines: null,
@@ -344,6 +179,173 @@ class _HomeScreenState extends State<HomeScreen> {
                 hintStyle: TextStyle(color: colorScheme.onSurface),
                 prefixIcon: Icon(Icons.search, color: colorScheme.onSurface),
               ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(padding),
+              itemCount: notes.length,
+              itemBuilder: (BuildContext context, int index) {
+                return GestureDetector(
+                  // animation would be nice here
+                  onTap: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NoteInfoScreen(
+                          note: notes[index],
+                        ),
+                      ),
+                    );
+                    await getNotes(getNotesFilter);
+                  },
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Delete Note'),
+                          content: const Text(
+                              'Are you sure you want to delete this note? (cannot be undone)'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Workmanager()
+                                    .cancelByUniqueName(notes[index].title);
+                                await Note.remove(notes[index].title);
+                                await getNotes(getNotesFilter);
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              child: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  // Note preview
+                  child: Padding(
+                    padding: const EdgeInsets.all(halfPadding / 2),
+                    child: Material(
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(radius),
+                      ),
+                      elevation: 3,
+                      color: Colors.black,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.secondary,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(radius),
+                          ),
+                        ),
+                        height: 115,
+                        child: Padding(
+                          padding: const EdgeInsets.all(padding / 3),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  (notes[index].title.length > 21)
+                                      ? '${notes[index].title.substring(0, 20).trim()}...'
+                                      : notes[index].title,
+                                  style: TextStyle(
+                                    fontSize: mediumFontSize,
+                                    color: colorScheme.onSecondary,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  (notes[index].content.length > 21)
+                                      ? '${notes[index].content.substring(0, 20).trim()}...'
+                                      : notes[index].content,
+                                  style: TextStyle(
+                                    color: colorScheme.onSecondary,
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Badge(
+                                        isLabelVisible: notes[index].from != '',
+                                        label: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 10,
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        child: Icon(
+                                          Icons.access_time,
+                                          color: colorScheme.onSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Badge(
+                                        isLabelVisible:
+                                            notes[index].location != '',
+                                        label: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 10,
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        child: Icon(
+                                          Icons.pin_drop,
+                                          color: colorScheme.onSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  /*
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Badge(
+                                          isLabelVisible:
+                                              notes[index].repeat != '',
+                                          label: Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 10,
+                                          ),
+                                          backgroundColor: Colors.green,
+                                          child: Icon(
+                                            Icons.refresh,
+                                            color: colorScheme.onSecondary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    */
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],

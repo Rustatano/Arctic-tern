@@ -106,8 +106,10 @@ void callbackDispatcher() {
       for (var note in notes) {
         if (note.from == '' && note.to == '') continue;
 
-        int from = (DateTime.parse(note.from).millisecondsSinceEpoch / 1000).floor();
-        int to = (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
+        int from =
+            (DateTime.parse(note.from).millisecondsSinceEpoch / 1000).floor();
+        int to =
+            (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
         int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
         if (!(from - 30 <= now && now < from + (to - from) + 30)) continue;
 
@@ -116,10 +118,10 @@ void callbackDispatcher() {
           Position currentPosition;
           try {
             currentPosition = await Geolocator.getCurrentPosition(
-              locationSettings: LocationSettings(timeLimit: Duration(seconds: 15)),
-              /*timeLimit: Duration(seconds: 10),
+              locationSettings:
+                  LocationSettings(timeLimit: Duration(seconds: 15)),
               // ignore: deprecated_member_use
-              forceAndroidLocationManager: true,*/
+              forceAndroidLocationManager: true,
             );
           } catch (e) {
             currentPosition = (await Geolocator.getLastKnownPosition())!;
@@ -137,7 +139,6 @@ void callbackDispatcher() {
           // timed notification
           await Notification().showNotification(title: note.title);
         }
-        
       }
       return Future.value(true);
     },

@@ -25,19 +25,19 @@ class DBCategory {
 
   Map<String, String> toMap() {
     return {
-      'category': category,
-      'r': r,
-      'g': g,
-      'b': b,
+      '_category': category,
+      '_r': r,
+      '_g': g,
+      '_b': b,
     };
   }
 
   static DBCategory fromMap(Map<String, Object?> map) {
     return DBCategory(
-      category: map['category'] as String,
-      r: map['r'] as String,
-      g: map['g'] as String,
-      b: map['b'] as String,
+      category: map['_category'] as String,
+      r: map['_r'] as String,
+      g: map['_g'] as String,
+      b: map['_b'] as String,
     );
   }
 
@@ -57,7 +57,7 @@ class DBCategory {
     final db = await getDB();
     db.delete(
       'category',
-      where: 'category = ?',
+      where: '_category = ?',
       whereArgs: [category],
     );
   }
@@ -74,7 +74,7 @@ class DBCategory {
       join(await getDatabasesPath(), 'category.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE IF NOT EXISTS category(category TEXT PRIMARY KEY, r TEXT, g TEXT, b TEXT)',
+          'CREATE TABLE IF NOT EXISTS category(_category TEXT PRIMARY KEY, _r TEXT, _g TEXT, _b TEXT)',
         );
       },
     );
@@ -85,7 +85,7 @@ class DBCategory {
     final db = await getDB();
     final query = await db.query(
       'category',
-      where: 'category = ?',
+      where: '_category = ?',
       whereArgs: [category],
     );
     return query.isNotEmpty;
