@@ -100,7 +100,10 @@ Future<DateTime?> showDateTimePicker({
 void callbackDispatcher() {
   Workmanager().executeTask(
     (task, inputData) async {
-      List<Note> notes = await Note.getNotes({'active': 'true'});
+      List<Note> notes = await Note.getNotes({
+        'category': 'No Category',
+        'active': 'true',
+      });
 
       for (var note in notes) {
         if (note.from == '' && note.to == '') continue;
@@ -139,7 +142,7 @@ void callbackDispatcher() {
           await Notification().showNotification(title: note.title);
         }
       }
-      startBGTasks();
+      await startBGTasks();
       return Future.value(true);
     },
   );

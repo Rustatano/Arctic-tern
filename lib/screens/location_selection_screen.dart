@@ -25,22 +25,22 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: currentPosition,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          Position position = snapshot.data!;
-          List<Marker> markers = [
-            Marker(
-              point: LatLng(position.latitude, position.longitude),
-              child: Icon(
-                Icons.my_location,
-                color: Colors.black,
+    return Scaffold(
+      body: FutureBuilder(
+        future: currentPosition,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            Position position = snapshot.data!;
+            List<Marker> markers = [
+              Marker(
+                point: LatLng(position.latitude, position.longitude),
+                child: Icon(
+                  Icons.my_location,
+                  color: Colors.black,
+                ),
               ),
-            ),
-          ];
-          return Scaffold(
-            body: FlutterMap(
+            ];
+            return FlutterMap(
               mapController: mapController,
               options: MapOptions(
                 initialCenter: LatLng(position.latitude, position.longitude),
@@ -179,34 +179,13 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                   ),
                 ),
               ],
-            ),
-            appBar: AppBar(
-              title: Text(
-                'Select Location',
-                style: TextStyle(color: colorScheme.onPrimary),
-              ),
-              backgroundColor: colorScheme.primary,
-              iconTheme: IconThemeData(color: colorScheme.onPrimary),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
+            );
+          } else if (snapshot.hasError) {
+            return Center(
               child: Text(snapshot.error.toString()),
-            ),
-            appBar: AppBar(
-              title: Text(
-                'Select Location',
-                style: TextStyle(
-                  color: colorScheme.onPrimary,
-                ),
-              ),
-              backgroundColor: colorScheme.primary,
-            ),
-          );
-        } else {
-          return Scaffold(
-            body: Center(
+            );
+          } else {
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -221,22 +200,18 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                   ),
                 ],
               ),
-            ),
-            appBar: AppBar(
-              title: Text(
-                'Select Location',
-                style: TextStyle(
-                  color: colorScheme.onPrimary,
-                ),
-              ),
-              backgroundColor: colorScheme.primary,
-              iconTheme: IconThemeData(
-                color: colorScheme.onPrimary,
-              ),
-            ),
-          );
-        }
-      },
+            );
+          }
+        },
+      ),
+      appBar: AppBar(
+        title: Text(
+          'Select Location',
+          style: TextStyle(color: colorScheme.onPrimary),
+        ),
+        backgroundColor: colorScheme.primary,
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+      ),
     );
   }
 }

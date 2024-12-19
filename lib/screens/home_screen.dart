@@ -189,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return GestureDetector(
                   // animation would be nice here
                   onTap: () async {
-                    Navigator.push(
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => NoteInfoScreen(
@@ -198,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                     await getNotes(getNotesFilter);
+                    await getDBCategories();
                   },
                   onLongPress: () {
                     showDialog(
@@ -353,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () async {
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SettingsScreen(),

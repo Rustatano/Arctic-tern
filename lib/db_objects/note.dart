@@ -75,7 +75,7 @@ class Note {
     );
   }
 
-  static Future<void> remove(String title) async {
+  static Future<void> remove(String title) async { // remove static?
     final db = await getDB();
     db.delete(
       'note',
@@ -93,24 +93,22 @@ class Note {
     final db = await getDB();
     List<Map<String, Object?>> list;
     if (filter['category'] != 'No Category') {
-      list = await db.query('note', where: '_category = ?', whereArgs: [filter['category']]);
+      list = await db.query('note',
+          where: '_category = ?', whereArgs: [filter['category']]);
+    } else if (filter['active'] == 'true') {
+      list = await db.query('note',
+          where: '_active = ?', whereArgs: ['true']);
     } else {
-      list = (await db.query('note'));
+      list = await db.query('note');
     }
     return list.map((note) => Note.fromMap(note)).toList();
   }
 
   static Future<Database> getDB() async {
-    final db = await openDatabase(
+    return await openDatabase(
       version: 1,
-      join(await getDatabasesPath(), 'note.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE IF NOT EXISTS note(_title TEXT PRIMARY KEY, _category TEXT, _content TEXT, _dateModified TEXT, _from TEXT, _to TEXT, _location TEXT, _active TEXT)', // _repeat TEXT,
-        );
-      },
+      join(await getDatabasesPath(), 'geoNote.db'),
     );
-    return db;
   }
 
   Future<bool> exists() async {

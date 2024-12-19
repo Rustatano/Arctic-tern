@@ -11,6 +11,7 @@
 - Note with tima and location notification
 
 # Working on
+- UI improvement
 - Note preiodic repetition (now it's just one time notification)
 - Offline maps
 - iOS support

@@ -71,12 +71,7 @@ class DBCategory {
   static Future<Database> getDB() async {
     final db = await openDatabase(
       version: 1,
-      join(await getDatabasesPath(), 'category.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE IF NOT EXISTS category(_category TEXT PRIMARY KEY, _r TEXT, _g TEXT, _b TEXT)',
-        );
-      },
+      join(await getDatabasesPath(), 'geoNote.db'),
     );
     return db;
   }
