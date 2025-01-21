@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 
@@ -21,8 +22,6 @@ class NewNoteScreen extends StatefulWidget {
 class _NewNoteScreenState extends State<NewNoteScreen> {
   Note newNote = Note.toDefault();
   List<DBCategory> categories = [];
-  TextEditingController contentTextFieldController = TextEditingController();
-  TextEditingController titleTextFieldController = TextEditingController();
   String currentCategory = 'No Category';
 
   Future<void> getDBCategories() async {
@@ -40,353 +39,410 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: Padding(
-        padding: const EdgeInsets.all(padding),
-        child: ListView(
-          children: [
-            TextField(
-              controller: titleTextFieldController,
-              maxLines: null,
-              onChanged: (String title) {
-                setState(() {
-                  newNote.title = title;
-                });
-              },
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Enter a note title',
-              ),
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            // Category selection, new note
-            DropdownButton(
-              underline: Divider(
-                height: 0,
-                color: colorScheme.surface,
-              ),
-              value: currentCategory,
-              onChanged: (String? category) async {
-                if (category == null) return;
-                if (category == 'Manage') {
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.surface,
+        body: Padding(
+          padding: const EdgeInsets.all(padding),
+          child: ListView(
+            children: [
+              TextField(
+                style: TextStyle(
+                  color: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                ),
+                maxLines: 1,
+                onChanged: (String title) {
                   setState(() {
-                    currentCategory = 'No Category';
+                    newNote.title = title;
                   });
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CategoryManagerScreen(),
-                    ),
-                  );
-                } else {
-                  setState(() {
-                    currentCategory = category;
-                  });
-                }
-                await getDBCategories();
-                newNote.category = currentCategory;
-              },
-              items: List.generate(categories.length + 2, (i) {
-                if (i == categories.length) {
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Enter a note title',
+                  hintStyle: TextStyle(
+                    color:
+                        AdaptiveTheme.of(context).theme.colorScheme.surfaceDim,
+                  ),
+                ),
+                cursorColor:
+                    AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+              ),
+              Divider(
+                color: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+              ),
+              // Category selection, new note
+              DropdownButton(
+                dropdownColor:
+                    AdaptiveTheme.of(context).theme.colorScheme.surfaceContainer,
+                underline: Divider(
+                  height: 0,
+                  color: AdaptiveTheme.of(context).theme.colorScheme.surface, // its surface intentionally
+                ),
+                value: currentCategory,
+                onChanged: (String? category) async {
+                  FocusScope.of(context).unfocus();
+                  if (category == null) return;
+                  if (category == 'Manage') {
+                    setState(() {
+                      currentCategory = 'No Category';
+                    });
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CategoryManagerScreen(),
+                      ),
+                    );
+                  } else {
+                    setState(() {
+                      currentCategory = category;
+                    });
+                  }
+                  await getDBCategories();
+                  newNote.category = currentCategory;
+                },
+                items: List.generate(categories.length + 2, (i) {
+                  if (i == categories.length) {
+                    return DropdownMenuItem(
+                      value: 'No Category',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.all_inbox_rounded,
+                            color: AdaptiveTheme.of(context)
+                                .theme
+                                .colorScheme
+                                .onSurface,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'No Category',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else if (i == categories.length + 1) {
+                    return DropdownMenuItem(
+                      value: 'Manage',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.menu,
+                            color: AdaptiveTheme.of(context)
+                                .theme
+                                .colorScheme
+                                .onSurface,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'Manage',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                   return DropdownMenuItem(
-                    value: 'No Category',
+                    value: categories[i].category,
                     child: Row(
                       children: [
                         Icon(
-                          Icons.all_inbox_rounded,
-                          color: colorScheme.onSurface,
+                          Icons.square_rounded,
+                          color: Color.fromARGB(
+                            255,
+                            int.parse(categories[i].r),
+                            int.parse(categories[i].g),
+                            int.parse(categories[i].b),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: halfPadding),
                           child: Text(
-                            'No Category',
+                            categories[i].category,
+                            style: TextStyle(
+                              color: AdaptiveTheme.of(context)
+                                  .theme
+                                  .colorScheme
+                                  .onSurface,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   );
-                } else if (i == categories.length + 1) {
-                  return DropdownMenuItem(
-                    value: 'Manage',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.menu,
-                          color: colorScheme.onSurface,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: halfPadding),
-                          child: Text(
-                            'Manage',
-                          ),
-                        ),
-                      ],
+                }).reversed.toList(),
+              ),
+              Divider(color: AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+              // time from
+              TextButton(
+                style: ButtonStyle(
+                  foregroundColor: WidgetStatePropertyAll(
+                      AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    constraints: BoxConstraints.tight(
+                      Size(
+                        MediaQuery.sizeOf(context).width,
+                        MediaQuery.sizeOf(context).height * 0.33,
+                      ),
+                    ),
+                    backgroundColor:
+                        AdaptiveTheme.of(context).theme.colorScheme.surface,
+                    builder: (context) => Center(
+                      child: DateTimePickerWidget(
+                        initDateTime: (newNote.from == '')
+                            ? getCorrectedDateTime()
+                            : DateTime.parse(newNote.from),
+                        dateFormat: 'yyyy:MM:dd:HH:mm',
+                        minuteDivider: 5,
+                        onConfirm: (from, _) {
+                          if (newNote.to.isNotEmpty) {
+                            var to = DateTime.parse(newNote.to);
+                            if (newNote.from.isNotEmpty &&
+                                DateTime.parse(newNote.from)
+                                    .isAtSameMomentAs(to) &&
+                                DateTime.parse(newNote.from).isBefore(from)) {
+                              setState(() {
+                                newNote.to = from.toString().substring(0, 16);
+                              });
+                            } else if (from.isAfter(to)) {
+                              setState(
+                                () {
+                                  newNote.to = from
+                                      .add(Duration(
+                                          seconds: ((from.millisecondsSinceEpoch -
+                                                      to.millisecondsSinceEpoch) /
+                                                  1000)
+                                              .floor()))
+                                      .toString()
+                                      .substring(0, 16);
+                                },
+                              );
+                            }
+                          }
+                          setState(() {
+                            newNote.from = from.toString().substring(0, 16);
+                          });
+                        },
+                        onCancel: () {
+                          setState(() {
+                            newNote.from = '';
+                          });
+                        },
+                      ),
                     ),
                   );
-                }
-                return DropdownMenuItem(
-                  value: categories[i].category,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.square_rounded,
-                        color: Color.fromARGB(
-                          255,
-                          int.parse(categories[i].r),
-                          int.parse(categories[i].g),
-                          int.parse(categories[i].b),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: halfPadding),
-                        child: Text(
-                          categories[i].category,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).reversed.toList(),
-            ),
-            const Divider(color: Colors.black),
-            // time from
-            TextButton(
-              style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
-                alignment: Alignment.centerLeft,
+                },
+                child: Text('From: ${newNote.from}'),
               ),
-              onPressed: () async {
-                showModalBottomSheet(
-                  context: context,
-                  constraints: BoxConstraints.tight(
-                    Size(
-                      MediaQuery.sizeOf(context).width,
-                      MediaQuery.sizeOf(context).height * 0.33,
+              // time to
+              TextButton(
+                style: ButtonStyle(
+                  foregroundColor: WidgetStatePropertyAll(
+                      AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    constraints: BoxConstraints.tight(
+                      Size(
+                        MediaQuery.sizeOf(context).width,
+                        MediaQuery.sizeOf(context).height * 0.33,
+                      ),
                     ),
-                  ),
-                  backgroundColor: colorScheme.surface,
-                  builder: (context) => Center(
-                    child: DateTimePickerWidget(
-                      initDateTime: (newNote.from == '')
-                          ? getCorrectedDateTime()
-                          : DateTime.parse(newNote.from),
-                      dateFormat: 'yyyy:MM:dd:HH:mm',
-                      minuteDivider: 5,
-                      onConfirm: (from, _) {
-                        if (newNote.to.isNotEmpty) {
-                          var to = DateTime.parse(newNote.to);
-                          if (newNote.from.isNotEmpty &&
-                              DateTime.parse(newNote.from)
-                                  .isAtSameMomentAs(to) &&
-                              DateTime.parse(newNote.from).isBefore(from)) {
-                            setState(() {
-                              newNote.to = from.toString().substring(0, 16);
-                            });
-                          } else if (from.isAfter(to)) {
-                            setState(
-                              () {
-                                newNote.to = from
+                    backgroundColor:
+                        AdaptiveTheme.of(context).theme.colorScheme.surface,
+                    builder: (context) => Center(
+                      child: DateTimePickerWidget(
+                        initDateTime: (newNote.to == '')
+                            ? getCorrectedDateTime()
+                            : DateTime.parse(newNote.to),
+                        dateFormat: 'yyyy:MM:dd:HH:mm',
+                        minuteDivider: 5,
+                        onConfirm: (to, _) {
+                          if (newNote.from.isNotEmpty) {
+                            var from = DateTime.parse(newNote.from);
+                            if (newNote.to.isNotEmpty &&
+                                DateTime.parse(newNote.to)
+                                    .isAtSameMomentAs(from) &&
+                                DateTime.parse(newNote.to).isAfter(to)) {
+                              setState(() {
+                                newNote.from = to.toString().substring(0, 16);
+                              });
+                            } else if (to.isBefore(from)) {
+                              setState(() {
+                                newNote.from = to
                                     .add(Duration(
-                                        seconds: ((from.millisecondsSinceEpoch -
-                                                    to.millisecondsSinceEpoch) /
+                                        seconds: ((to.millisecondsSinceEpoch -
+                                                    from.millisecondsSinceEpoch) /
                                                 1000)
                                             .floor()))
                                     .toString()
                                     .substring(0, 16);
-                              },
-                            );
+                              });
+                            }
                           }
-                        }
-                        setState(() {
-                          newNote.from = from.toString().substring(0, 16);
-                        });
-                      },
-                      onCancel: () {
-                        setState(() {
-                          newNote.from = '';
-                        });
-                      },
+                          setState(() {
+                            newNote.to = to.toString().substring(0, 16);
+                          });
+                        },
+                        onCancel: () {
+                          setState(() {
+                            newNote.to = '';
+                          });
+                        },
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: Text('From: ${newNote.from}'),
-            ),
-            // time to
-            TextButton(
-              style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
-                alignment: Alignment.centerLeft,
+                  );
+                },
+                child: Text('To: ${newNote.to}'),
               ),
-              onPressed: () async {
-                showModalBottomSheet(
-                  context: context,
-                  constraints: BoxConstraints.tight(
-                    Size(
-                      MediaQuery.sizeOf(context).width,
-                      MediaQuery.sizeOf(context).height * 0.33,
+              /*
+              TextButton(
+                style: ButtonStyle(
+                  foregroundColor: WidgetStatePropertyAll(AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {},
+                child: Text('Repeat every: ${newNote.repeat}'),
+              ),
+              */
+              // location
+              TextButton(
+                style: ButtonStyle(
+                  foregroundColor: WidgetStatePropertyAll(
+                      AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  FocusScope.of(context).unfocus();
+                  Map<String, double>? location = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LocationSelectionScreen(),
                     ),
-                  ),
-                  backgroundColor: colorScheme.surface,
-                  builder: (context) => Center(
-                    child: DateTimePickerWidget(
-                      initDateTime: (newNote.to == '')
-                          ? getCorrectedDateTime()
-                          : DateTime.parse(newNote.to),
-                      dateFormat: 'yyyy:MM:dd:HH:mm',
-                      minuteDivider: 5,
-                      onConfirm: (to, _) {
-                        if (newNote.from.isNotEmpty) {
-                          var from = DateTime.parse(newNote.from);
-                          if (newNote.to.isNotEmpty &&
-                              DateTime.parse(newNote.to)
-                                  .isAtSameMomentAs(from) &&
-                              DateTime.parse(newNote.to).isAfter(to)) {
-                            setState(() {
-                              newNote.from = to.toString().substring(0, 16);
-                            });
-                          } else if (to.isBefore(from)) {
-                            setState(() {
-                              newNote.from = to
-                                  .add(Duration(
-                                      seconds: ((to.millisecondsSinceEpoch -
-                                                  from.millisecondsSinceEpoch) /
-                                              1000)
-                                          .floor()))
-                                  .toString()
-                                  .substring(0, 16);
-                            });
-                          }
-                        }
-                        setState(() {
-                          newNote.to = to.toString().substring(0, 16);
-                        });
-                      },
-                      onCancel: () {
-                        setState(() {
-                          newNote.to = '';
-                        });
-                      },
-                    ),
-                  ),
-                );
-              },
-              child: Text('To: ${newNote.to}'),
-            ),
-            /*
-            TextButton(
-              style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
-                alignment: Alignment.centerLeft,
+                  );
+                  if (location != null) {
+                    setState(() {
+                      if (newNote.from == '') {
+                        newNote.from =
+                            getCorrectedDateTime().toString().substring(0, 16);
+                      }
+                      if (newNote.to == '') {
+                        newNote.to =
+                            getCorrectedDateTime().toString().substring(0, 16);
+                      }
+                      newNote.location = jsonEncode(location);
+                    });
+                  }
+                },
+                child: Text('Location: ${newNote.location}'),
               ),
-              onPressed: () async {},
-              child: Text('Repeat every: ${newNote.repeat}'),
-            ),
-            */
-            // location
-            TextButton(
-              style: ButtonStyle(
-                foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
-                alignment: Alignment.centerLeft,
+              Divider(
+                color: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
               ),
-              onPressed: () async {
-                Map<String, double>? location = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LocationSelectionScreen(),
-                  ),
-                );
-                if (location != null) {
+              TextField(
+                style: TextStyle(
+                  color: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                ),
+                maxLines: null,
+                onChanged: (String content) {
                   setState(() {
-                    if (newNote.from == '') {
-                      newNote.from =
-                          getCorrectedDateTime().toString().substring(0, 16);
-                    }
-                    if (newNote.to == '') {
-                      newNote.to =
-                          getCorrectedDateTime().toString().substring(0, 16);
-                    }
-                    newNote.location = jsonEncode(location);
+                    newNote.content = content;
                   });
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Start typing here',
+                  hintStyle: TextStyle(
+                    color:
+                        AdaptiveTheme.of(context).theme.colorScheme.surfaceDim,
+                  ),
+                ),
+                cursorColor:
+                    AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+              ),
+            ],
+          ),
+        ),
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.close,
+              color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+              size: 25,
+            ),
+          ),
+          backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
+          title: Text(
+            'New Note',
+            style: TextStyle(
+                color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                newNote.trimProperties();
+                if (newNote.title.isEmpty) {
+                  newNote.title = DateTime.now().toString().substring(5, 19);
+                }
+                if (!await newNote.exists()) {
+                  if (newNote.from == '' &&
+                      newNote.to == '' &&
+                      newNote.location == '') {
+                    newNote.active = 'false';
+                  } else {
+                    newNote.active = 'true';
+                  }
+                  newNote.dateModified =
+                      DateTime.now().toString().substring(0, 16);
+                  await newNote.insert();
+                  if (context.mounted) Navigator.pop(context);
+                } else {
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AlertDialog(
+                        title: Text('Error'),
+                        content:
+                            Text('Note with the same title already exists.'),
+                      ),
+                    );
+                  }
                 }
               },
-              child: Text('Location: ${newNote.location}'),
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            TextField(
-              controller: contentTextFieldController,
-              maxLines: null,
-              onChanged: (String content) {
-                setState(() {
-                  newNote.content = content;
-                });
-              },
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Start typing here',
+              child: Icon(
+                Icons.check,
+                color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+                size: 25,
               ),
-              cursorColor: colorScheme.onSurface,
             ),
           ],
         ),
-      ),
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.close,
-            color: colorScheme.onPrimary,
-          ),
-        ),
-        backgroundColor: colorScheme.primary,
-        title: Text(
-          'New Note',
-          style: TextStyle(color: colorScheme.onPrimary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              newNote.trimProperties();
-              if (newNote.title.isEmpty) {
-                newNote.title = DateTime.now().toString().substring(5, 19);
-              }
-              if (!await newNote.exists()) {
-                if (newNote.from == '' &&
-                    newNote.to == '' &&
-                    newNote.location == '') {
-                  newNote.active = 'false';
-                } else {
-                  newNote.active = 'true';
-                }
-                newNote.dateModified =
-                    DateTime.now().toString().substring(0, 16);
-                await newNote.insert();
-                if (context.mounted) Navigator.pop(context);
-              } else {
-                if (context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const AlertDialog(
-                      title: Text('Error'),
-                      content: Text('Note with the same title already exists.'),
-                    ),
-                  );
-                }
-              }
-            },
-            child: Icon(
-              Icons.check,
-              color: colorScheme.onPrimary,
-            ),
-          ),
-        ],
       ),
     );
   }

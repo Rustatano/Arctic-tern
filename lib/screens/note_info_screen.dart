@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'package:arctic_tern/constants.dart';
@@ -17,7 +18,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -26,15 +27,33 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: halfPadding),
-                    child: Icon(Icons.access_time),
+                    child: Icon(
+                      Icons.access_time,
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: halfPadding),
-                    child: Text('From: '),
+                    child: Text(
+                      'From: ',
+                      style: TextStyle(
+                        color: AdaptiveTheme.of(context)
+                            .theme
+                            .colorScheme
+                            .onSurface,
+                      ),
+                    ),
                   ),
-                  Text(widget.note.from),
+                  Text(
+                    widget.note.from,
+                    style: TextStyle(
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -42,15 +61,33 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: halfPadding),
-                    child: Icon(Icons.access_time),
+                    child: Icon(
+                      Icons.access_time,
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: halfPadding),
-                    child: Text('To: '),
+                    child: Text(
+                      'To: ',
+                      style: TextStyle(
+                        color: AdaptiveTheme.of(context)
+                            .theme
+                            .colorScheme
+                            .onSurface,
+                      ),
+                    ),
                   ),
-                  Text(widget.note.to),
+                  Text(
+                    widget.note.to,
+                    style: TextStyle(
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -58,15 +95,34 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: halfPadding),
-                    child: Icon(Icons.pin_drop),
+                    child: Icon(
+                      Icons.pin_drop,
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: halfPadding),
-                    child: Text('Location: '),
+                    child: Text(
+                      'Location: ',
+                      style: TextStyle(
+                        color: AdaptiveTheme.of(context)
+                            .theme
+                            .colorScheme
+                            .onSurface,
+                      ),
+                    ),
                   ),
-                  Flexible(child: Text(widget.note.location)),
+                  Flexible(
+                      child: Text(
+                    widget.note.location,
+                    style: TextStyle(
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
+                  )),
                 ],
               ),
             ),
@@ -84,16 +140,28 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
               ),
             ),
             */
-            const Divider(),
+            Divider(
+                color: AdaptiveTheme.of(context).theme.colorScheme.onSurface),
             Expanded(
               child: ListView(
                 children: [
                   Text(
                     widget.note.dateModified,
                     textAlign: TextAlign.right,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      color: AdaptiveTheme.of(context)
+                          .theme
+                          .colorScheme
+                          .surfaceDim,
+                    ),
                   ),
-                  Text(widget.note.content),
+                  Text(
+                    widget.note.content,
+                    style: TextStyle(
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -101,11 +169,13 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
         ),
       ),
       appBar: AppBar(
-        iconTheme: IconThemeData(color: colorScheme.onPrimary),
-        backgroundColor: colorScheme.primary,
+        iconTheme: IconThemeData(
+            color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary),
+        backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
         title: Text(
           widget.note.title,
-          style: TextStyle(color: colorScheme.onPrimary),
+          style: TextStyle(
+              color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary),
         ),
         actions: [
           TextButton(
@@ -121,7 +191,8 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
             },
             child: Text(
               'Edit',
-              style: TextStyle(color: colorScheme.onPrimary),
+              style: TextStyle(
+                  color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary),
             ),
           ),
         ],

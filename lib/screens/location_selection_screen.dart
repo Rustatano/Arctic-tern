@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -26,6 +27,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.surface,
       body: FutureBuilder(
         future: currentPosition,
         builder: (context, snapshot) {
@@ -128,7 +130,8 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: colorScheme.primary,
+                        color:
+                            AdaptiveTheme.of(context).theme.colorScheme.primary,
                       ),
                       width: 70,
                       height: 70,
@@ -145,9 +148,13 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                         },
                         icon: Icon(
                           Icons.my_location,
-                          color: colorScheme.onPrimary,
+                          color: AdaptiveTheme.of(context)
+                              .theme
+                              .colorScheme
+                              .onPrimary,
                         ),
-                        color: colorScheme.primary,
+                        color:
+                            AdaptiveTheme.of(context).theme.colorScheme.primary,
                       ),
                     ),
                   ),
@@ -159,7 +166,8 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
-                        color: colorScheme.primary,
+                        color:
+                            AdaptiveTheme.of(context).theme.colorScheme.primary,
                       ),
                       width: 50,
                       height: 50,
@@ -171,9 +179,13 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                         },
                         icon: Icon(
                           CupertinoIcons.compass,
-                          color: colorScheme.onPrimary,
+                          color: AdaptiveTheme.of(context)
+                              .theme
+                              .colorScheme
+                              .onPrimary,
                         ),
-                        color: colorScheme.primary,
+                        color:
+                            AdaptiveTheme.of(context).theme.colorScheme.primary,
                       ),
                     ),
                   ),
@@ -196,7 +208,15 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: doublePadding),
-                    child: Text('Loading the map...'),
+                    child: Text(
+                      'Loading the map...',
+                      style: TextStyle(
+                        color: AdaptiveTheme.of(context)
+                            .theme
+                            .colorScheme
+                            .onPrimary,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -207,10 +227,12 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
       appBar: AppBar(
         title: Text(
           'Select Location',
-          style: TextStyle(color: colorScheme.onPrimary),
+          style: TextStyle(
+              color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary),
         ),
-        backgroundColor: colorScheme.primary,
-        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+        backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
+        iconTheme: IconThemeData(
+            color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary),
       ),
     );
   }
