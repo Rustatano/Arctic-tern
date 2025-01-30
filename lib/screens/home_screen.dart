@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Note> notes = [];
   List<DBCategory> categories = [];
   Map<String, String> getNotesFilter = {
-    'category': 'No Category',
+    'category': 'All Categories',
     'searchQuery': '',
     'dateModified': 'Newest',
   };
@@ -202,11 +202,100 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(right: 35),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: DropdownButton(
+                  dropdownColor:
+                      AdaptiveTheme.of(context).theme.colorScheme.primary,
+                  hint: Text(
+                    "Filter ",
+                    style: TextStyle(
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  icon: Icon(
+                    Icons.filter_alt,
+                    color:
+                        AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                  ),
+                  onChanged: (filter) async {
+                    if (filter == 'Oldest' || filter == 'Newest') {
+                      setState(() {
+                        getNotesFilter['dateModified'] = filter!;
+                      });
+                    }
+                    await getNotes(getNotesFilter);
+                  },
+                  items: [
+                    DropdownMenuItem(
+                      value: 'Oldest',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_downward,
+                            color: AdaptiveTheme.of(context)
+                                .theme
+                                .colorScheme
+                                .onPrimary,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'Oldest',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Newest',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_upward,
+                            color: AdaptiveTheme.of(context)
+                                .theme
+                                .colorScheme
+                                .onPrimary,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'Newest',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  underline: Divider(
+                    height: 0,
+                    color: AdaptiveTheme.of(context).theme.colorScheme.surface,
+                  ),
+                ),
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(padding),
                 itemCount: notes.length,
                 itemBuilder: (BuildContext context, int index) {
+                  var currentNote = notes[index];
                   return GestureDetector(
                     // animation would be nice here
                     onTap: () async {
@@ -214,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => NoteInfoScreen(
-                            note: notes[index],
+                            note: currentNote,
                           ),
                         ),
                       );
@@ -240,8 +329,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               TextButton(
                                 onPressed: () async {
                                   Workmanager()
-                                      .cancelByUniqueName(notes[index].title);
-                                  await Note.remove(notes[index].title);
+                                      .cancelByUniqueName(currentNote.title);
+                                  await Note.remove(currentNote.title);
                                   await getNotes(getNotesFilter);
                                   if (context.mounted) {
                                     Navigator.of(context).pop();
@@ -291,9 +380,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                        (notes[index].title.length > 21)
-                                            ? '${notes[index].title.substring(0, 20).trim()}...'
-                                            : notes[index].title,
+                                        (currentNote.title.length > 21)
+                                            ? '${currentNote.title.substring(0, 20).trim()}...'
+                                            : currentNote.title,
                                         style: TextStyle(
                                           fontSize: mediumFontSize,
                                           color: AdaptiveTheme.of(context)
@@ -306,17 +395,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                        (notes[index]
-                                                    .content
+                                        (currentNote.content
                                                     .split('\n')
                                                     .first
                                                     .length >
                                                 25)
-                                            ? '${notes[index].content.split('\n').first.substring(0, 24).trim()}...'
-                                            : notes[index]
-                                                .content
-                                                .split('\n')
-                                                .first,
+                                            ? '${currentNote.dateModified} ${currentNote.content.isEmpty ? "" : " | "} ${currentNote.content.split('\n').first.substring(0, 24).trim()}...'
+                                            : '${currentNote.dateModified} ${currentNote.content.isEmpty ? "" : " | "} ${currentNote.content.split('\n').first}',
                                         style: TextStyle(
                                           color: AdaptiveTheme.of(context)
                                               .theme
@@ -335,10 +420,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               topLeft: Radius.circular(radius),
                               bottomLeft: Radius.circular(radius),
                             ),
-                            color: Colors.black,
+                            color: AdaptiveTheme.of(context)
+                                .theme
+                                .colorScheme
+                                .onSurface,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: getCategoryColor(notes[index].category),
+                                color: getCategoryColor(currentNote.category),
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(radius),
                                   bottomLeft: Radius.circular(radius),
@@ -360,10 +448,12 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           leading: IconButton(
               onPressed: () async {
+                var darkMode = (await AdaptiveTheme.getThemeMode())?.isDark;
+                if (!context.mounted) return;
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
+                    builder: (context) => SettingsScreen(darkMode: darkMode!),
                   ),
                 );
                 await getNotes(getNotesFilter);
@@ -378,9 +468,14 @@ class _HomeScreenState extends State<HomeScreen> {
           title: DropdownButton(
             dropdownColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
             underline: Divider(
-              color: AdaptiveTheme.of(context).theme.colorScheme.primary,  // intentionall
+              color: AdaptiveTheme.of(context)
+                  .theme
+                  .colorScheme
+                  .primary, // intentionall
               height: 0,
             ),
+            iconEnabledColor:
+                AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
             value: getNotesFilter['category'],
             items: createDropDownMenuItemList(),
             onChanged: (String? category) async {
@@ -394,13 +489,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
                 if (context.mounted) FocusScope.of(context).unfocus();
                 if (!(await DBCategory.exists(getNotesFilter['category']!))) {
-                  getNotesFilter['category'] = 'No Category';
+                  getNotesFilter['category'] = 'All Categories';
                 }
                 await getDBCategories();
-              } else if (category == 'Oldest' || category == 'Newest') {
-                setState(() {
-                  getNotesFilter['dateModified'] = category;
-                });
               } else {
                 setState(() {
                   getNotesFilter['category'] = category;
@@ -449,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
     list.addAll(
       [
         DropdownMenuItem(
-          value: 'No Category',
+          value: 'All Categories',
           child: Row(
             children: [
               Icon(
@@ -459,56 +550,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: halfPadding),
                 child: Text(
-                  'No Category',
+                  'All Categories',
                   style: TextStyle(
-                      color: AdaptiveTheme.of(context)
-                          .theme
-                          .colorScheme
-                          .onPrimary),
-                ),
-              ),
-            ],
-          ),
-        ),
-        DropdownMenuItem(
-          value: 'Oldest',
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_downward,
-                color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: halfPadding),
-                child: Text(
-                  'Oldest',
-                  style: TextStyle(
-                      color: AdaptiveTheme.of(context)
-                          .theme
-                          .colorScheme
-                          .onPrimary),
-                ),
-              ),
-            ],
-          ),
-        ),
-        DropdownMenuItem(
-          value: 'Newest',
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_upward,
-                color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: halfPadding),
-                child: Text(
-                  'Newest',
-                  style: TextStyle(
-                      color: AdaptiveTheme.of(context)
-                          .theme
-                          .colorScheme
-                          .onPrimary),
+                    color:
+                        AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ],
@@ -527,10 +573,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text(
                   'Manage',
                   style: TextStyle(
-                      color: AdaptiveTheme.of(context)
-                          .theme
-                          .colorScheme
-                          .onPrimary),
+                    color:
+                        AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ],
@@ -545,7 +590,11 @@ class _HomeScreenState extends State<HomeScreen> {
     for (var cat in categories) {
       if (cat.category == category) {
         return Color.fromARGB(
-            255, int.parse(cat.r), int.parse(cat.g), int.parse(cat.b));
+          255,
+          int.parse(cat.r),
+          int.parse(cat.g),
+          int.parse(cat.b),
+        );
       }
     }
     return AdaptiveTheme.of(context).theme.colorScheme.secondary;

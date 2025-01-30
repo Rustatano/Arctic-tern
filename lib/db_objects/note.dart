@@ -27,7 +27,7 @@ class Note {
   static Note toDefault() {
     return Note(
       title: '',
-      category: 'No Category',
+      category: 'All Categories',
       content: '',
       dateModified: '',
       from: '',
@@ -92,7 +92,7 @@ class Note {
   static Future<List<Note>> getNotes(Map<String, String> filter) async {
     final db = await getDB();
     List<Map<String, Object?>> list;
-    if (filter['category'] != 'No Category') {
+    if (filter['category'] != 'All Categories') {
       list = await db.query('note',
           where: '_category = ?', whereArgs: [filter['category']]);
     } else if (filter['active'] == 'true') {

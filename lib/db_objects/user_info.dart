@@ -35,7 +35,7 @@ class UserInfo {
     );
   }
 
-  static Future<void> removeUserInfo(String darkMode) async {
+  static Future<void> removeUserInfo(int darkMode) async {
     final db = await getDB();
     db.delete(
       'userInfo',
@@ -47,7 +47,6 @@ class UserInfo {
   static Future<List<UserInfo>> getUserInfo() async {
     final db = await getDB();
     final list = await db.query('userInfo');
-    print(list);
     return list.map((darkMode) => UserInfo.fromMap(darkMode)).toList();
   }
 

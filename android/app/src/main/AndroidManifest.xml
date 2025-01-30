@@ -8,7 +8,10 @@
         android:label="GeoNote"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
-        android:allowBackup="true">
+        android:allowBackup="true"
+        android:fullBackupOnly="true"
+        android:hasFragileUserData="true">
+     
         <activity
             android:name=".MainActivity"
             android:exported="true"

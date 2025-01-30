@@ -76,7 +76,7 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                   TextButton(
                     onPressed: () async {
                       if (categoryNameTextFieldController.text == '' ||
-                          categoryNameTextFieldController.text == 'No Category') {
+                          categoryNameTextFieldController.text == 'All Categories') {
                         return;
                       } else {
                         newCategory.category = categoryNameTextFieldController.text;

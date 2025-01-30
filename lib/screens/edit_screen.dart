@@ -89,17 +89,19 @@ class _EditScreenState extends State<EditScreen> {
               // Category selection, new note
               DropdownButton(
                 dropdownColor:
-                    AdaptiveTheme.of(context).theme.colorScheme.surfaceContainer,
+                    AdaptiveTheme.of(context).theme.colorScheme.primary,
                 underline: Divider(
                   height: 0,
                   color: AdaptiveTheme.of(context).theme.colorScheme.surface,
                 ),
+                iconEnabledColor:
+                    AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                 value: currentCategory,
                 onChanged: (String? category) async {
                   if (category == null) return;
                   if (category == 'Manage') {
                     setState(() {
-                      currentCategory = 'No Category';
+                      currentCategory = 'All Categories';
                     });
                     await Navigator.push(
                       context,
@@ -118,7 +120,7 @@ class _EditScreenState extends State<EditScreen> {
                 items: List.generate(categories.length + 2, (i) {
                   if (i == categories.length) {
                     return DropdownMenuItem(
-                      value: 'No Category',
+                      value: 'All Categories',
                       child: Row(
                         children: [
                           Icon(
@@ -131,7 +133,7 @@ class _EditScreenState extends State<EditScreen> {
                           Padding(
                             padding: const EdgeInsets.only(left: halfPadding),
                             child: Text(
-                              'No Category',
+                              'All Categories',
                               style: TextStyle(
                                 color: AdaptiveTheme.of(context)
                                     .theme
@@ -189,11 +191,11 @@ class _EditScreenState extends State<EditScreen> {
                           child: Text(
                             categories[i].category,
                             style: TextStyle(
-                                color: AdaptiveTheme.of(context)
-                                    .theme
-                                    .colorScheme
-                                    .onSurface,
-                              ),
+                              color: AdaptiveTheme.of(context)
+                                  .theme
+                                  .colorScheme
+                                  .onSurface,
+                            ),
                           ),
                         ),
                       ],

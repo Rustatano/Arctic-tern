@@ -22,7 +22,7 @@ class NewNoteScreen extends StatefulWidget {
 class _NewNoteScreenState extends State<NewNoteScreen> {
   Note newNote = Note.toDefault();
   List<DBCategory> categories = [];
-  String currentCategory = 'No Category';
+  String currentCategory = 'All Categories';
 
   Future<void> getDBCategories() async {
     final c = await DBCategory.getDBCategories();
@@ -76,18 +76,23 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               // Category selection, new note
               DropdownButton(
                 dropdownColor:
-                    AdaptiveTheme.of(context).theme.colorScheme.surfaceContainer,
+                    AdaptiveTheme.of(context).theme.colorScheme.primary,
                 underline: Divider(
                   height: 0,
-                  color: AdaptiveTheme.of(context).theme.colorScheme.surface, // its surface intentionally
+                  color: AdaptiveTheme.of(context)
+                      .theme
+                      .colorScheme
+                      .surface, // its surface intentionally
                 ),
+                iconEnabledColor:
+                    AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                 value: currentCategory,
                 onChanged: (String? category) async {
                   FocusScope.of(context).unfocus();
                   if (category == null) return;
                   if (category == 'Manage') {
                     setState(() {
-                      currentCategory = 'No Category';
+                      currentCategory = 'All Categories';
                     });
                     await Navigator.push(
                       context,
@@ -106,7 +111,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 items: List.generate(categories.length + 2, (i) {
                   if (i == categories.length) {
                     return DropdownMenuItem(
-                      value: 'No Category',
+                      value: 'All Categories',
                       child: Row(
                         children: [
                           Icon(
@@ -119,7 +124,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                           Padding(
                             padding: const EdgeInsets.only(left: halfPadding),
                             child: Text(
-                              'No Category',
+                              'All Categories',
                               style: TextStyle(
                                 color: AdaptiveTheme.of(context)
                                     .theme
@@ -189,7 +194,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   );
                 }).reversed.toList(),
               ),
-              Divider(color: AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+              Divider(
+                  color: AdaptiveTheme.of(context).theme.colorScheme.onSurface),
               // time from
               TextButton(
                 style: ButtonStyle(

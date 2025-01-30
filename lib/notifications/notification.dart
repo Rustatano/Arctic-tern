@@ -101,7 +101,7 @@ void callbackDispatcher() {
   Workmanager().executeTask(
     (task, inputData) async {
       List<Note> notes = await Note.getNotes({
-        'category': 'No Category',
+        'category': 'All Categories',
         'active': 'true',
       });
 

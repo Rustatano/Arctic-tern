@@ -5,7 +5,9 @@ import 'package:arctic_tern/constants.dart';
 import 'package:workmanager/workmanager.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final bool darkMode;
+
+  const SettingsScreen({super.key, required this.darkMode});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -13,10 +15,9 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool darkMode = false;
-
   @override
   void initState() {
-    getDarkMode();
+    darkMode = widget.darkMode;
     super.initState();
   }
 
@@ -79,20 +80,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary),
         ),
         leading: IconButton(
-          onPressed: () {
-            UserInfo(darkMode: darkMode ? 1 : 0).insert();
-            Navigator.pop(context);
+          onPressed: () async {
+            await UserInfo.removeUserInfo(darkMode ? 0 : 1);
+            await UserInfo(darkMode: darkMode ? 1 : 0).insert();
+            if (context.mounted) Navigator.pop(context);
           },
           icon: Icon(Icons.arrow_back),
         ),
       ),
     );
-  }
-
-  Future<void> getDarkMode() async {
-    final darkMode = (await UserInfo.getUserInfo()).first.darkMode == 1;
-    setState(() {
-      this.darkMode = darkMode;
-    });
   }
 }
