@@ -225,50 +225,57 @@ class _EditScreenState extends State<EditScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.surface,
                     builder: (context) => Center(
                       child: DateTimePickerWidget(
-                        initDateTime: (editedNote.from == '')
+                        initDateTime: (editedNote.from == 0)
                             ? getCorrectedDateTime()
-                            : DateTime.parse(editedNote.from),
+                            : DateTime.fromMillisecondsSinceEpoch(
+                                editedNote.from),
                         dateFormat: 'yyyy:MM:dd:HH:mm',
                         minuteDivider: 5,
                         onConfirm: (from, _) {
-                          if (editedNote.to.isNotEmpty) {
-                            var to = DateTime.parse(editedNote.to);
-                            if (editedNote.from.isNotEmpty &&
-                                DateTime.parse(editedNote.from)
+                          if (editedNote.to != 0) {
+                            var to = DateTime.fromMillisecondsSinceEpoch(
+                                editedNote.to);
+                            if (editedNote.from != 0 &&
+                                DateTime.fromMillisecondsSinceEpoch(
+                                        editedNote.from)
                                     .isAtSameMomentAs(to) &&
-                                DateTime.parse(editedNote.from)
+                                DateTime.fromMillisecondsSinceEpoch(
+                                        editedNote.from)
                                     .isBefore(from)) {
                               setState(() {
-                                editedNote.to =
-                                    from.toString().substring(0, 16);
+                                editedNote.to = from.millisecondsSinceEpoch;
                               });
                             } else if (from.isAfter(to)) {
-                              setState(() {
-                                editedNote.to = from
-                                    .add(Duration(
-                                        seconds: ((from.millisecondsSinceEpoch -
-                                                    to.millisecondsSinceEpoch) /
-                                                1000)
-                                            .floor()))
-                                    .toString()
-                                    .substring(0, 16);
-                              });
+                              setState(
+                                () {
+                                  editedNote.to = from
+                                      .add(
+                                        Duration(
+                                          seconds: ((from.millisecondsSinceEpoch -
+                                                      to.millisecondsSinceEpoch) /
+                                                  1000)
+                                              .floor(),
+                                        ),
+                                      )
+                                      .millisecondsSinceEpoch;
+                                },
+                              );
                             }
                           }
                           setState(() {
-                            editedNote.from = from.toString().substring(0, 16);
+                            editedNote.from = from.millisecondsSinceEpoch;
                           });
                         },
                         onCancel: () {
                           setState(() {
-                            editedNote.from = '';
+                            editedNote.from = 0;
                           });
                         },
                       ),
                     ),
                   );
                 },
-                child: Text('From: ${editedNote.from}'),
+                child: Text('To: ${(editedNote.from == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(editedNote.from)}'),
               ),
               // time to
               TextButton(
@@ -290,49 +297,57 @@ class _EditScreenState extends State<EditScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.surface,
                     builder: (context) => Center(
                       child: DateTimePickerWidget(
-                        initDateTime: (editedNote.to == '')
+                        initDateTime: (editedNote.to == 0)
                             ? getCorrectedDateTime()
-                            : DateTime.parse(editedNote.to),
+                            : DateTime.fromMillisecondsSinceEpoch(
+                                editedNote.to),
                         dateFormat: 'yyyy:MM:dd:HH:mm',
                         minuteDivider: 5,
                         onConfirm: (to, _) {
-                          if (editedNote.from.isNotEmpty) {
-                            var from = DateTime.parse(editedNote.from);
-                            if (editedNote.to.isNotEmpty &&
-                                DateTime.parse(editedNote.to)
+                          if (editedNote.from != 0) {
+                            var from = DateTime.fromMillisecondsSinceEpoch(
+                                editedNote.from);
+                            if (editedNote.to != 0 &&
+                                DateTime.fromMillisecondsSinceEpoch(
+                                        editedNote.to)
                                     .isAtSameMomentAs(from) &&
-                                DateTime.parse(editedNote.to).isAfter(to)) {
+                                DateTime.fromMillisecondsSinceEpoch(
+                                        editedNote.to)
+                                    .isAfter(to)) {
                               setState(() {
-                                editedNote.from =
-                                    to.toString().substring(0, 16);
+                                editedNote.from = to.millisecondsSinceEpoch;
                               });
                             } else if (to.isBefore(from)) {
-                              setState(() {
-                                editedNote.from = to
-                                    .add(Duration(
-                                        seconds: ((to.millisecondsSinceEpoch -
-                                                    from.millisecondsSinceEpoch) /
-                                                1000)
-                                            .floor()))
-                                    .toString()
-                                    .substring(0, 16);
-                              });
+                              setState(
+                                () {
+                                  editedNote.from = to
+                                      .add(
+                                        Duration(
+                                          seconds: ((to.millisecondsSinceEpoch -
+                                                      from.millisecondsSinceEpoch) /
+                                                  1000)
+                                              .floor(),
+                                        ),
+                                      )
+                                      .millisecondsSinceEpoch;
+                                },
+                              );
                             }
                           }
                           setState(() {
-                            editedNote.to = to.toString().substring(0, 16);
+                            editedNote.to = to.millisecondsSinceEpoch;
                           });
                         },
                         onCancel: () {
                           setState(() {
-                            editedNote.to = '';
+                            editedNote.to = 0;
                           });
                         },
                       ),
                     ),
                   );
                 },
-                child: Text('To: ${editedNote.to}'),
+                child: Text('To: ${(editedNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(editedNote.to)}'),
               ),
               /*
               TextButton(
@@ -360,9 +375,9 @@ class _EditScreenState extends State<EditScreen> {
                   );
                   if (location != null) {
                     setState(() {
-                      if (editedNote.from == '') {
+                      if (editedNote.from == 0) {
                         editedNote.from =
-                            getCorrectedDateTime().toString().substring(0, 16);
+                            getCorrectedDateTime().millisecondsSinceEpoch;
                       }
                       editedNote.location = jsonEncode(location);
                     });
@@ -421,18 +436,18 @@ class _EditScreenState extends State<EditScreen> {
                 if (editedNote.title.isEmpty) {
                   editedNote.title = DateTime.now().toString().substring(5, 19);
                 }
-                if (editedNote.from == '' &&
-                    editedNote.to == '' &&
+                if (editedNote.from == 0 &&
+                    editedNote.to == 0 &&
                     editedNote.location == '') {
                   editedNote.active = 'false';
                 } else {
                   editedNote.active = 'true';
                 }
 
-                if (editedNote.from != '' && editedNote.to != '' ||
-                    editedNote.from == '' && editedNote.to == '') {
+                if (editedNote.from != 0 && editedNote.to != 0 ||
+                    editedNote.from == 0 && editedNote.to == 0) {
                   editedNote.dateModified =
-                      DateTime.now().toString().substring(0, 16);
+                      DateTime.now().millisecondsSinceEpoch;
                   await prevNote.update(editedNote);
                   if (context.mounted) {
                     Navigator.popUntil(context, (route) => route.isFirst);

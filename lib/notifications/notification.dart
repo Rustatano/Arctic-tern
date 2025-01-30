@@ -106,12 +106,10 @@ void callbackDispatcher() {
       });
 
       for (var note in notes) {
-        if (note.from == '' && note.to == '') continue;
+        if (note.from == 0 && note.to == 0) continue;
 
-        int from =
-            (DateTime.parse(note.from).millisecondsSinceEpoch / 1000).floor();
-        int to =
-            (DateTime.parse(note.to).millisecondsSinceEpoch / 1000).floor();
+        int from = (note.from / 1000).floor();
+        int to = (note.to / 1000).floor();
         int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
         if (!(from - 30 <= now && now < from + (to - from) + 30)) continue;
 

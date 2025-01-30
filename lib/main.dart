@@ -108,8 +108,8 @@ Future<void> startBGTasks() async {
   int delay = 60 * (((minutes / 5).floor() + 1) * 5 - minutes) - seconds + 5;
   for (var i = 0; i < 3; i++) {
     await Workmanager().registerPeriodicTask(
-      "notification_checker$i",
-      "notification_checker$i",
+      'notification_checker$i',
+      'notification_checker$i',
       frequency: Duration(minutes: 15),
       existingWorkPolicy: ExistingWorkPolicy.replace,
       initialDelay: Duration(

@@ -20,7 +20,7 @@ class UserInfo {
     };
   }
 
-  static UserInfo fromMap(Map<String, Object?> map) {
+  static UserInfo fromMap(Map<String, dynamic> map) {
     return UserInfo(
       darkMode: map['_darkMode'] as int,
     );

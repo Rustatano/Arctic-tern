@@ -216,50 +216,56 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.surface,
                     builder: (context) => Center(
                       child: DateTimePickerWidget(
-                        initDateTime: (newNote.from == '')
+                        initDateTime: (newNote.from == 0)
                             ? getCorrectedDateTime()
-                            : DateTime.parse(newNote.from),
+                            : DateTime.fromMillisecondsSinceEpoch(newNote.from),
                         dateFormat: 'yyyy:MM:dd:HH:mm',
                         minuteDivider: 5,
                         onConfirm: (from, _) {
-                          if (newNote.to.isNotEmpty) {
-                            var to = DateTime.parse(newNote.to);
-                            if (newNote.from.isNotEmpty &&
-                                DateTime.parse(newNote.from)
+                          if (newNote.to != 0) {
+                            var to =
+                                DateTime.fromMillisecondsSinceEpoch(newNote.to);
+                            if (newNote.from != 0 &&
+                                DateTime.fromMillisecondsSinceEpoch(
+                                        newNote.from)
                                     .isAtSameMomentAs(to) &&
-                                DateTime.parse(newNote.from).isBefore(from)) {
+                                DateTime.fromMillisecondsSinceEpoch(
+                                        newNote.from)
+                                    .isBefore(from)) {
                               setState(() {
-                                newNote.to = from.toString().substring(0, 16);
+                                newNote.to = from.millisecondsSinceEpoch;
                               });
                             } else if (from.isAfter(to)) {
                               setState(
                                 () {
                                   newNote.to = from
-                                      .add(Duration(
+                                      .add(
+                                        Duration(
                                           seconds: ((from.millisecondsSinceEpoch -
                                                       to.millisecondsSinceEpoch) /
                                                   1000)
-                                              .floor()))
-                                      .toString()
-                                      .substring(0, 16);
+                                              .floor(),
+                                        ),
+                                      )
+                                      .millisecondsSinceEpoch;
                                 },
                               );
                             }
                           }
                           setState(() {
-                            newNote.from = from.toString().substring(0, 16);
+                            newNote.from = from.millisecondsSinceEpoch;
                           });
                         },
                         onCancel: () {
                           setState(() {
-                            newNote.from = '';
+                            newNote.from = 0;
                           });
                         },
                       ),
                     ),
                   );
                 },
-                child: Text('From: ${newNote.from}'),
+                child: Text('From: ${(newNote.from == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(newNote.from)}'),
               ),
               // time to
               TextButton(
@@ -281,48 +287,52 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.surface,
                     builder: (context) => Center(
                       child: DateTimePickerWidget(
-                        initDateTime: (newNote.to == '')
+                        initDateTime: (newNote.to == 0)
                             ? getCorrectedDateTime()
-                            : DateTime.parse(newNote.to),
+                            : DateTime.fromMillisecondsSinceEpoch(newNote.to),
                         dateFormat: 'yyyy:MM:dd:HH:mm',
                         minuteDivider: 5,
                         onConfirm: (to, _) {
-                          if (newNote.from.isNotEmpty) {
-                            var from = DateTime.parse(newNote.from);
-                            if (newNote.to.isNotEmpty &&
-                                DateTime.parse(newNote.to)
+                          if (newNote.from != 0) {
+                            var from = DateTime.fromMillisecondsSinceEpoch(
+                                newNote.from);
+                            if (newNote.to != 0 &&
+                                DateTime.fromMillisecondsSinceEpoch(newNote.to)
                                     .isAtSameMomentAs(from) &&
-                                DateTime.parse(newNote.to).isAfter(to)) {
+                                DateTime.fromMillisecondsSinceEpoch(newNote.to)
+                                    .isAfter(to)) {
                               setState(() {
-                                newNote.from = to.toString().substring(0, 16);
+                                newNote.from = to.millisecondsSinceEpoch;
                               });
                             } else if (to.isBefore(from)) {
                               setState(() {
                                 newNote.from = to
-                                    .add(Duration(
+                                    .add(
+                                      Duration(
                                         seconds: ((to.millisecondsSinceEpoch -
                                                     from.millisecondsSinceEpoch) /
                                                 1000)
-                                            .floor()))
-                                    .toString()
-                                    .substring(0, 16);
+                                            .floor(),
+                                      ),
+                                    )
+                                    .millisecondsSinceEpoch;
                               });
                             }
                           }
                           setState(() {
-                            newNote.to = to.toString().substring(0, 16);
+                            newNote.to = to.millisecondsSinceEpoch;
                           });
                         },
                         onCancel: () {
                           setState(() {
-                            newNote.to = '';
+                            newNote.to = 0;
                           });
                         },
                       ),
                     ),
                   );
                 },
-                child: Text('To: ${newNote.to}'),
+                child: Text('To: ${(newNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(newNote.to)}'),
               ),
               /*
               TextButton(
@@ -351,13 +361,13 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   );
                   if (location != null) {
                     setState(() {
-                      if (newNote.from == '') {
+                      if (newNote.from == 0) {
                         newNote.from =
-                            getCorrectedDateTime().toString().substring(0, 16);
+                            getCorrectedDateTime().millisecondsSinceEpoch;
                       }
-                      if (newNote.to == '') {
+                      if (newNote.to == 0) {
                         newNote.to =
-                            getCorrectedDateTime().toString().substring(0, 16);
+                            getCorrectedDateTime().millisecondsSinceEpoch;
                       }
                       newNote.location = jsonEncode(location);
                     });
@@ -417,15 +427,14 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   newNote.title = DateTime.now().toString().substring(5, 19);
                 }
                 if (!await newNote.exists()) {
-                  if (newNote.from == '' &&
-                      newNote.to == '' &&
+                  if (newNote.from == 0 &&
+                      newNote.to == 0 &&
                       newNote.location == '') {
                     newNote.active = 'false';
                   } else {
                     newNote.active = 'true';
                   }
-                  newNote.dateModified =
-                      DateTime.now().toString().substring(0, 16);
+                  newNote.dateModified = DateTime.now().millisecondsSinceEpoch;
                   await newNote.insert();
                   if (context.mounted) Navigator.pop(context);
                 } else {

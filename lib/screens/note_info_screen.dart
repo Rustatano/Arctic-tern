@@ -48,7 +48,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     ),
                   ),
                   Text(
-                    widget.note.from,
+                    DateTime.fromMillisecondsSinceEpoch(widget.note.from).toString().substring(0, 16),
                     style: TextStyle(
                       color:
                           AdaptiveTheme.of(context).theme.colorScheme.onSurface,
@@ -82,7 +82,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     ),
                   ),
                   Text(
-                    widget.note.to,
+                    DateTime.fromMillisecondsSinceEpoch(widget.note.to).toString().substring(0, 16),
                     style: TextStyle(
                       color:
                           AdaptiveTheme.of(context).theme.colorScheme.onSurface,
@@ -146,7 +146,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
               child: ListView(
                 children: [
                   Text(
-                    widget.note.dateModified,
+                    DateTime.fromMillisecondsSinceEpoch(widget.note.dateModified).toString().substring(0, 16),
                     textAlign: TextAlign.right,
                     style: TextStyle(
                       color: AdaptiveTheme.of(context)

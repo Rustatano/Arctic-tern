@@ -21,13 +21,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Note> notes = [];
   List<DBCategory> categories = [];
-  Map<String, String> getNotesFilter = {
+  Map<String, dynamic> getNotesFilter = {
     'category': 'All Categories',
     'searchQuery': '',
-    'dateModified': 'Newest',
+    'dateModified': true,
+    'from': '',
+    'to': '',
   };
 
-  Future<void> getNotes(Map<String, String> filter) async {
+  Future<void> getNotes(Map<String, dynamic> filter) async {
     final n = (await Note.getNotes(filter)).reversed.toList();
     if (filter['searchQuery'] == '') {
       setState(() {
@@ -46,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
         notes = searchedNotes;
       });
     }
-    if (filter['dateModified'] == 'Oldest') {
+    if (!filter['dateModified']) {
       setState(() {
         notes = notes.reversed.toList();
       });
@@ -210,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   dropdownColor:
                       AdaptiveTheme.of(context).theme.colorScheme.primary,
                   hint: Text(
-                    "Filter ",
+                    'Filter ',
                     style: TextStyle(
                       color:
                           AdaptiveTheme.of(context).theme.colorScheme.onSurface,
@@ -222,42 +224,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                   ),
                   onChanged: (filter) async {
-                    if (filter == 'Oldest' || filter == 'Newest') {
                       setState(() {
-                        getNotesFilter['dateModified'] = filter!;
+                        getNotesFilter['dateModified'] = (filter);
                       });
-                    }
                     await getNotes(getNotesFilter);
                   },
                   items: [
                     DropdownMenuItem(
-                      value: 'Oldest',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.arrow_downward,
-                            color: AdaptiveTheme.of(context)
-                                .theme
-                                .colorScheme
-                                .onPrimary,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: halfPadding),
-                            child: Text(
-                              'Oldest',
-                              style: TextStyle(
-                                color: AdaptiveTheme.of(context)
-                                    .theme
-                                    .colorScheme
-                                    .onPrimary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Newest',
+                      value: true,
                       child: Row(
                         children: [
                           Icon(
@@ -271,6 +245,32 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.only(left: halfPadding),
                             child: Text(
                               'Newest',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: false,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_downward,
+                            color: AdaptiveTheme.of(context)
+                                .theme
+                                .colorScheme
+                                .onPrimary,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'Oldest',
                               style: TextStyle(
                                 color: AdaptiveTheme.of(context)
                                     .theme
@@ -400,8 +400,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     .first
                                                     .length >
                                                 25)
-                                            ? '${currentNote.dateModified} ${currentNote.content.isEmpty ? "" : " | "} ${currentNote.content.split('\n').first.substring(0, 24).trim()}...'
-                                            : '${currentNote.dateModified} ${currentNote.content.isEmpty ? "" : " | "} ${currentNote.content.split('\n').first}',
+                                            ? '${DateTime.fromMillisecondsSinceEpoch(currentNote.dateModified).toString().substring(0, 16)} ${currentNote.content.isEmpty ? '' : ' | '} ${currentNote.content.split('\n').first.substring(0, 24).trim()}...'
+                                            : '${DateTime.fromMillisecondsSinceEpoch(currentNote.dateModified).toString().substring(0, 16)} ${currentNote.content.isEmpty ? '' : ' | '} ${currentNote.content.split('\n').first}',
                                         style: TextStyle(
                                           color: AdaptiveTheme.of(context)
                                               .theme
@@ -478,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
             value: getNotesFilter['category'],
             items: createDropDownMenuItemList(),
-            onChanged: (String? category) async {
+            onChanged: (Object? category) async {
               if (category == null) return;
               if (category == 'Manage') {
                 await Navigator.push(

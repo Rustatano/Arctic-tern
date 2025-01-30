@@ -5,9 +5,9 @@ class Note {
   String title;
   String category;
   String content;
-  String dateModified;
-  String from;
-  String to;
+  int dateModified;
+  int from;
+  int to;
   String location;
   //String repeat;
   String active;
@@ -29,9 +29,9 @@ class Note {
       title: '',
       category: 'All Categories',
       content: '',
-      dateModified: '',
-      from: '',
-      to: '',
+      dateModified: 0,
+      from: 0,
+      to: 0,
       location: '',
       //repeat: '',
       active: 'false',
@@ -57,9 +57,9 @@ class Note {
       title: map['_title'] as String,
       category: map['_category'] as String,
       content: map['_content'] as String,
-      dateModified: map['_dateModified'] as String,
-      from: map['_from'] as String,
-      to: map['_to'] as String,
+      dateModified: int.parse(map['_dateModified'].toString()),
+      from: int.parse(map['_from'].toString()),
+      to: int.parse(map['_to'].toString()),
       location: map['_location'] as String,
       //repeat: map['_repeat'] as String,
       active: map['_active'] as String,
@@ -89,7 +89,7 @@ class Note {
     newNote.insert();
   }
 
-  static Future<List<Note>> getNotes(Map<String, String> filter) async {
+  static Future<List<Note>> getNotes(Map<String, dynamic> filter) async {
     final db = await getDB();
     List<Map<String, Object?>> list;
     if (filter['category'] != 'All Categories') {
@@ -98,6 +98,11 @@ class Note {
     } else if (filter['active'] == 'true') {
       list = await db.query('note',
           where: '_active = ?', whereArgs: ['true']);
+    /*} else if (filter['from']) {
+      list = await db.query('note', );
+    } else if (filter['to']) {
+      list = await db.query('note',
+          where: '_active = ?', whereArgs: ['true']);*/
     } else {
       list = await db.query('note');
     }
