@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'dateModified': true,
     'from': '',
     'to': '',
+    'active': 0,
   };
 
   Future<void> getNotes(Map<String, dynamic> filter) async {
@@ -166,20 +167,23 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.only(
-                  left: padding,
-                  right: padding,
-                  top: halfPadding,
-                  bottom: halfPadding),
+                left: padding,
+                right: padding,
+                top: halfPadding,
+                bottom: halfPadding,
+              ),
               child: TextField(
+                
                 style: TextStyle(
-                  color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+                  color: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                 ),
                 maxLines: 1,
                 onChanged: (String search) async {
                   setState(() {
                     getNotesFilter['searchQuery'] = search;
                   });
-                  await getNotes(getNotesFilter);
+                  await getNotes(
+                      getNotesFilter); // TODO: inefficient, create method for filtering withoutgetting notes from DB
                 },
                 decoration: InputDecoration(
                   fillColor:
@@ -192,15 +196,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   hintText: 'Search notes',
                   hintStyle: TextStyle(
-                      color: AdaptiveTheme.of(context)
-                          .theme
-                          .colorScheme
-                          .onSurface),
-                  prefixIcon: Icon(Icons.search,
-                      color: AdaptiveTheme.of(context)
-                          .theme
-                          .colorScheme
-                          .onSurface),
+                    color:
+                        AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color:
+                        AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
@@ -224,9 +227,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                   ),
                   onChanged: (filter) async {
-                      setState(() {
-                        getNotesFilter['dateModified'] = (filter);
-                      });
+                    setState(() {
+                      getNotesFilter['dateModified'] = (filter);
+                    });
                     await getNotes(getNotesFilter);
                   },
                   items: [
@@ -399,8 +402,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     .split('\n')
                                                     .first
                                                     .length >
-                                                25)
-                                            ? '${DateTime.fromMillisecondsSinceEpoch(currentNote.dateModified).toString().substring(0, 16)} ${currentNote.content.isEmpty ? '' : ' | '} ${currentNote.content.split('\n').first.substring(0, 24).trim()}...'
+                                                16)
+                                            ? '${DateTime.fromMillisecondsSinceEpoch(currentNote.dateModified).toString().substring(0, 16)} ${currentNote.content.isEmpty ? '' : ' | '} ${currentNote.content.split('\n').first.substring(0, 12).trim()}...'
                                             : '${DateTime.fromMillisecondsSinceEpoch(currentNote.dateModified).toString().substring(0, 16)} ${currentNote.content.isEmpty ? '' : ' | '} ${currentNote.content.split('\n').first}',
                                         style: TextStyle(
                                           color: AdaptiveTheme.of(context)
@@ -471,7 +474,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: AdaptiveTheme.of(context)
                   .theme
                   .colorScheme
-                  .primary, // intentionall
+                  .primary, // intentional
               height: 0,
             ),
             iconEnabledColor:
@@ -517,9 +520,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icons.square_rounded,
                 color: Color.fromARGB(
                   255,
-                  int.parse(categories[i].r),
-                  int.parse(categories[i].g),
-                  int.parse(categories[i].b),
+                  categories[i].r,
+                  categories[i].g,
+                  categories[i].b,
                 ),
               ),
               Padding(
@@ -591,9 +594,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (cat.category == category) {
         return Color.fromARGB(
           255,
-          int.parse(cat.r),
-          int.parse(cat.g),
-          int.parse(cat.b),
+          cat.r,
+          cat.g,
+          cat.b,
         );
       }
     }

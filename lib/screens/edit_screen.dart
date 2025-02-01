@@ -89,7 +89,7 @@ class _EditScreenState extends State<EditScreen> {
               // Category selection, new note
               DropdownButton(
                 dropdownColor:
-                    AdaptiveTheme.of(context).theme.colorScheme.primary,
+                    AdaptiveTheme.of(context).theme.colorScheme.surface,
                 underline: Divider(
                   height: 0,
                   color: AdaptiveTheme.of(context).theme.colorScheme.surface,
@@ -109,12 +109,12 @@ class _EditScreenState extends State<EditScreen> {
                         builder: (context) => CategoryManagerScreen(),
                       ),
                     );
+                    await getDBCategories();
                   } else {
                     setState(() {
                       currentCategory = category;
                     });
                   }
-                  await getDBCategories();
                   editedNote.category = currentCategory;
                 },
                 items: List.generate(categories.length + 2, (i) {
@@ -181,9 +181,9 @@ class _EditScreenState extends State<EditScreen> {
                           Icons.square_rounded,
                           color: Color.fromARGB(
                             255,
-                            int.parse(categories[i].r),
-                            int.parse(categories[i].g),
-                            int.parse(categories[i].b),
+                            categories[i].r,
+                            categories[i].g,
+                            categories[i].b,
                           ),
                         ),
                         Padding(
@@ -275,7 +275,8 @@ class _EditScreenState extends State<EditScreen> {
                     ),
                   );
                 },
-                child: Text('To: ${(editedNote.from == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(editedNote.from)}'),
+                child: Text(
+                    'From: ${(editedNote.from == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(editedNote.from).toString().substring(0, 16)}'),
               ),
               // time to
               TextButton(
@@ -347,7 +348,8 @@ class _EditScreenState extends State<EditScreen> {
                     ),
                   );
                 },
-                child: Text('To: ${(editedNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(editedNote.to)}'),
+                child: Text(
+                    'To: ${(editedNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(editedNote.to).toString().substring(0, 16)}'),
               ),
               /*
               TextButton(
@@ -421,6 +423,7 @@ class _EditScreenState extends State<EditScreen> {
             icon: Icon(
               Icons.close,
               color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+              size: 25,
             ),
           ),
           backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
@@ -439,9 +442,9 @@ class _EditScreenState extends State<EditScreen> {
                 if (editedNote.from == 0 &&
                     editedNote.to == 0 &&
                     editedNote.location == '') {
-                  editedNote.active = 'false';
+                  editedNote.active = 0;
                 } else {
-                  editedNote.active = 'true';
+                  editedNote.active = 1;
                 }
 
                 if (editedNote.from != 0 && editedNote.to != 0 ||
@@ -465,6 +468,7 @@ class _EditScreenState extends State<EditScreen> {
               child: Icon(
                 Icons.check,
                 color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+                size: 25,
               ),
             ),
           ],

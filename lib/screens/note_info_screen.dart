@@ -48,7 +48,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     ),
                   ),
                   Text(
-                    DateTime.fromMillisecondsSinceEpoch(widget.note.from).toString().substring(0, 16),
+                    widget.note.from == 0 ? '' : DateTime.fromMillisecondsSinceEpoch(widget.note.from).toString().substring(0, 16),
                     style: TextStyle(
                       color:
                           AdaptiveTheme.of(context).theme.colorScheme.onSurface,
@@ -82,7 +82,7 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     ),
                   ),
                   Text(
-                    DateTime.fromMillisecondsSinceEpoch(widget.note.to).toString().substring(0, 16),
+                    widget.note.to == 0 ? '' : DateTime.fromMillisecondsSinceEpoch(widget.note.to).toString().substring(0, 16),
                     style: TextStyle(
                       color:
                           AdaptiveTheme.of(context).theme.colorScheme.onSurface,

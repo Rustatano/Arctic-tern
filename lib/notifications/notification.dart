@@ -17,7 +17,7 @@ class Notification {
 
   Future<void> initializeNotificationPlugin() async {
     AndroidInitializationSettings androidInitializationSettings =
-        const AndroidInitializationSettings('launcher_icon');
+        const AndroidInitializationSettings('launcher_icon_full');
 
     InitializationSettings initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
@@ -102,7 +102,7 @@ void callbackDispatcher() {
     (task, inputData) async {
       List<Note> notes = await Note.getNotes({
         'category': 'All Categories',
-        'active': 'true',
+        'active': true,
       });
 
       for (var note in notes) {

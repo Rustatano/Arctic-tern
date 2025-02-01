@@ -76,7 +76,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               // Category selection, new note
               DropdownButton(
                 dropdownColor:
-                    AdaptiveTheme.of(context).theme.colorScheme.primary,
+                    AdaptiveTheme.of(context).theme.colorScheme.surface,
                 underline: Divider(
                   height: 0,
                   color: AdaptiveTheme.of(context)
@@ -100,12 +100,12 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                         builder: (context) => CategoryManagerScreen(),
                       ),
                     );
+                    await getDBCategories();
                   } else {
                     setState(() {
                       currentCategory = category;
                     });
                   }
-                  await getDBCategories();
                   newNote.category = currentCategory;
                 },
                 items: List.generate(categories.length + 2, (i) {
@@ -172,9 +172,9 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                           Icons.square_rounded,
                           color: Color.fromARGB(
                             255,
-                            int.parse(categories[i].r),
-                            int.parse(categories[i].g),
-                            int.parse(categories[i].b),
+                            categories[i].r,
+                            categories[i].g,
+                            categories[i].b,
                           ),
                         ),
                         Padding(
@@ -265,7 +265,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                     ),
                   );
                 },
-                child: Text('From: ${(newNote.from == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(newNote.from)}'),
+                child: Text(
+                    'From: ${(newNote.from == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(newNote.from).toString().substring(0, 16)}'),
               ),
               // time to
               TextButton(
@@ -332,7 +333,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                     ),
                   );
                 },
-                child: Text('To: ${(newNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(newNote.to)}'),
+                child: Text(
+                    'To: ${(newNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(newNote.to).toString().substring(0, 16)}'),
               ),
               /*
               TextButton(
@@ -430,9 +432,9 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   if (newNote.from == 0 &&
                       newNote.to == 0 &&
                       newNote.location == '') {
-                    newNote.active = 'false';
+                    newNote.active = 0;
                   } else {
-                    newNote.active = 'true';
+                    newNote.active = 0;
                   }
                   newNote.dateModified = DateTime.now().millisecondsSinceEpoch;
                   await newNote.insert();

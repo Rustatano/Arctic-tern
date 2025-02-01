@@ -3,9 +3,9 @@ import 'package:sqflite/sqflite.dart';
 
 class DBCategory {
   String category;
-  String r;
-  String g;
-  String b;
+  int r;
+  int g;
+  int b;
 
   DBCategory({
     required this.category,
@@ -17,13 +17,13 @@ class DBCategory {
   static DBCategory toDefault() {
     return DBCategory(
       category: '',
-      r: '',
-      g: '',
-      b: '',
+      r: 0,
+      g: 0,
+      b: 0,
     );
   }
 
-  Map<String, String> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       '_category': category,
       '_r': r,
@@ -32,19 +32,19 @@ class DBCategory {
     };
   }
 
-  static DBCategory fromMap(Map<String, Object?> map) {
+  static DBCategory fromMap(Map<String, dynamic> map) {
     return DBCategory(
       category: map['_category'] as String,
-      r: map['_r'] as String,
-      g: map['_g'] as String,
-      b: map['_b'] as String,
+      r: int.parse(map['_r'].toString()),
+      g: int.parse(map['_g'].toString()),
+      b: int.parse(map['_b'].toString()),
     );
   }
 
   Future<void> insert(int r, int g, int b) async {
-    this.r = r.toString();
-    this.g = g.toString();
-    this.b = b.toString();
+    this.r = r;
+    this.g = g;
+    this.b = b;
     final db = await getDB();
     db.insert(
       'category',

@@ -56,7 +56,7 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                           color: AdaptiveTheme.of(context)
                               .theme
                               .colorScheme
-                              .onPrimary,
+                              .onSurface,
                         ),
                         controller: categoryNameTextFieldController,
                         maxLines: null,
@@ -135,9 +135,9 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                                   Icons.square_rounded,
                                   color: Color.fromARGB(
                                     255,
-                                    int.parse(categories[index].r),
-                                    int.parse(categories[index].g),
-                                    int.parse(categories[index].b),
+                                    categories[index].r,
+                                    categories[index].g,
+                                    categories[index].b,
                                   ),
                                 ),
                                 Expanded(

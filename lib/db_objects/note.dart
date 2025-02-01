@@ -10,7 +10,7 @@ class Note {
   int to;
   String location;
   //String repeat;
-  String active;
+  int active;
 
   Note({
     required this.title,
@@ -34,7 +34,7 @@ class Note {
       to: 0,
       location: '',
       //repeat: '',
-      active: 'false',
+      active: 0,
     );
   }
 
@@ -62,7 +62,7 @@ class Note {
       to: int.parse(map['_to'].toString()),
       location: map['_location'] as String,
       //repeat: map['_repeat'] as String,
-      active: map['_active'] as String,
+      active: int.parse(map['_active'].toString()),
     );
   }
 
@@ -95,9 +95,9 @@ class Note {
     if (filter['category'] != 'All Categories') {
       list = await db.query('note',
           where: '_category = ?', whereArgs: [filter['category']]);
-    } else if (filter['active'] == 'true') {
+    } else if (filter['active'] == 1) {
       list = await db.query('note',
-          where: '_active = ?', whereArgs: ['true']);
+          where: '_active = ?', whereArgs: [1]);
     /*} else if (filter['from']) {
       list = await db.query('note', );
     } else if (filter['to']) {
