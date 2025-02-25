@@ -70,16 +70,22 @@ class _CategoryManagerScreenState extends State<CategoryManagerScreen> {
                                 .onSurface,
                           ),
                         ),
+                        cursorColor: AdaptiveTheme.of(context)
+                            .theme
+                            .colorScheme
+                            .onSurface,
                       ),
                     ),
                   ),
                   TextButton(
                     onPressed: () async {
                       if (categoryNameTextFieldController.text == '' ||
-                          categoryNameTextFieldController.text == 'All Categories') {
+                          categoryNameTextFieldController.text ==
+                              'All Categories') {
                         return;
                       } else {
-                        newCategory.category = categoryNameTextFieldController.text;
+                        newCategory.category =
+                            categoryNameTextFieldController.text;
                         categoryNameTextFieldController.clear();
                       }
                       var random = Random();

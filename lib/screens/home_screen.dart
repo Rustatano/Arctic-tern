@@ -24,7 +24,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic> getNotesFilter = {
     'category': 'All Categories',
     'searchQuery': '',
-    'dateModified': true,
+    'byDateModified': true,
+    'byAlphabet': false,
+    'byNotificationStart': false,
+    'byNotificationEnd': false,
+    'byLocation': false,
     'from': '',
     'to': '',
     'active': 0,
@@ -49,9 +53,26 @@ class _HomeScreenState extends State<HomeScreen> {
         notes = searchedNotes;
       });
     }
-    if (!filter['dateModified']) {
+
+    if (filter['byAlphabet']) {
+      setState(() {
+        notes.sort((a, b) => a.title.compareTo(b.title));
+      });
+    } else if (filter['byDateModified']) {
       setState(() {
         notes = notes.reversed.toList();
+      });
+    } else if (filter['byNotificationStart']) {
+      setState(() {
+        notes.sort((a, b) => a.from.compareTo(b.from));
+      });
+    } else if (filter['byNotificationEnd']) {
+      setState(() {
+        notes.sort((a, b) => a.to.compareTo(b.to));
+      });
+    } else if (filter['byLocation']) {
+      setState(() {
+        notes.sort((a, b) => a.location.compareTo(b.location));
       });
     }
   }
@@ -146,6 +167,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.surface,
         floatingActionButton: FloatingActionButton(
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(
+              color: Colors.white,
+              width: 0.5
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
           backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
           foregroundColor:
               AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
@@ -173,7 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 bottom: halfPadding,
               ),
               child: TextField(
-                
                 style: TextStyle(
                   color: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                 ),
@@ -189,7 +216,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   fillColor:
                       AdaptiveTheme.of(context).theme.colorScheme.surface,
                   filled: true,
+                  
                   border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(radius),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AdaptiveTheme.of(context).theme.colorScheme.onSurface),
                     borderRadius: BorderRadius.all(
                       Radius.circular(radius),
                     ),
@@ -205,6 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                   ),
                 ),
+                cursorColor: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
               ),
             ),
             Padding(
@@ -227,27 +262,74 @@ class _HomeScreenState extends State<HomeScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                   ),
                   onChanged: (filter) async {
-                    setState(() {
-                      getNotesFilter['dateModified'] = (filter);
-                    });
+                    if (filter == 'Time created') {
+                      setState(() {
+                        getNotesFilter['byDateModified'] =
+                            !getNotesFilter['byDateModified'];
+                        getNotesFilter['byAlphabet'] = false;
+                        getNotesFilter['byNotificationStart'] = false;
+                        getNotesFilter['byNotificationEnd'] = false;
+                        getNotesFilter['byLocation'] = false;
+                      });
+                    } else if (filter == 'Alphabet') {
+                      setState(() {
+                        getNotesFilter['byAlphabet'] =
+                            !getNotesFilter['byAlphabet'];
+                        getNotesFilter['byDateModified'] = false;
+                        getNotesFilter['byNotificationStart'] = false;
+                        getNotesFilter['byNotificationEnd'] = false;
+                        getNotesFilter['byLocation'] = false;
+                      });
+                    } else if (filter == 'Notification Start') {
+                      setState(() {
+                        getNotesFilter['byNotificationStart'] =
+                            !getNotesFilter['byNotificationStart'];
+                        getNotesFilter['byDateModified'] = false;
+                        getNotesFilter['byAlphabet'] = false;
+                        getNotesFilter['byNotificationEnd'] = false;
+                        getNotesFilter['byLocation'] = false;
+                      });
+                    } else if (filter == 'Notification End') {
+                      setState(() {
+                        getNotesFilter['byNotificationEnd'] =
+                            !getNotesFilter['byNotificationEnd'];
+                        getNotesFilter['byDateModified'] = false;
+                        getNotesFilter['byAlphabet'] = false;
+                        getNotesFilter['byNotificationStart'] = false;
+                        getNotesFilter['byLocation'] = false;
+                      });
+                    } else if (filter == 'Location') {
+                      setState(() {
+                        getNotesFilter['byLocation'] =
+                            !getNotesFilter['byLocation'];
+                        getNotesFilter['byDateModified'] = false;
+                        getNotesFilter['byAlphabet'] = false;
+                        getNotesFilter['byNotificationStart'] = false;
+                        getNotesFilter['byNotificationEnd'] = false;
+                      });
+                    }
                     await getNotes(getNotesFilter);
                   },
                   items: [
                     DropdownMenuItem(
-                      value: true,
+                      value: 'Time created',
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.arrow_upward,
-                            color: AdaptiveTheme.of(context)
-                                .theme
-                                .colorScheme
-                                .onPrimary,
+                          Badge(
+                            backgroundColor: Colors.red,
+                            isLabelVisible: getNotesFilter['byDateModified'],
+                            child: Icon(
+                              Icons.handyman,
+                              color: AdaptiveTheme.of(context)
+                                  .theme
+                                  .colorScheme
+                                  .onPrimary,
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: halfPadding),
                             child: Text(
-                              'Newest',
+                              'Time created',
                               style: TextStyle(
                                 color: AdaptiveTheme.of(context)
                                     .theme
@@ -260,20 +342,115 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     DropdownMenuItem(
-                      value: false,
+                      value: 'Alphabet',
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.arrow_downward,
-                            color: AdaptiveTheme.of(context)
-                                .theme
-                                .colorScheme
-                                .onPrimary,
+                          Badge(
+                            backgroundColor: Colors.red,
+                            isLabelVisible: getNotesFilter['byAlphabet'],
+                            child: Icon(
+                              Icons.abc,
+                              color: AdaptiveTheme.of(context)
+                                  .theme
+                                  .colorScheme
+                                  .onPrimary,
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: halfPadding),
                             child: Text(
-                              'Oldest',
+                              'Alphabet',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Notification Start',
+                      child: Row(
+                        children: [
+                          Badge(
+                            backgroundColor: Colors.red,
+                            isLabelVisible:
+                                getNotesFilter['byNotificationStart'],
+                            child: Icon(
+                              Icons.play_arrow,
+                              color: AdaptiveTheme.of(context)
+                                  .theme
+                                  .colorScheme
+                                  .onPrimary,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'Notification Start',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Notification End',
+                      child: Row(
+                        children: [
+                          Badge(
+                            backgroundColor: Colors.red,
+                            isLabelVisible: getNotesFilter['byNotificationEnd'],
+                            child: Icon(
+                              Icons.stop,
+                              color: AdaptiveTheme.of(context)
+                                  .theme
+                                  .colorScheme
+                                  .onPrimary,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'Notification End',
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context)
+                                    .theme
+                                    .colorScheme
+                                    .onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Location',
+                      child: Row(
+                        children: [
+                          Badge(
+                            backgroundColor: Colors.red,
+                            isLabelVisible: getNotesFilter['byLocation'],
+                            child: Icon(
+                              Icons.stop,
+                              color: AdaptiveTheme.of(context)
+                                  .theme
+                                  .colorScheme
+                                  .onPrimary,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: halfPadding),
+                            child: Text(
+                              'Location',
                               style: TextStyle(
                                 color: AdaptiveTheme.of(context)
                                     .theme
