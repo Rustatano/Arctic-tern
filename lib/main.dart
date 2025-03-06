@@ -26,6 +26,9 @@ void main() async {
       db.execute(
         'CREATE TABLE IF NOT EXISTS userInfo(_darkMode INTEGER PRIMARY KEY)',
       );
+      db.execute(
+        'CREATE TABLE IF NOT EXISTS savedLocation(_name TEXT PRIMARY KEY, _location TEXT, _radius INTEGER)',
+      );
     },
   );
   if ((await UserInfo.getUserInfo()).isEmpty) {

@@ -355,7 +355,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 ),
                 onPressed: () async {
                   FocusScope.of(context).unfocus();
-                  Map<String, double>? location = await Navigator.push(
+                  Map<String, dynamic>? location = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => LocationSelectionScreen(),

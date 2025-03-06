@@ -168,15 +168,15 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.surface,
         floatingActionButton: FloatingActionButton(
           shape: RoundedRectangleBorder(
-            side: const BorderSide(
-              color: Colors.white,
-              width: 0.5
+            side: BorderSide(
+              color: AdaptiveTheme.of(context).theme.colorScheme.primary,
+              width: 1
             ),
             borderRadius: BorderRadius.circular(15),
           ),
-          backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
+          backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
           foregroundColor:
-              AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+              AdaptiveTheme.of(context).theme.colorScheme.primary,
           onPressed: () async {
             await Navigator.push(
               // await needed for proper notes refresh

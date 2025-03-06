@@ -47,7 +47,7 @@ class UserInfo {
   static Future<List<UserInfo>> getUserInfo() async {
     final db = await getDB();
     final list = await db.query('userInfo');
-    return list.map((darkMode) => UserInfo.fromMap(darkMode)).toList();
+    return list.map((userInfo) => UserInfo.fromMap(userInfo)).toList();
   }
 
   static Future<Database> getDB() async {

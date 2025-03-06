@@ -40,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Switch(
                   value: darkMode,
-                  onChanged: (v) {
+                  onChanged: (_) {
                     if (darkMode) {
                       darkMode = false;
                       AdaptiveTheme.of(context).setLight();
