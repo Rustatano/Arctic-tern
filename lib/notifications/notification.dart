@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:workmanager/workmanager.dart';
@@ -25,7 +25,7 @@ class Notification {
 
     await notificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (payload) async {},
+      //onDidReceiveNotificationResponse: (payload) async {},
     );
   }
 
@@ -34,10 +34,15 @@ class Notification {
       android: AndroidNotificationDetails(
         channel,
         channel,
+        icon: 'launcher_icon_full',
         importance: Importance.max,
       ),
     );
   }
+
+  // TODO google search: how to schedule notifications flutter_local_notifications
+  // notificationsPlugin.zonedSchedule(id, title, body, scheduledDate, notificationDetails, uiLocalNotificationDateInterpretation: uiLocalNotificationDateInterpretation, androidScheduleMode: androidScheduleMode)
+  // ...
 
   Future<void> showNotification({
     int id = 0,
@@ -45,7 +50,7 @@ class Notification {
     String? body,
     String? payload,
   }) async {
-    await initializeNotificationPlugin();
+    //await initializeNotificationPlugin();
     await notificationsPlugin.show(
       id,
       title,
@@ -56,7 +61,7 @@ class Notification {
   }
 }
 
-Future<DateTime?> showDateTimePicker({
+/*Future<DateTime?> showDateTimePicker({
   required BuildContext context,
   required String initialDate,
 }) async {
@@ -94,7 +99,7 @@ Future<DateTime?> showDateTimePicker({
           selectedTime.hour,
           selectedTime.minute,
         );
-}
+}*/
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -104,6 +109,9 @@ void callbackDispatcher() {
         'category': 'All Categories',
         'active': true,
       });
+
+      Notification notificationService = Notification();
+      notificationService.initializeNotificationPlugin();
 
       for (var note in notes) {
         if (note.from == 0 && note.to == 0) continue;
@@ -133,11 +141,11 @@ void callbackDispatcher() {
                 currentPosition.longitude,
               ) <=
               jsonDecode(note.location)['radius']) {
-            await Notification().showNotification(title: note.title);
+            await notificationService.showNotification(title: note.title);
           }
         } else {
           // timed notification
-          await Notification().showNotification(title: note.title);
+          await notificationService.showNotification(title: note.title);
         }
       }
       await startBGTasks();

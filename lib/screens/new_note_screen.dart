@@ -438,6 +438,23 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   }
                   newNote.dateModified = DateTime.now().millisecondsSinceEpoch;
                   await newNote.insert();
+                  /*FlutterLocalNotificationsPlugin().zonedSchedule(
+                    DateTime.now().millisecondsSinceEpoch,
+                    newNote.title,
+                    newNote.content,
+                    TZDateTime.local(DateTime.fromMillisecondsSinceEpoch(newNote.from).year),
+                    NotificationDetails(
+                      android: AndroidNotificationDetails(
+                        'Arctic Tern Notifications',
+                        'Arctic Tern Notifications',
+                        importance: Importance.max,
+                      ),
+                    ),
+                    uiLocalNotificationDateInterpretation:
+                        UILocalNotificationDateInterpretation.absoluteTime,
+                    androidScheduleMode:
+                        AndroidScheduleMode.exactAllowWhileIdle,
+                  );*/
                   if (context.mounted) Navigator.pop(context);
                 } else {
                   if (context.mounted) {

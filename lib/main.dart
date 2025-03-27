@@ -3,6 +3,7 @@ import 'package:arctic_tern/db_objects/user_info.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+//import 'package:timezone/data/latest.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'package:arctic_tern/notifications/notification.dart';
@@ -12,7 +13,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Workmanager().initialize(callbackDispatcher);
   await startBGTasks();
-  await openDatabase(
+  //initializeTimeZones();
+  final db = await openDatabase(
     version: 1,
     join(await getDatabasesPath(), 'geoNote.db'),
     onConfigure: (db) {
@@ -48,7 +50,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool darkMode = false;
 
-@override
+  @override
   void initState() {
     getDarkMode();
     super.initState();
@@ -108,8 +110,15 @@ class _MyAppState extends State<MyApp> {
 Future<void> startBGTasks() async {
   int seconds = DateTime.now().second;
   int minutes = DateTime.now().minute;
-  int delay = 60 * (((minutes / 5).floor() + 1) * 5 - minutes) - seconds + 5;
-  for (var i = 0; i < 3; i++) {
+  String taskName = DateTime.now().millisecondsSinceEpoch.toString();
+  await Workmanager().registerOneOffTask(
+    taskName,
+    taskName,
+    initialDelay: Duration(
+        seconds:
+            60 * (((minutes / 5).floor() + 1) * 5 - minutes) - seconds + 5),
+  );
+  /*for (var i = 0; i < 3; i++) {
     await Workmanager().registerPeriodicTask(
       'notification_checker$i',
       'notification_checker$i',
@@ -120,5 +129,5 @@ Future<void> startBGTasks() async {
         seconds: delay,
       ),
     );
-  }
+  }*/
 }
