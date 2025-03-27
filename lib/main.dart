@@ -14,7 +14,7 @@ void main() async {
   await Workmanager().initialize(callbackDispatcher);
   await startBGTasks();
   //initializeTimeZones();
-  final db = await openDatabase(
+  await openDatabase(
     version: 1,
     join(await getDatabasesPath(), 'geoNote.db'),
     onConfigure: (db) {
