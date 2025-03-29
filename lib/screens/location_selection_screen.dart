@@ -94,7 +94,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                     child: CupertinoPicker(
                                       itemExtent: 40,
                                       onSelectedItemChanged: (v) {
-                                        setState(() {
+                                        setState(() { // TODO, BUG: radius is not saving correctly
                                           result['radius'] = int.parse(
                                               (meters[v].child! as Text).data!);
                                         });

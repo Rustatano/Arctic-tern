@@ -53,7 +53,7 @@ class UserInfo {
   static Future<Database> getDB() async {
     return openDatabase(
       version: 1,
-      join(await getDatabasesPath(), 'geoNote.db'),
+      join(await getDatabasesPath(), 'arcticTern.db'),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 
@@ -336,16 +337,56 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 child: Text(
                     'To: ${(newNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(newNote.to).toString().substring(0, 16)}'),
               ),
-              /*
+              // repeat
               TextButton(
                 style: ButtonStyle(
-                  foregroundColor: WidgetStatePropertyAll(AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+                  foregroundColor: WidgetStatePropertyAll(
+                      AdaptiveTheme.of(context).theme.colorScheme.onSurface),
                   alignment: Alignment.centerLeft,
                 ),
-                onPressed: () async {},
-                child: Text('Repeat every: ${newNote.repeat}'),
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    constraints: BoxConstraints.tight(
+                      Size(
+                        MediaQuery.sizeOf(context).width,
+                        MediaQuery.sizeOf(context).height * 0.33,
+                      ),
+                    ),
+                    backgroundColor:
+                        AdaptiveTheme.of(context).theme.colorScheme.surface,
+                    builder: (context) => Center(
+                      child: CupertinoPicker(
+                        itemExtent: 20.0,
+                        onSelectedItemChanged: (repeat) {
+                          setState(() { // TODO inefficient
+                            switch (repeat) {
+                              case 0:
+                                newNote.repeat = '';
+                              case 1:
+                                newNote.repeat = 'Daily';
+                              case 2:
+                                newNote.repeat = 'Weekly';
+                              case 3:
+                                newNote.repeat = 'Monthly';
+                              case 4:
+                                newNote.repeat = 'Yearly';
+                            }
+                          });
+                        },
+                        children: [
+                          const Text('None'),
+                          const Text('Daily'),
+                          const Text('Weekly'),
+                          const Text('Monthly'),
+                          const Text('Yearly'),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                child: Text('Repeat: ${newNote.repeat}'),
               ),
-              */
               // location
               TextButton(
                 style: ButtonStyle(

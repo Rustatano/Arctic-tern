@@ -9,8 +9,8 @@ class Note {
   int from;
   int to;
   String location;
-  //String repeat;
   int active;
+  String repeat;
 
   Note({
     required this.title,
@@ -20,8 +20,8 @@ class Note {
     required this.from,
     required this.to,
     required this.location,
-    //required this.repeat,
     required this.active,
+    required this.repeat,
   });
 
   static Note toDefault() {
@@ -33,8 +33,8 @@ class Note {
       from: 0,
       to: 0,
       location: '',
-      //repeat: '',
       active: 0,
+      repeat: '',
     );
   }
 
@@ -47,22 +47,22 @@ class Note {
       '_from': from,
       '_to': to,
       '_location': location,
-      //'_repeat': repeat,
-      '_active': active
+      '_active': active,
+      '_repeat': repeat,
     };
   }
 
   static Note fromMap(Map<String, dynamic> map) {
     return Note(
-      title: map['_title'] as String,
-      category: map['_category'] as String,
-      content: map['_content'] as String,
+      title: map['_title'].toString(),
+      category: map['_category'].toString(),
+      content: map['_content'].toString(),
       dateModified: int.parse(map['_dateModified'].toString()),
       from: int.parse(map['_from'].toString()),
       to: int.parse(map['_to'].toString()),
-      location: map['_location'] as String,
-      //repeat: map['_repeat'] as String,
+      location: map['_location'].toString(),
       active: int.parse(map['_active'].toString()),
+      repeat: map['_repeat'].toString(),
     );
   }
 
@@ -75,7 +75,8 @@ class Note {
     );
   }
 
-  static Future<void> remove(String title) async { // remove static?
+  static Future<void> remove(String title) async {
+    // remove static?
     final db = await getDB();
     db.delete(
       'note',
@@ -96,9 +97,8 @@ class Note {
       list = await db.query('note',
           where: '_category = ?', whereArgs: [filter['category']]);
     } else if (filter['active'] == 1) {
-      list = await db.query('note',
-          where: '_active = ?', whereArgs: [1]);
-    /*} else if (filter['from']) {
+      list = await db.query('note', where: '_active = ?', whereArgs: [1]);
+      /*} else if (filter['from']) {
       list = await db.query('note', );
     } else if (filter['to']) {
       list = await db.query('note',
@@ -112,7 +112,7 @@ class Note {
   static Future<Database> getDB() async {
     return await openDatabase(
       version: 1,
-      join(await getDatabasesPath(), 'geoNote.db'),
+      join(await getDatabasesPath(), 'arcticTern.db'),
     );
   }
 

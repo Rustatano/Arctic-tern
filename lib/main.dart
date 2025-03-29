@@ -16,14 +16,14 @@ void main() async {
   //initializeTimeZones();
   await openDatabase(
     version: 1,
-    join(await getDatabasesPath(), 'geoNote.db'),
+    join(await getDatabasesPath(), 'arcticTern.db'),
     onConfigure: (db) {
       // dont close db, it will break things
       db.execute(
         'CREATE TABLE IF NOT EXISTS category(_category TEXT PRIMARY KEY, _r INTEGER, _g INTEGER, _b INTEGER)',
       );
       db.execute(
-        'CREATE TABLE IF NOT EXISTS note(_title TEXT PRIMARY KEY, _category TEXT, _content TEXT, _dateModified TEXT, _from TEXT, _to TEXT, _location TEXT, _active INTEGER)',
+        'CREATE TABLE IF NOT EXISTS note(_title TEXT PRIMARY KEY, _category TEXT, _content TEXT, _dateModified TEXT, _from TEXT, _to TEXT, _location TEXT, _active INTEGER, _repeat INTEGER)',
       );
       db.execute(
         'CREATE TABLE IF NOT EXISTS userInfo(_darkMode INTEGER PRIMARY KEY)',
@@ -93,7 +93,7 @@ class _MyAppState extends State<MyApp> {
       ),
       initial: (darkMode) ? AdaptiveThemeMode.dark : AdaptiveThemeMode.light,
       builder: (light, dark) => MaterialApp(
-        title: 'GeoNote',
+        title: 'Arctic Tern',
         home: const HomeScreen(),
       ),
     );
@@ -108,9 +108,10 @@ class _MyAppState extends State<MyApp> {
 }
 
 Future<void> startBGTasks() async {
-  int seconds = DateTime.now().second;
-  int minutes = DateTime.now().minute;
-  String taskName = DateTime.now().millisecondsSinceEpoch.toString();
+  DateTime now = DateTime.now();
+  int seconds = now.second;
+  int minutes = now.minute;
+  String taskName = now.millisecondsSinceEpoch.toString();
   await Workmanager().registerOneOffTask(
     taskName,
     taskName,

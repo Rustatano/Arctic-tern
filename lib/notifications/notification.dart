@@ -4,6 +4,7 @@ import 'dart:convert';
 //import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'package:arctic_tern/main.dart';
@@ -107,7 +108,7 @@ void callbackDispatcher() {
     (task, inputData) async {
       List<Note> notes = await Note.getNotes({
         'category': 'All Categories',
-        'active': true,
+        'active': 1,
       });
 
       Notification notificationService = Notification();
@@ -116,10 +117,12 @@ void callbackDispatcher() {
       for (var note in notes) {
         if (note.from == 0 && note.to == 0) continue;
 
-        int from = (note.from / 1000).floor();
-        int to = (note.to / 1000).floor();
-        int now = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
-        if (!(from - 30 <= now && now < from + (to - from) + 30)) continue;
+        int from = note.from;
+        int to = note.to;
+        int now = DateTime.now().millisecondsSinceEpoch;
+        if (!(from - 30000 <= now && now < from + (to - from) + 30000)) {
+          continue;
+        }
 
         if (note.location != '') {
           // timed location notification
@@ -146,6 +149,46 @@ void callbackDispatcher() {
         } else {
           // timed notification
           await notificationService.showNotification(title: note.title);
+        }
+        if (now + 30000 > to) {
+          var newNote = note;
+          switch (note.repeat) {
+            case 'Daily':
+              newNote.from += 86400000;
+              newNote.to += 86400000;
+              break;
+            case 'Weekly':
+              newNote.from += 7 * 86400000;
+              newNote.to += 7 * 86400000;
+              break;
+            case 'Monthly':
+              newNote.from = Jiffy.parseFromDateTime(
+                      DateTime.fromMillisecondsSinceEpoch(note.from))
+                  .add(months: 1)
+                  .dateTime
+                  .millisecondsSinceEpoch;
+              newNote.to = Jiffy.parseFromDateTime(
+                      DateTime.fromMillisecondsSinceEpoch(note.to))
+                  .add(months: 1)
+                  .dateTime
+                  .millisecondsSinceEpoch;
+              break;
+            case 'Yearly':
+              newNote.from = Jiffy.parseFromDateTime(
+                      DateTime.fromMillisecondsSinceEpoch(note.from))
+                  .add(years: 1)
+                  .dateTime
+                  .millisecondsSinceEpoch;
+              newNote.to = Jiffy.parseFromDateTime(
+                      DateTime.fromMillisecondsSinceEpoch(note.to))
+                  .add(years: 1)
+                  .dateTime
+                  .millisecondsSinceEpoch;
+              break;
+            default:
+              newNote.active = 0;
+          }
+          await note.update(newNote);
         }
       }
       await startBGTasks();

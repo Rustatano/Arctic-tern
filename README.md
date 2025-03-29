@@ -1,5 +1,4 @@
-# ArcticTern (GeoNote)
-- GeoNote is reduced version of ArcticTern (same app but with weather function)
+# ArcticTern
 - An Android application for note/notification management
 - Locally saved to SQL database
 - For now network is needed to show map

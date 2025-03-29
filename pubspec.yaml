@@ -48,6 +48,7 @@ dependencies:
   flutter_cupertino_datetime_picker: ^3.0.0
   adaptive_theme: ^3.7.0
   timezone: ^0.10.0
+  jiffy: ^6.4.2
 
 #flutter_launcher_icons:
 #  android: "launcher_icon"

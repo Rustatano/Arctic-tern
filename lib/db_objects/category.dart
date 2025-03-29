@@ -71,7 +71,7 @@ class DBCategory {
   static Future<Database> getDB() async {
     final db = await openDatabase(
       version: 1,
-      join(await getDatabasesPath(), 'geoNote.db'),
+      join(await getDatabasesPath(), 'arcticTern.db'),
     );
     return db;
   }
