@@ -86,8 +86,8 @@ class Note {
   }
 
   Future<void> update(Note newNote) async {
-    remove(title);
-    newNote.insert();
+    await remove(title);
+    await newNote.insert();
   }
 
   static Future<List<Note>> getNotes(Map<String, dynamic> filter) async {

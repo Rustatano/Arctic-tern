@@ -475,7 +475,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                       newNote.location == '') {
                     newNote.active = 0;
                   } else {
-                    newNote.active = 0;
+                    newNote.active = 1;
                   }
                   newNote.dateModified = DateTime.now().millisecondsSinceEpoch;
                   await newNote.insert();

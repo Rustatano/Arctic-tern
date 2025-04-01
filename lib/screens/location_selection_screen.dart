@@ -94,7 +94,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                     child: CupertinoPicker(
                                       itemExtent: 40,
                                       onSelectedItemChanged: (v) {
-                                        setState(() { // TODO, BUG: radius is not saving correctly
+                                        setState(() {
                                           result['radius'] = int.parse(
                                               (meters[v].child! as Text).data!);
                                         });
@@ -266,7 +266,10 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                                               'latitude'];
                                                       result['long'] =
                                                           coordinates[
-                                                              'longitide'];
+                                                              'longitude'];
+                                                      result['radius'] =
+                                                          savedLocations[index]
+                                                              .radius;
                                                     });
                                                     Navigator.pop(context);
                                                     Navigator.pop(

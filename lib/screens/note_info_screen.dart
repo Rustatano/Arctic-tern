@@ -48,7 +48,11 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     ),
                   ),
                   Text(
-                    widget.note.from == 0 ? '' : DateTime.fromMillisecondsSinceEpoch(widget.note.from).toString().substring(0, 16),
+                    widget.note.from == 0
+                        ? ''
+                        : DateTime.fromMillisecondsSinceEpoch(widget.note.from)
+                            .toString()
+                            .substring(0, 16),
                     style: TextStyle(
                       color:
                           AdaptiveTheme.of(context).theme.colorScheme.onSurface,
@@ -82,7 +86,11 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                     ),
                   ),
                   Text(
-                    widget.note.to == 0 ? '' : DateTime.fromMillisecondsSinceEpoch(widget.note.to).toString().substring(0, 16),
+                    widget.note.to == 0
+                        ? ''
+                        : DateTime.fromMillisecondsSinceEpoch(widget.note.to)
+                            .toString()
+                            .substring(0, 16),
                     style: TextStyle(
                       color:
                           AdaptiveTheme.of(context).theme.colorScheme.onSurface,
@@ -126,27 +134,50 @@ class _NoteInfoScreenState extends State<NoteInfoScreen> {
                 ],
               ),
             ),
-            /*
             Padding(
               padding: const EdgeInsets.only(bottom: halfPadding),
               child: Row(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: halfPadding),
-                    child: Icon(Icons.refresh),
+                    child: Icon(
+                      Icons.refresh,
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
                   ),
-                  Text(widget.note.repeat),
+                  Padding(
+                    padding: EdgeInsets.only(right: halfPadding),
+                    child: Text(
+                      'Repeat: ',
+                      style: TextStyle(
+                        color: AdaptiveTheme.of(context)
+                            .theme
+                            .colorScheme
+                            .onSurface,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    widget.note.repeat,
+                    style: TextStyle(
+                      color:
+                          AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                    ),
+                  ),
                 ],
               ),
             ),
-            */
             Divider(
                 color: AdaptiveTheme.of(context).theme.colorScheme.onSurface),
             Expanded(
               child: ListView(
                 children: [
                   Text(
-                    DateTime.fromMillisecondsSinceEpoch(widget.note.dateModified).toString().substring(0, 16),
+                    DateTime.fromMillisecondsSinceEpoch(
+                            widget.note.dateModified)
+                        .toString()
+                        .substring(0, 16),
                     textAlign: TextAlign.right,
                     style: TextStyle(
                       color: AdaptiveTheme.of(context)

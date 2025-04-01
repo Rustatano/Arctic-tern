@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 
@@ -351,16 +352,55 @@ class _EditScreenState extends State<EditScreen> {
                 child: Text(
                     'To: ${(editedNote.to == 0) ? '' : DateTime.fromMillisecondsSinceEpoch(editedNote.to).toString().substring(0, 16)}'),
               ),
-              /*
               TextButton(
                 style: ButtonStyle(
-                  foregroundColor: WidgetStatePropertyAll(AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+                  foregroundColor: WidgetStatePropertyAll(
+                      AdaptiveTheme.of(context).theme.colorScheme.onSurface),
                   alignment: Alignment.centerLeft,
                 ),
-                onPressed: () async {},
-                child: Text('Repeat every: ${editedNote.repeat}'),
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    constraints: BoxConstraints.tight(
+                      Size(
+                        MediaQuery.sizeOf(context).width,
+                        MediaQuery.sizeOf(context).height * 0.33,
+                      ),
+                    ),
+                    backgroundColor:
+                        AdaptiveTheme.of(context).theme.colorScheme.surface,
+                    builder: (context) => Center(
+                      child: CupertinoPicker(
+                        itemExtent: 20.0,
+                        onSelectedItemChanged: (repeat) {
+                          setState(() { // TODO inefficient
+                            switch (repeat) {
+                              case 0:
+                                editedNote.repeat = '';
+                              case 1:
+                                editedNote.repeat = 'Daily';
+                              case 2:
+                                editedNote.repeat = 'Weekly';
+                              case 3:
+                                editedNote.repeat = 'Monthly';
+                              case 4:
+                                editedNote.repeat = 'Yearly';
+                            }
+                          });
+                        },
+                        children: [
+                          const Text('None'),
+                          const Text('Daily'),
+                          const Text('Weekly'),
+                          const Text('Monthly'),
+                          const Text('Yearly'),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                child: Text('Repeat: ${editedNote.repeat}'),
               ),
-              */
               // location
               TextButton(
                 style: ButtonStyle(
