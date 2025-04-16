@@ -210,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     getNotesFilter['searchQuery'] = search;
                   });
                   await getNotes(
-                      getNotesFilter); // TODO: inefficient, create method for filtering withoutgetting notes from DB
+                      getNotesFilter);
                 },
                 decoration: InputDecoration(
                   fillColor:

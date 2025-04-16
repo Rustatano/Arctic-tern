@@ -373,7 +373,7 @@ class _EditScreenState extends State<EditScreen> {
                       child: CupertinoPicker(
                         itemExtent: 20.0,
                         onSelectedItemChanged: (repeat) {
-                          setState(() { // TODO inefficient
+                          setState(() {
                             switch (repeat) {
                               case 0:
                                 editedNote.repeat = '';
