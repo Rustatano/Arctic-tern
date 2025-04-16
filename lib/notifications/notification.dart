@@ -135,7 +135,9 @@ void callbackDispatcher() {
               forceAndroidLocationManager: true,
             );
           } catch (e) {
-            currentPosition = (await Geolocator.getLastKnownPosition())!;
+            currentPosition = (await Geolocator.getLastKnownPosition(
+              forceAndroidLocationManager: true,
+            ))!;
           }
           if (Geolocator.distanceBetween(
                 jsonDecode(note.location)['lat'] as double,

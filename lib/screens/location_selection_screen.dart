@@ -275,12 +275,21 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                                     Navigator.pop(
                                                         context, result);
                                                   },
-                                                  onLongPress: () {
-                                                    SavedLocation
+                                                  onLongPress: () async {
+                                                    await SavedLocation
                                                         .removeSavedLocation(
                                                             savedLocations[
                                                                     index]
                                                                 .name);
+                                                    var s = await SavedLocation
+                                                        .getSavedLocation();
+                                                    setState(() {
+                                                      savedLocations = s;
+                                                    });
+                                                    if (context.mounted) {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    }
                                                   },
                                                   child: Padding(
                                                     padding:
