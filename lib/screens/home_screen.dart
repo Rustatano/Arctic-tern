@@ -477,7 +477,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (BuildContext context, int index) {
                   var currentNote = notes[index];
                   return GestureDetector(
-                    // animation would be nice here
                     onTap: () async {
                       await Navigator.push(
                         context,
