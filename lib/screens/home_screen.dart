@@ -169,14 +169,13 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: FloatingActionButton(
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color: AdaptiveTheme.of(context).theme.colorScheme.primary,
-              width: 1
-            ),
+                color: AdaptiveTheme.of(context).theme.colorScheme.primary,
+                width: 1),
             borderRadius: BorderRadius.circular(15),
           ),
-          backgroundColor: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
-          foregroundColor:
-              AdaptiveTheme.of(context).theme.colorScheme.primary,
+          backgroundColor:
+              AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+          foregroundColor: AdaptiveTheme.of(context).theme.colorScheme.primary,
           onPressed: () async {
             await Navigator.push(
               // await needed for proper notes refresh
@@ -209,21 +208,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() {
                     getNotesFilter['searchQuery'] = search;
                   });
-                  await getNotes(
-                      getNotesFilter);
+                  await getNotes(getNotesFilter);
                 },
                 decoration: InputDecoration(
                   fillColor:
                       AdaptiveTheme.of(context).theme.colorScheme.surface,
                   filled: true,
-                  
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(
                       Radius.circular(radius),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AdaptiveTheme.of(context).theme.colorScheme.onSurface),
+                    borderSide: BorderSide(
+                        color: AdaptiveTheme.of(context)
+                            .theme
+                            .colorScheme
+                            .onSurface),
                     borderRadius: BorderRadius.all(
                       Radius.circular(radius),
                     ),
@@ -239,7 +240,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                   ),
                 ),
-                cursorColor: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
+                cursorColor:
+                    AdaptiveTheme.of(context).theme.colorScheme.onSurface,
               ),
             ),
             Padding(
@@ -679,6 +681,24 @@ class _HomeScreenState extends State<HomeScreen> {
               await getNotes(getNotesFilter);
             },
           ),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                showDialog(
+                  context: context,
+                  builder: (context) => const AlertDialog(
+                    title: Text('How to use this app'),
+                    content: Text(
+                        'In the bottom rigth corner of the screen is a plus button (+). This opens new screen where you can select starting of the interval of time notification (from) and ending of the interval (to).Then you can select location notification (Location).You can also choose a category or create one (Category) and frequency of note repetition (Repeat)\n\nOn "Select location" screen tap on a spot on the map and a dialog window will pop up. Follow the instructions in this dialog.'),
+                  ),
+                );
+              },
+              icon: Icon(
+                Icons.help,
+                color: AdaptiveTheme.of(context).theme.colorScheme.onPrimary,
+              ),
+            )
+          ],
         ),
       ),
     );
