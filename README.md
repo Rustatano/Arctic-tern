@@ -8,10 +8,10 @@
 - Note with time notification
 - Note with location notification
 - Note with tima and location notification
+- Note with periodic notifications
 
 # Working on
 - UI improvement
-- Note preiodic repetition (now it's just one time notification)
 - Offline maps
 - iOS support
 - Weather function
